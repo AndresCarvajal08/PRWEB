@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoviCali — Iniciar Sesión</title>
+  <meta name="description" content="Accede a MoviCali, la plataforma de consulta de transporte público tradicional de Santiago de Cali.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+  <!-- Fondo -->
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <div class="page-wrap">
+
+    <!-- ── PANEL IZQUIERDO ── -->
+    <div class="panel-hero">
+      <div class="hero-particles">
+        <div class="particle p1"></div><div class="particle p2"></div>
+        <div class="particle p3"></div><div class="particle p4"></div>
+        <div class="particle p5"></div>
+      </div>
+      <div class="hero-map"></div>
+
+      <div class="hero-brand">
+        <div class="hero-logo">🚌</div>
+        <div>
+          <div class="hero-name">Movi<span>Cali</span></div>
+          <div class="hero-tagline">Transporte Público Tradicional</div>
+        </div>
+      </div>
+
+      <div class="hero-content">
+        <h1 class="hero-title">Movilidad<br>inteligente para<br><em>Santiago de Cali</em></h1>
+        <p class="hero-desc">
+          Plataforma digital para consultar rutas de buses y gualas del
+          transporte público tradicional. Información en tiempo real,
+          sin complicaciones.
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-val">120+</div>
+            <div class="hero-stat-lbl">Rutas activas</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">8</div>
+            <div class="hero-stat-lbl">Empresas</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">2.4M</div>
+            <div class="hero-stat-lbl">Ciudadanos</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-footer">
+        <div class="hero-footer-icon">🏛️</div>
+        <div class="hero-footer-text">
+          <strong>Secretaría de Movilidad de Cali</strong><br>
+          Proyecto de grado — Ingeniería de Sistemas
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PANEL FORMULARIO ── -->
+    <div class="panel-form">
+      <div class="form-top">
+        <div class="form-greeting">¡Bienvenido de nuevo!</div>
+        <h2 class="form-title">Iniciar sesión</h2>
+        <p class="form-sub">Selecciona tu rol y accede a tu panel.</p>
+      </div>
+
+      <!-- Selector de rol -->
+      <div class="role-selector" id="roleSelector">
+        <button class="role-btn active" id="role-pasajero" onclick="selectRole('pasajero', this)" type="button">
+          <div class="role-check">✓</div>
+          <span class="role-icon">🧍</span>
+          <span class="role-label">Pasajero</span>
+        </button>
+        <button class="role-btn" id="role-conductor" onclick="selectRole('conductor', this)" type="button">
+          <div class="role-check">✓</div>
+          <span class="role-icon">🚌</span>
+          <span class="role-label">Conductor</span>
+        </button>
+        <button class="role-btn" id="role-administrador" onclick="selectRole('administrador', this)" type="button">
+          <div class="role-check">✓</div>
+          <span class="role-icon">⚙️</span>
+          <span class="role-label">Admin</span>
+        </button>
+      </div>
+
+      <!-- Credenciales demo -->
+      <div class="creds-hint show" id="credsHint">
+        <strong>🔑 Credenciales de demostración:</strong>
+        <div class="creds-row" id="credsContent">
+          📧 lauraruiz@gmail.com<br>
+          🔒 Pasajero1*
+        </div>
+      </div>
+
+      <!-- Alerta de error -->
+      <div class="alert-error" id="alertError">
+        <span>⚠️</span>
+        <span id="alertMsg">Correo o contraseña incorrectos.</span>
+      </div>
+
+      <!-- Formulario -->
+      <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+
+        <div class="field" id="fieldEmail">
+          <label for="inputEmail">Correo electrónico</label>
+          <div class="input-wrap">
+            <span class="icon-left">📧</span>
+            <input type="email" id="inputEmail" placeholder="tu@correo.com" autocomplete="email" required>
+          </div>
+          <div class="field-error" id="errEmail">Ingresa un correo válido.</div>
+        </div>
+
+        <div class="field" id="fieldPass">
+          <label for="inputPass">Contraseña</label>
+          <div class="input-wrap">
+            <span class="icon-left">🔒</span>
+            <input type="password" id="inputPass" placeholder="Tu contraseña" class="has-right" autocomplete="current-password" required>
+            <span class="icon-right" id="togglePass" onclick="togglePassword()" title="Mostrar/ocultar">👁️</span>
+          </div>
+          <div class="field-error" id="errPass">La contraseña es requerida.</div>
+        </div>
+
+        <div class="form-options">
+          <label class="remember-wrap">
+            <input type="checkbox" id="rememberMe">
+            <span>Recordarme</span>
+          </label>
+          <span class="forgot-link" onclick="showForgot()">¿Olvidaste tu contraseña?</span>
+        </div>
+
+        <button type="submit" class="btn-login" id="btnLogin">
+          <div class="spinner"></div>
+          <span class="btn-text">Ingresar al sistema →</span>
+        </button>
+
+      </form>
+
+      <div class="divider">Acceso rápido de demostración</div>
+
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="quickLogin('pasajero')" type="button">
+          <span class="qb-icon">🧍</span>Pasajero
+        </button>
+        <button class="quick-btn" onclick="quickLogin('conductor')" type="button">
+          <span class="qb-icon">🚌</span>Conductor
+        </button>
+        <button class="quick-btn" onclick="quickLogin('administrador')" type="button">
+          <span class="qb-icon">⚙️</span>Admin
+        </button>
+      </div>
+
+      <div class="register-link">
+        ¿No tienes cuenta?
+        <a href="pages/registro-pasajero.html" id="registerLink">Regístrate gratis</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase & Auth -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // ── ESTADO ──
+    let currentRole = 'pasajero';
+    const DEMO_CREDS = {
+      pasajero:      { email: 'lauraruiz@gmail.com',        pass: 'Pasajero1*',   hint: '📧 lauraruiz@gmail.com<br>🔒 Pasajero1*' },
+      conductor:     { email: 'jcaicedo@laermita.com.co',   pass: 'Conductor1*',  hint: '📧 jcaicedo@laermita.com.co<br>🔒 Conductor1*' },
+      administrador: { email: 'admin@movicali.gov.co',      pass: 'Admin2025*',   hint: '📧 admin@movicali.gov.co<br>🔒 Admin2025*' }
+    };
+
+    // Verificar si ya hay sesión
+    (function() {
+      const s = sessionStorage.getItem('movicali_sesion');
+      if (s) {
+        const sesion = JSON.parse(s);
+        if (sesion.rol) redirigirPorRol(sesion.rol);
+      }
+    })();
+
+    // ── SELECCIÓN DE ROL ──
+    function selectRole(rol, btn) {
+      document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentRole = rol;
+      document.getElementById('credsContent').innerHTML = DEMO_CREDS[rol].hint;
+      document.getElementById('credsHint').classList.add('show');
+      // Actualizar link de registro
+      const regLink = document.getElementById('registerLink');
+      if (rol === 'pasajero') {
+        regLink.href = 'pages/registro-pasajero.html';
+        regLink.textContent = 'Regístrate gratis';
+      } else if (rol === 'conductor') {
+        regLink.href = 'pages/registro-conductor.html';
+        regLink.textContent = 'Registro de conductor';
+      } else {
+        regLink.href = '#';
+        regLink.textContent = 'Contacta al administrador';
+      }
+      clearErrors();
+    }
+
+    // ── TOGGLE CONTRASEÑA ──
+    function togglePassword() {
+      const inp = document.getElementById('inputPass');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    // ── LOGIN ──
+    function handleLogin(e) {
+      e.preventDefault();
+      clearErrors();
+
+      const email = document.getElementById('inputEmail').value.trim();
+      const pass  = document.getElementById('inputPass').value;
+      let valid = true;
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setFieldError('fieldEmail', 'errEmail'); valid = false;
+      }
+      if (!pass) {
+        setFieldError('fieldPass', 'errPass'); valid = false;
+      }
+      if (!valid) return;
+
+      // Loading
+      const btn = document.getElementById('btnLogin');
+      btn.classList.add('loading');
+
+      setTimeout(async () => {
+        const resultado = await loginUsuario(email, pass);
+        btn.classList.remove('loading');
+
+        if (!resultado.ok) {
+          showError(resultado.error);
+          return;
+        }
+
+        // Verificar que el rol coincida con el seleccionado
+        if (resultado.usuario.rol !== currentRole) {
+          showError(`Este correo pertenece al rol "${resultado.usuario.rol}". Selecciona el rol correcto.`);
+          return;
+        }
+
+        redirigirPorRol(resultado.usuario.rol);
+      }, 900);
+    }
+
+    // ── ACCESO RÁPIDO ──
+    function quickLogin(rol) {
+      selectRole(rol, document.getElementById('role-' + rol));
+      const creds = DEMO_CREDS[rol];
+      document.getElementById('inputEmail').value = creds.email;
+      document.getElementById('inputPass').value  = creds.pass;
+      // Auto-login
+      const btn = document.getElementById('btnLogin');
+      btn.classList.add('loading');
+      setTimeout(async () => {
+        btn.classList.remove('loading');
+        const resultado = await loginUsuario(creds.email, creds.pass);
+        if (resultado.ok) redirigirPorRol(resultado.usuario.rol);
+        else showError(resultado.error);
+      }, 700);
+    }
+
+    // ── OLVIDÓ CONTRASEÑA ──
+    function showForgot() {
+      alert('📬 En la versión de producción, recibirías un correo para restablecer tu contraseña.\n\nPor ahora usa las credenciales de demostración.');
+    }
+
+    // ── HELPERS ──
+    function setFieldError(fieldId, errId) {
+      document.getElementById(fieldId).classList.add('error');
+    }
+    function clearErrors() {
+      document.querySelectorAll('.field').forEach(f => f.classList.remove('error'));
+      document.getElementById('alertError').classList.remove('show');
+    }
+    function showError(msg) {
+      const el = document.getElementById('alertError');
+      document.getElementById('alertMsg').textContent = msg;
+      el.classList.add('show');
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador — Transporte Cali</title>
+    <link rel="stylesheet" href="../css/panel-admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <!-- TOP NAV -->
+        <nav class="topnav">
+            <a class="nav-brand" href="#">
+                <div class="nav-logo">⚙️</div>
+                <div class="nav-brand-text">Movi<span>Cali</span></div>
+            </a>
+            <span class="nav-role-badge">⚙️ Administrador</span>
+            <div class="nav-spacer"></div>
+            <div class="nav-search">
+                <span>🔍</span>
+                <input placeholder="Buscar rutas, usuarios, reportes…">
+            </div>
+            <div class="nav-actions">
+                <button class="nav-btn" onclick="showToast('7 reportes pendientes de revisión')">
+                    🔔 <span class="badge">7</span>
+                </button>
+                <div class="user-info-bar">
+                    <span class="user-name-nav" id="navUserName">Admin</span>
+                    <div class="nav-avatar" id="navAvatar">AS</div>
+                </div>
+                <button class="logout-btn" onclick="logoutUsuario()">🚪 Salir</button>
+            </div>
+        </nav>
+
+        <div class="main-wrapper">
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-label">Principal</div>
+                    <div class="nav-item active" id="nav-dashboard" onclick="navigate('dashboard')">
+                        <span class="nav-icon">📊</span><span>Dashboard</span>
+                    </div>
+                    <div class="nav-item" id="nav-reportesPend" onclick="navigate('reportesPend')">
+                        <span class="nav-icon">📋</span><span>Reportes Pendientes</span>
+                        <span class="nav-chip">7</span>
+                    </div>
+                    <div class="nav-item" id="nav-alertas" onclick="navigate('alertas')">
+                        <span class="nav-icon">🚨</span><span>Alertas Activas</span>
+                        <span class="nav-chip">5</span>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-label">Gestión</div>
+                    <div class="nav-item" id="nav-rutas" onclick="navigate('rutas')">
+                        <span class="nav-icon">🛤️</span><span>Gestión de Rutas</span>
+                    </div>
+                    <div class="nav-item" id="nav-usuarios" onclick="navigate('usuarios')">
+                        <span class="nav-icon">👥</span><span>Gestión de Usuarios</span>
+                    </div>
+                    <div class="nav-item" id="nav-empresas" onclick="navigate('empresas')">
+                        <span class="nav-icon">🏢</span><span>Empresas</span>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-label">Sistema</div>
+                    <div class="nav-item" id="nav-config" onclick="navigate('config')">
+                        <span class="nav-icon">⚙️</span><span>Configuración</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CONTENT -->
+            <main class="content-area" id="contentArea">
+
+                <!-- ====== DASHBOARD ====== -->
+                <div class="view active" id="view-dashboard">
+                    <div class="page-header">
+                        <h1>⚙️ Panel Administrativo</h1>
+                        <p>Gestión del sistema de transporte público tradicional de Cali</p>
+                    </div>
+
+                    <div class="admin-header">
+                        <div class="admin-kpi">
+                            <div class="kpi">
+                                <div class="kpi-value">18</div>
+                                <div class="kpi-label">Rutas activas</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value">142</div>
+                                <div class="kpi-label">Vehículos en servicio</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value">2,841</div>
+                                <div class="kpi-label">Usuarios activos hoy</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value">7</div>
+                                <div class="kpi-label">Reportes pendientes</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value">5</div>
+                                <div class="kpi-label">Alertas activas</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-4 mb-4">
+                        <div class="stat-card">
+                            <div class="icon" style="background:#e6f7f1;">🛤️</div>
+                            <div class="value">18</div>
+                            <div class="label">Rutas operando</div>
+                            <div class="trend up">↑ 2 sin novedad</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#eff6ff;">👥</div>
+                            <div class="value">2,841</div>
+                            <div class="label">Usuarios activos</div>
+                            <div class="trend up">↑ +23 hoy</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#fef3c7;">📋</div>
+                            <div class="value">7</div>
+                            <div class="label">Reportes pendientes</div>
+                            <div class="trend down">↓ 3 urgentes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#f5f3ff;">🏢</div>
+                            <div class="value">9</div>
+                            <div class="label">Empresas activas</div>
+                            <div class="trend up">↑ Todas operando</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-title">📋 Reportes pendientes de validación <span class="nav-chip"
+                                    style="position:static;margin-left:4px;">7</span></div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Conductor</th>
+                                            <th>Tipo</th>
+                                            <th>Ruta</th>
+                                            <th>Severidad</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Carlos R.</td>
+                                            <td>🚧 Bloqueo</td>
+                                            <td>G-07</td>
+                                            <td><span class="tag tag-amber">🟡 Media</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn btn-secondary btn-sm"
+                                                        onclick="validar(this)">✅</button><button
+                                                        class="btn btn-danger btn-sm"
+                                                        onclick="rechazar(this)">❌</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Luis M.</td>
+                                            <td>🔧 Falla</td>
+                                            <td>B-22A</td>
+                                            <td><span class="tag tag-red">🔴 Alta</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn btn-secondary btn-sm"
+                                                        onclick="validar(this)">✅</button><button
+                                                        class="btn btn-danger btn-sm"
+                                                        onclick="rechazar(this)">❌</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Ana P.</td>
+                                            <td>🚨 Seguridad</td>
+                                            <td>G-18</td>
+                                            <td><span class="tag tag-red">🔴 Urgente</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn btn-secondary btn-sm"
+                                                        onclick="validar(this)">✅</button><button
+                                                        class="btn btn-danger btn-sm"
+                                                        onclick="rechazar(this)">❌</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pedro V.</td>
+                                            <td>🚦 Congestión</td>
+                                            <td>B-05</td>
+                                            <td><span class="tag tag-amber">🟡 Media</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn btn-secondary btn-sm"
+                                                        onclick="validar(this)">✅</button><button
+                                                        class="btn btn-danger btn-sm"
+                                                        onclick="rechazar(this)">❌</button></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">🗺️ Estado rutas en tiempo real</div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Ruta</th>
+                                            <th>Empresa</th>
+                                            <th>Estado</th>
+                                            <th>Vehículos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>G-07</strong></td>
+                                            <td>Coopcencar</td>
+                                            <td><span class="tag tag-amber">🟡 Demorada</span></td>
+                                            <td>8</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>B-22A</strong></td>
+                                            <td>Transurbano</td>
+                                            <td><span class="tag tag-red">🔴 Congestionada</span></td>
+                                            <td>5</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>G-12</strong></td>
+                                            <td>Coopcencar</td>
+                                            <td><span class="tag tag-green">🟢 Normal</span></td>
+                                            <td>6</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>B-14</strong></td>
+                                            <td>Unitransco</td>
+                                            <td><span class="tag tag-green">🟢 Normal</span></td>
+                                            <td>10</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>B-05</strong></td>
+                                            <td>Transurbano</td>
+                                            <td><span class="tag tag-red">🔴 Desviada</span></td>
+                                            <td>4</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>G-18</strong></td>
+                                            <td>Cootranscali</td>
+                                            <td><span class="tag tag-amber">🟡 Precaución</span></td>
+                                            <td>7</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== REPORTES PENDIENTES ====== -->
+                <div class="view" id="view-reportesPend">
+                    <div class="page-header">
+                        <h1>📋 Reportes Pendientes</h1>
+                        <p>Validación de novedades enviadas por conductores</p>
+                    </div>
+                    <div class="card">
+                        <div
+                            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                            <div class="tabs" style="margin-bottom:0;">
+                                <button class="tab-btn active" onclick="switchTab(this,'rtab-todos')">Todos (7)</button>
+                                <button class="tab-btn" onclick="switchTab(this,'rtab-urgentes')">Urgentes (3)</button>
+                                <button class="tab-btn" onclick="switchTab(this,'rtab-validados')">Validados</button>
+                            </div>
+                            <button class="btn btn-primary btn-sm"
+                                onclick="showToast('✅ Todos los reportes validados')">Validar todos</button>
+                        </div>
+                        <div id="rtab-todos" class="tab-content active">
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Conductor</th>
+                                            <th>Tipo</th>
+                                            <th>Ruta</th>
+                                            <th>Ubicación</th>
+                                            <th>Descripción</th>
+                                            <th>Severidad</th>
+                                            <th>Hora</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Carlos R.</td>
+                                            <td>🚧 Bloqueo</td>
+                                            <td>G-07</td>
+                                            <td>Av.6N Cll34</td>
+                                            <td>Semáforo dañado</td>
+                                            <td><span class="tag tag-amber">🟡 Media</span></td>
+                                            <td class="text-xs text-gray">6:30 AM</td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn btn-secondary btn-sm" onclick="validar(this)">✅
+                                                        Validar</button><button class="btn btn-danger btn-sm"
+                                                        onclick="rechazar(this)">❌</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Luis M.</td>
+                                            <td>🔧 Falla</td>
+                                            <td>B-22A</td>
+                                            <td>Cra 1 Cll 5</td>
+                                            <td>Falla en frenos</td>
+                                            <td><span class="tag tag-red">🔴 Alta</span></td>
+                                            <td class="text-xs text-gray">7:15 AM</td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn btn-secondary btn-sm" onclick="validar(this)">✅
+                                                        Validar</button><button class="btn btn-danger btn-sm"
+                                                        onclick="rechazar(this)">❌</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Ana P.</td>
+                                            <td>🚨 Seguridad</td>
+                                            <td>G-18</td>
+                                            <td>Barrio Desepaz</td>
+                                            <td>Intento de atraco</td>
+                                            <td><span class="tag tag-red">🔴 Urgente</span></td>
+                                            <td class="text-xs text-gray">7:40 AM</td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn btn-secondary btn-sm" onclick="validar(this)">✅
+                                                        Validar</button><button class="btn btn-danger btn-sm"
+                                                        onclick="rechazar(this)">❌</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pedro V.</td>
+                                            <td>🚦 Congestión</td>
+                                            <td>B-05</td>
+                                            <td>Av. Roosevelt</td>
+                                            <td>Accidente leve</td>
+                                            <td><span class="tag tag-amber">🟡 Media</span></td>
+                                            <td class="text-xs text-gray">8:05 AM</td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn btn-secondary btn-sm" onclick="validar(this)">✅
+                                                        Validar</button><button class="btn btn-danger btn-sm"
+                                                        onclick="rechazar(this)">❌</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Jhon M.</td>
+                                            <td>⛈️ Clima</td>
+                                            <td>G-07</td>
+                                            <td>Cll 16 Aguablanca</td>
+                                            <td>Vía inundada</td>
+                                            <td><span class="tag tag-red">🔴 Alta</span></td>
+                                            <td class="text-xs text-gray">8:20 AM</td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn btn-secondary btn-sm" onclick="validar(this)">✅
+                                                        Validar</button><button class="btn btn-danger btn-sm"
+                                                        onclick="rechazar(this)">❌</button></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="rtab-urgentes" class="tab-content">
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Conductor</th>
+                                            <th>Tipo</th>
+                                            <th>Ruta</th>
+                                            <th>Ubicación</th>
+                                            <th>Severidad</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Ana P.</td>
+                                            <td>🚨 Seguridad</td>
+                                            <td>G-18</td>
+                                            <td>Barrio Desepaz</td>
+                                            <td><span class="tag tag-red">🔴 Urgente</span></td>
+                                            <td><button class="btn btn-secondary btn-sm" onclick="validar(this)">✅
+                                                    Validar y alertar</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Luis M.</td>
+                                            <td>🔧 Falla</td>
+                                            <td>B-22A</td>
+                                            <td>Cra 1 Cll 5</td>
+                                            <td><span class="tag tag-red">🔴 Alta</span></td>
+                                            <td><button class="btn btn-secondary btn-sm" onclick="validar(this)">✅
+                                                    Validar</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Jhon M.</td>
+                                            <td>⛈️ Clima</td>
+                                            <td>G-07</td>
+                                            <td>Cll 16 Aguablanca</td>
+                                            <td><span class="tag tag-red">🔴 Alta</span></td>
+                                            <td><button class="btn btn-secondary btn-sm" onclick="validar(this)">✅
+                                                    Validar</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="rtab-validados" class="tab-content">
+                            <div style="text-align:center;padding:40px;color:var(--gray-400);">
+                                <div style="font-size:2rem;margin-bottom:8px;">✅</div>
+                                <p>Los reportes validados aparecerán aquí como alertas para los usuarios</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== GESTIÓN DE RUTAS ====== -->
+                <div class="view" id="view-rutas">
+                    <div class="page-header-row">
+                        <div class="page-header">
+                            <h1>🛤️ Gestión de Rutas</h1>
+                            <p>Administración de rutas y paradas del transporte tradicional</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="showToast('📝 Formulario de nueva ruta abierto')">+
+                            Nueva ruta</button>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Buscar ruta</label>
+                                <input class="form-control" placeholder="Nombre, número o empresa…">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Filtrar por empresa</label>
+                                <select class="form-control">
+                                    <option>Todas las empresas</option>
+                                    <option>Coopcencar</option>
+                                    <option>Transurbano</option>
+                                    <option>Unitransco</option>
+                                    <option>Cootranscali</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ruta</th>
+                                    <th>Tipo</th>
+                                    <th>Empresa</th>
+                                    <th>Origen → Destino</th>
+                                    <th>Paradas</th>
+                                    <th>Tarifa</th>
+                                    <th>Horario</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>G-07</strong></td>
+                                    <td><span class="tag tag-purple">Guala</span></td>
+                                    <td>Coopcencar</td>
+                                    <td>Centenario → Unicentro</td>
+                                    <td>5</td>
+                                    <td>$1.800</td>
+                                    <td>5:30 – 9:30 PM</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                onclick="showToast('✏️ Editando ruta G-07')">✏️</button><button
+                                                class="btn-icon" onclick="showToast('👁️ Vista ruta G-07')">👁️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>B-22A</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>Transurbano</td>
+                                    <td>Centenario → Centro</td>
+                                    <td>8</td>
+                                    <td>$2.200</td>
+                                    <td>5:00 – 10:00 PM</td>
+                                    <td><span class="tag tag-amber">🟡 Demorada</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                onclick="showToast('✏️ Editando ruta B-22A')">✏️</button><button
+                                                class="btn-icon"
+                                                onclick="showToast('👁️ Vista ruta B-22A')">👁️</button></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>G-12</strong></td>
+                                    <td><span class="tag tag-purple">Guala</span></td>
+                                    <td>Coopcencar</td>
+                                    <td>Centenario → Univalle</td>
+                                    <td>6</td>
+                                    <td>$2.000</td>
+                                    <td>6:00 – 9:00 PM</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                onclick="showToast('✏️ Editando ruta G-12')">✏️</button><button
+                                                class="btn-icon" onclick="showToast('👁️ Vista ruta G-12')">👁️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>B-14</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>Unitransco</td>
+                                    <td>Centenario → Unicentro</td>
+                                    <td>10</td>
+                                    <td>$1.600</td>
+                                    <td>5:00 – 10:00 PM</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                onclick="showToast('✏️ Editando ruta B-14')">✏️</button><button
+                                                class="btn-icon" onclick="showToast('👁️ Vista ruta B-14')">👁️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>B-05</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>Transurbano</td>
+                                    <td>Centenario → Aguablanca</td>
+                                    <td>12</td>
+                                    <td>$2.400</td>
+                                    <td>5:00 – 9:00 PM</td>
+                                    <td><span class="tag tag-red">🔴 Desviada</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                onclick="showToast('✏️ Editando ruta B-05')">✏️</button><button
+                                                class="btn-icon" onclick="showToast('👁️ Vista ruta B-05')">👁️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>G-18</strong></td>
+                                    <td><span class="tag tag-purple">Guala</span></td>
+                                    <td>Cootranscali</td>
+                                    <td>Aguablanca → Centro</td>
+                                    <td>7</td>
+                                    <td>$1.900</td>
+                                    <td>5:30 – 8:00 PM</td>
+                                    <td><span class="tag tag-amber">🟡 Precaución</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                onclick="showToast('✏️ Editando ruta G-18')">✏️</button><button
+                                                class="btn-icon" onclick="showToast('👁️ Vista ruta G-18')">👁️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>B-03</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>Transurbano</td>
+                                    <td>Sur → Ciudad Jardín</td>
+                                    <td>9</td>
+                                    <td>$2.100</td>
+                                    <td>5:30 – 9:30 PM</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                onclick="showToast('✏️ Editando ruta B-03')">✏️</button><button
+                                                class="btn-icon" onclick="showToast('👁️ Vista ruta B-03')">👁️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ====== GESTIÓN USUARIOS ====== -->
+                <div class="view" id="view-usuarios">
+                    <div class="page-header-row">
+                        <div class="page-header">
+                            <h1>👥 Gestión de Usuarios</h1>
+                            <p>Usuarios registrados en el sistema</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="showToast('📝 Formulario de nuevo usuario')">+ Nuevo
+                            usuario</button>
+                    </div>
+                    <div class="grid-4 mb-4">
+                        <div class="stat-card">
+                            <div class="icon" style="background:#e6f7f1;">👥</div>
+                            <div class="value">2,841</div>
+                            <div class="label">Total usuarios</div>
+                            <div class="trend up">↑ +23 hoy</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#eff6ff;">👤</div>
+                            <div class="value">2,694</div>
+                            <div class="label">Pasajeros</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#fef3c7;">🚌</div>
+                            <div class="value">142</div>
+                            <div class="label">Conductores</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:var(--purple-light);">⚙️</div>
+                            <div class="value">5</div>
+                            <div class="label">Administradores</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div
+                            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap;">
+                            <div class="tabs" style="margin-bottom:0;">
+                                <button class="tab-btn active" onclick="switchTab(this,'utab-todos')">Todos</button>
+                                <button class="tab-btn" onclick="switchTab(this,'utab-pasajeros')">Pasajeros</button>
+                                <button class="tab-btn"
+                                    onclick="switchTab(this,'utab-conductores')">Conductores</button>
+                            </div>
+                            <input class="form-control" style="width:220px;" placeholder="🔍 Buscar usuario…">
+                        </div>
+                        <div id="utab-todos" class="tab-content active">
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Rol</th>
+                                            <th>Zona</th>
+                                            <th>Viajes</th>
+                                            <th>Último acceso</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="background:linear-gradient(135deg,#10b981,#047857);">MG
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">María García
+                                                        </div>
+                                                        <div class="text-xs text-gray">maria@correo.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-green">Pasajera</span></td>
+                                            <td>Centenario</td>
+                                            <td>142</td>
+                                            <td class="text-xs text-gray">Hoy 7:42 AM</td>
+                                            <td><span class="tag tag-green">🟢 Activa</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                        onclick="showToast('Editando usuario')">✏️</button><button
+                                                        class="btn-icon"
+                                                        onclick="showToast('Acceso gestionado')">🔐</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">CR
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">Carlos Rodríguez
+                                                        </div>
+                                                        <div class="text-xs text-gray">carlos@coopcencar.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-blue">Conductor</span></td>
+                                            <td>Centenario</td>
+                                            <td>—</td>
+                                            <td class="text-xs text-gray">Hoy 5:30 AM</td>
+                                            <td><span class="tag tag-green">🟢 En ruta</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                        onclick="showToast('Editando usuario')">✏️</button><button
+                                                        class="btn-icon"
+                                                        onclick="showToast('Acceso gestionado')">🔐</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">LT
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">Luisa Torres
+                                                        </div>
+                                                        <div class="text-xs text-gray">luisa@correo.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-green">Pasajera</span></td>
+                                            <td>Agua Blanca</td>
+                                            <td>89</td>
+                                            <td class="text-xs text-gray">Ayer 6:15 PM</td>
+                                            <td><span class="tag tag-green">🟢 Activa</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                        onclick="showToast('Editando usuario')">✏️</button><button
+                                                        class="btn-icon"
+                                                        onclick="showToast('Acceso gestionado')">🔐</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="background:linear-gradient(135deg,#f59e0b,#b45309);">JM
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">Jhon Mosquera
+                                                        </div>
+                                                        <div class="text-xs text-gray">jhon@conductor.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-blue">Conductor</span></td>
+                                            <td>Sur</td>
+                                            <td>—</td>
+                                            <td class="text-xs text-gray">Hoy 5:55 AM</td>
+                                            <td><span class="tag tag-amber">🟡 Pausa</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                        onclick="showToast('Editando usuario')">✏️</button><button
+                                                        class="btn-icon"
+                                                        onclick="showToast('Acceso gestionado')">🔐</button></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="background:linear-gradient(135deg,#ef4444,#b91c1c);">AP
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">Andrea Patiño
+                                                        </div>
+                                                        <div class="text-xs text-gray">andrea@correo.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-green">Pasajera</span></td>
+                                            <td>Ciudad Jardín</td>
+                                            <td>56</td>
+                                            <td class="text-xs text-gray">Hace 3 días</td>
+                                            <td><span class="tag tag-gray">⬜ Inactiva</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button class="btn-icon"
+                                                        onclick="showToast('Editando usuario')">✏️</button><button
+                                                        class="btn-icon"
+                                                        onclick="showToast('Acceso gestionado')">🔐</button></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="utab-pasajeros" class="tab-content">
+                            <div style="text-align:center;padding:40px;color:var(--gray-400);">
+                                <div style="font-size:2rem;margin-bottom:8px;">👤</div>
+                                <p>2.694 pasajeros registrados</p>
+                            </div>
+                        </div>
+                        <div id="utab-conductores" class="tab-content">
+                            <div style="text-align:center;padding:40px;color:var(--gray-400);">
+                                <div style="font-size:2rem;margin-bottom:8px;">🚌</div>
+                                <p>142 conductores activos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== EMPRESAS ====== -->
+                <div class="view" id="view-empresas">
+                    <div class="page-header-row">
+                        <div class="page-header">
+                            <h1>🏢 Empresas de Transporte</h1>
+                            <p>Empresas habilitadas para operar en Santiago de Cali</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="showToast('📝 Formulario de nueva empresa')">+ Nueva
+                            empresa</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Empresa</th>
+                                    <th>Tipo</th>
+                                    <th>Rutas activas</th>
+                                    <th>Vehículos</th>
+                                    <th>Conductores</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Coopcencar</strong></td>
+                                    <td><span class="tag tag-purple">Guala</span></td>
+                                    <td>5</td>
+                                    <td>38</td>
+                                    <td>38</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td><button class="btn-icon" onclick="showToast('Editando Coopcencar')">✏️</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Transurbano</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>4</td>
+                                    <td>42</td>
+                                    <td>42</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td><button class="btn-icon" onclick="showToast('Editando Transurbano')">✏️</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Unitransco</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>3</td>
+                                    <td>28</td>
+                                    <td>28</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td><button class="btn-icon" onclick="showToast('Editando Unitransco')">✏️</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cootranscali</strong></td>
+                                    <td><span class="tag tag-purple">Guala</span></td>
+                                    <td>3</td>
+                                    <td>21</td>
+                                    <td>21</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td><button class="btn-icon"
+                                            onclick="showToast('Editando Cootranscali')">✏️</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>La Ermita</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>2</td>
+                                    <td>18</td>
+                                    <td>18</td>
+                                    <td><span class="tag tag-amber">🟡 Revisión</span></td>
+                                    <td><button class="btn-icon" onclick="showToast('Editando La Ermita')">✏️</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Riocali</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>1</td>
+                                    <td>12</td>
+                                    <td>12</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td><button class="btn-icon" onclick="showToast('Editando Riocali')">✏️</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ====== ALERTAS ====== -->
+                <div class="view" id="view-alertas">
+                    <div class="page-header-row">
+                        <div class="page-header">
+                            <h1>🚨 Alertas Activas</h1>
+                            <p>Gestión de alertas publicadas para los usuarios</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="showToast('📝 Nueva alerta creada')">+ Crear
+                            alerta</button>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <div
+                            style="display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:var(--radius-sm);background:var(--red-light);border:1px solid #fca5a5;border-left:4px solid var(--red);">
+                            <div style="font-size:20px;">🚨</div>
+                            <div style="flex:1;">
+                                <div style="font-size:.875rem;font-weight:600;color:var(--gray-900);">Incidente de
+                                    seguridad — Barrio Desepaz</div>
+                                <div style="font-size:.8rem;color:var(--gray-600);margin-top:2px;">Evitar zona hasta
+                                    nueva comunicación. Ruta G-18 afectada.</div>
+                                <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px;">Publicada hace 5 min
+                                    · Fuente: Conductor Ana P.</div>
+                            </div>
+                            <div style="display:flex;gap:6px;flex-shrink:0;"><button class="btn btn-secondary btn-sm"
+                                    onclick="showToast('Alerta editada')">✏️ Editar</button><button
+                                    class="btn btn-danger btn-sm" onclick="showToast('Alerta desactivada')">🗑️</button>
+                            </div>
+                        </div>
+                        <div
+                            style="display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:var(--radius-sm);background:var(--amber-light);border:1px solid #fde68a;border-left:4px solid var(--amber);">
+                            <div style="font-size:20px;">⚠️</div>
+                            <div style="flex:1;">
+                                <div style="font-size:.875rem;font-weight:600;color:var(--gray-900);">Congestión en
+                                    Parque del Perro</div>
+                                <div style="font-size:.8rem;color:var(--gray-600);margin-top:2px;">Demora estimada +8
+                                    min en rutas G-07 y B-22A por Av.6N.</div>
+                                <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px;">Publicada hace 12
+                                    min · Fuente: Conductor Carlos R.</div>
+                            </div>
+                            <div style="display:flex;gap:6px;flex-shrink:0;"><button class="btn btn-secondary btn-sm"
+                                    onclick="showToast('Alerta editada')">✏️ Editar</button><button
+                                    class="btn btn-danger btn-sm" onclick="showToast('Alerta desactivada')">🗑️</button>
+                            </div>
+                        </div>
+                        <div
+                            style="display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:var(--radius-sm);background:var(--blue-light);border:1px solid #93c5fd;border-left:4px solid var(--blue);">
+                            <div style="font-size:20px;">ℹ️</div>
+                            <div style="flex:1;">
+                                <div style="font-size:.875rem;font-weight:600;color:var(--gray-900);">Desvío temporal
+                                    ruta B-05</div>
+                                <div style="font-size:.8rem;color:var(--gray-600);margin-top:2px;">Por obras en Av.
+                                    Roosevelt. Desvío activo por Cll 5 hasta las 2 PM.</div>
+                                <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px;">Publicada hace 45
+                                    min · Fuente: Administrador</div>
+                            </div>
+                            <div style="display:flex;gap:6px;flex-shrink:0;"><button class="btn btn-secondary btn-sm"
+                                    onclick="showToast('Alerta editada')">✏️ Editar</button><button
+                                    class="btn btn-danger btn-sm" onclick="showToast('Alerta desactivada')">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== CONFIGURACIÓN ====== -->
+                <div class="view" id="view-config">
+                    <div class="page-header">
+                        <h1>⚙️ Configuración del Sistema</h1>
+                        <p>Parámetros generales de la plataforma</p>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-title">🔔 Notificaciones</div>
+                            <div style="display:flex;flex-direction:column;gap:0;">
+                                <div
+                                    style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--gray-100);">
+                                    <div>
+                                        <div style="font-size:.875rem;font-weight:500;">Alertas de seguridad automáticas
+                                        </div>
+                                        <div style="font-size:.78rem;color:var(--gray-400);">Publicar alertas de
+                                            seguridad sin revisión manual</div>
+                                    </div><input type="checkbox" checked onclick="showToast('Configuración guardada')">
+                                </div>
+                                <div
+                                    style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--gray-100);">
+                                    <div>
+                                        <div style="font-size:.875rem;font-weight:500;">Notificar nuevos reportes</div>
+                                        <div style="font-size:.78rem;color:var(--gray-400);">Recibir notificación al
+                                            llegar reportes pendientes</div>
+                                    </div><input type="checkbox" checked onclick="showToast('Configuración guardada')">
+                                </div>
+                                <div
+                                    style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
+                                    <div>
+                                        <div style="font-size:.875rem;font-weight:500;">Resumen diario por correo</div>
+                                        <div style="font-size:.78rem;color:var(--gray-400);">Enviar reporte de actividad
+                                            cada día a las 11 PM</div>
+                                    </div><input type="checkbox" onclick="showToast('Configuración guardada')">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">🛤️ Parámetros de rutas</div>
+                            <div class="form-group"><label class="form-label">Radio de búsqueda de paradas
+                                    (metros)</label><input class="form-control" value="500"></div>
+                            <div class="form-group"><label class="form-label">Frecuencia máxima de actualización
+                                    (min)</label><input class="form-control" value="15"></div>
+                            <div class="form-group"><label class="form-label">Tiempo de inactividad para alerta
+                                    (min)</label><input class="form-control" value="30"></div>
+                            <button class="btn btn-primary" onclick="showToast('✅ Configuración guardada')">Guardar
+                                cambios</button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"><span id="toastMsg">Mensaje</span></div>
+
+    <script>
+        function navigate(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            const v = document.getElementById('view-' + view);
+            if (v) v.classList.add('active');
+            const n = document.getElementById('nav-' + view);
+            if (n) n.classList.add('active');
+            document.getElementById('contentArea').scrollTo(0, 0);
+        }
+        function switchTab(btn, tabId) {
+            const parent = btn.closest('.card') || btn.closest('.view');
+            parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            parent.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            const tab = document.getElementById(tabId);
+            if (tab) tab.classList.add('active');
+        }
+        function validar(btn) {
+            const row = btn.closest('tr');
+            const tag = row.querySelector('.tag');
+            if (tag) tag.outerHTML = '<span class="tag tag-green">✅ Validado</span>';
+            btn.closest('div').innerHTML = '<span class="tag tag-green">✅ Publicado</span>';
+            showToast('✅ Reporte validado y publicado como alerta');
+        }
+        function rechazar(btn) {
+            btn.closest('tr').style.opacity = '0.4';
+            showToast('❌ Reporte rechazado');
+        }
+        function showToast(msg, duration = 2800) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), duration);
+        }
+    </script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // ── GUARDIA DE AUTENTICACIÓN ──
+        (function() {
+            const sesion = requireAuth('administrador');
+            if (!sesion) return;
+            // Rellenar datos del usuario en la navbar
+            document.getElementById('navUserName').textContent = sesion.nombre.split(' ')[0];
+            document.getElementById('navAvatar').textContent = sesion.avatar || sesion.nombre.slice(0,2).toUpperCase();
+            // Actualizar título del panel
+            const header = document.querySelector('.page-header h1');
+            if (header) header.textContent = '⚙️ Panel Administrativo';
+        })();
+    </script>
+</body>
+
+</html>

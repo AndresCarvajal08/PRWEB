@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoviCali — Registro de Pasajero</title>
+  <meta name="description" content="Crea tu cuenta de pasajero en MoviCali y consulta rutas de transporte público de Cali.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/registro.css">
+</head>
+<body>
+  <div class="bg-mesh"></div>
+  <div class="bg-grid"></div>
+
+  <div class="container">
+    <!-- Top bar -->
+    <div class="topbar">
+      <a href="../login.html" class="brand">
+        <div class="brand-logo">🚌</div>
+        <span class="brand-name">Movi<em>Cali</em></span>
+      </a>
+      <a href="../login.html" class="back-link">← Volver al login</a>
+    </div>
+
+    <!-- Header -->
+    <div class="section-header">
+      <div class="section-eyebrow">🧍 Registro de Pasajero</div>
+      <h1 class="section-title">Crea tu cuenta gratuita</h1>
+      <p class="section-desc">Accede a rutas, paradas cercanas e información del transporte público de Cali.</p>
+    </div>
+
+    <!-- Stepper -->
+    <div class="stepper" id="stepper">
+      <div class="step active" id="st1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Datos personales</div>
+      </div>
+      <div class="step-line" id="line1"></div>
+      <div class="step" id="st2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Cuenta</div>
+      </div>
+      <div class="step-line" id="line2"></div>
+      <div class="step" id="st3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Confirmación</div>
+      </div>
+    </div>
+
+    <!-- Tarjeta -->
+    <div class="form-card" id="formCard">
+
+      <!-- ── PASO 1: DATOS PERSONALES ── -->
+      <div class="step-section active" id="sec1">
+        <div class="sec-title">
+          <div class="sec-icon">👤</div>
+          Información personal
+        </div>
+
+        <div class="law-box blue">
+          <span>📋</span>
+          <span><strong>Ley 1581 de 2012 — Protección de Datos Personales:</strong> Tus datos serán usados únicamente para la gestión de tu cuenta en MoviCali y no serán compartidos con terceros sin tu consentimiento.</span>
+        </div>
+
+        <div class="grid-2" style="gap:16px; margin-bottom:16px;">
+          <div class="field" id="f-nombres">
+            <label for="nombres">Nombres <span class="req">*</span></label>
+            <div class="iw">
+              <span class="xi">👤</span>
+              <input type="text" id="nombres" placeholder="Ej: Laura Valentina" autocomplete="given-name">
+            </div>
+            <div class="err">Ingresa tus nombres.</div>
+          </div>
+          <div class="field" id="f-apellidos">
+            <label for="apellidos">Apellidos <span class="req">*</span></label>
+            <div class="iw">
+              <span class="xi">👤</span>
+              <input type="text" id="apellidos" placeholder="Ej: Ruiz García" autocomplete="family-name">
+            </div>
+            <div class="err">Ingresa tus apellidos.</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="gap:16px; margin-bottom:16px;">
+          <div class="field" id="f-cedula">
+            <label for="cedula">Cédula de ciudadanía <span class="req">*</span></label>
+            <div class="iw">
+              <span class="xi">🪪</span>
+              <input type="text" id="cedula" placeholder="Ej: 1.130.682.441" inputmode="numeric">
+            </div>
+            <div class="err">Ingresa tu número de cédula.</div>
+          </div>
+          <div class="field" id="f-celular">
+            <label for="celular">Celular <span class="req">*</span></label>
+            <div class="iw">
+              <span class="xi">📱</span>
+              <input type="tel" id="celular" placeholder="+57 312 000 0000" autocomplete="tel">
+            </div>
+            <div class="err">Ingresa tu número de celular.</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="gap:16px; margin-bottom:16px;">
+          <div class="field" id="f-fecha-nac">
+            <label for="fechaNac">Fecha de nacimiento <span class="req">*</span></label>
+            <div class="iw">
+              <span class="xi">🎂</span>
+              <input type="date" id="fechaNac" max="2007-03-18" autocomplete="bday">
+            </div>
+            <div class="err">Ingresa tu fecha de nacimiento.</div>
+          </div>
+          <div class="field" id="f-barrio">
+            <label for="barrio">Barrio / Sector</label>
+            <div class="iw">
+              <span class="xi">📍</span>
+              <input type="text" id="barrio" placeholder="Ej: Ciudad Jardín" autocomplete="address-level3">
+            </div>
+          </div>
+        </div>
+
+        <div class="field" id="f-dir">
+          <label for="direccion">Dirección de residencia</label>
+          <div class="iw">
+            <span class="xi">🏠</span>
+            <input type="text" id="direccion" placeholder="Ej: Cra 5 # 10-25">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PASO 2: CUENTA ── -->
+      <div class="step-section" id="sec2">
+        <div class="sec-title">
+          <div class="sec-icon">🔐</div>
+          Credenciales de acceso
+        </div>
+
+        <div class="field col-span-2" id="f-correo" style="margin-bottom:16px;">
+          <label for="correo">Correo electrónico <span class="req">*</span></label>
+          <div class="iw">
+            <span class="xi">📧</span>
+            <input type="email" id="correo" placeholder="tu@correo.com" autocomplete="email">
+          </div>
+          <div class="err">Ingresa un correo válido.</div>
+        </div>
+
+        <div class="grid-2" style="gap:16px; margin-bottom:8px;">
+          <div class="field" id="f-pass">
+            <label for="pass">Contraseña <span class="req">*</span></label>
+            <div class="iw">
+              <span class="xi">🔒</span>
+              <input type="password" id="pass" placeholder="Mínimo 8 caracteres" class="pr" oninput="checkStrength(this.value)" autocomplete="new-password">
+              <span class="xir" onclick="toggleVis('pass', this)">👁️</span>
+            </div>
+            <div class="pass-strength" id="strengthWrap">
+              <div class="strength-bar">
+                <div class="strength-seg" id="seg1"></div>
+                <div class="strength-seg" id="seg2"></div>
+                <div class="strength-seg" id="seg3"></div>
+                <div class="strength-seg" id="seg4"></div>
+              </div>
+              <div class="strength-label" id="strengthLbl">Ingresa una contraseña</div>
+            </div>
+            <div class="err">Mínimo 8 caracteres, mayúscula, número y símbolo.</div>
+          </div>
+          <div class="field" id="f-pass2">
+            <label for="pass2">Confirmar contraseña <span class="req">*</span></label>
+            <div class="iw">
+              <span class="xi">🔒</span>
+              <input type="password" id="pass2" placeholder="Repite tu contraseña" class="pr" autocomplete="new-password">
+              <span class="xir" onclick="toggleVis('pass2', this)">👁️</span>
+            </div>
+            <div class="err">Las contraseñas no coinciden.</div>
+          </div>
+        </div>
+
+        <div class="sec-title" style="margin-top:24px;">
+          <div class="sec-icon">🚌</div>
+          Preferencias de transporte
+        </div>
+
+        <div class="field" id="f-rutas" style="margin-bottom:0;">
+          <label for="rutasFav">Rutas de interés (opcional)</label>
+          <div class="input-wrap no-icon">
+            <select id="rutasFav" multiple style="padding:10px; height:auto; min-height:90px;">
+              <option value="R101">R101 — Ciudad Córdoba ↔ Centro</option>
+              <option value="R204">R204 — Aguablanca ↔ Universidades</option>
+              <option value="R305">R305 — Siloé ↔ Terminal de Transporte</option>
+              <option value="G07">G07 — Ladera Occidental ↔ Alfonso López</option>
+              <option value="G12">G12 — El Hormiguero ↔ Centro</option>
+              <option value="R418">R418 — Villanueva ↔ San Nicolás</option>
+            </select>
+          </div>
+          <div class="hint">Mantén Ctrl presionado para seleccionar varias.</div>
+        </div>
+      </div>
+
+      <!-- ── PASO 3: CONFIRMACIÓN ── -->
+      <div class="step-section" id="sec3">
+        <div class="sec-title">
+          <div class="sec-icon">✅</div>
+          Resumen y confirmación
+        </div>
+
+        <div id="summaryBox" style="margin-bottom:24px;"></div>
+
+        <div class="terms-wrap">
+          <input type="checkbox" id="terminos">
+          <div class="terms-text">
+            He leído y acepto los <a href="#">Términos de Uso</a> y la
+            <a href="#">Política de Privacidad de MoviCali</a>, conforme a la
+            <strong>Ley 1581 de 2012</strong> (Habeas Data — Protección de Datos Personales) y
+            el <strong>Decreto 1377 de 2013</strong> de Colombia.
+          </div>
+        </div>
+        <div class="err" id="errTerminos" style="margin-top:6px;"></div>
+      </div>
+
+      <!-- Pantalla éxito -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">✅</div>
+        <h2 class="success-title">¡Cuenta creada exitosamente!</h2>
+        <p class="success-desc">Bienvenido a MoviCali. Tu cuenta de pasajero ha sido creada.<br>Ahora puedes consultar rutas y paradas de toda la ciudad.</p>
+        <a href="../index.html" class="success-btn" id="successBtn">Ir a mi panel 🚌</a>
+      </div>
+
+      <!-- Navegación -->
+      <div class="form-nav" id="formNav">
+        <button class="btn-back" id="btnBack" onclick="stepBack()" style="visibility:hidden;">← Anterior</button>
+        <button class="btn-next" id="btnNext" onclick="stepNext()">
+          <div class="spinner"></div>
+          <span class="btn-text" id="nextLabel">Siguiente →</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toastBox"></div>
+
+  <!-- Supabase y Auth -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    let currentStep = 1;
+    const TOTAL = 3;
+
+    // ── NAVEGACIÓN DE PASOS ──
+    function stepNext() {
+      if (!validateStep(currentStep)) return;
+      if (currentStep === TOTAL) { submitForm(); return; }
+
+      if (currentStep === 2) buildSummary();
+
+      goToStep(currentStep + 1);
+    }
+    function stepBack() {
+      if (currentStep > 1) goToStep(currentStep - 1);
+    }
+
+    function goToStep(n) {
+      document.getElementById('sec' + currentStep).classList.remove('active');
+      const prevSt = document.getElementById('st' + currentStep);
+      prevSt.classList.remove('active');
+      prevSt.classList.add('done');
+      prevSt.querySelector('.step-circle').textContent = '✓';
+      if (n < currentStep) { prevSt.classList.remove('done'); prevSt.querySelector('.step-circle').textContent = currentStep; }
+
+      currentStep = n;
+      document.getElementById('sec' + n).classList.add('active');
+      document.getElementById('st'  + n).classList.add('active');
+      document.getElementById('st'  + n).classList.remove('done');
+      document.getElementById('st'  + n).querySelector('.step-circle').textContent = n;
+
+      // Lines
+      for (let i = 1; i < TOTAL; i++) {
+        document.getElementById('line' + i).classList.toggle('done', i < currentStep);
+      }
+
+      // Nav
+      document.getElementById('btnBack').style.visibility = n > 1 ? 'visible' : 'hidden';
+      const nl = document.getElementById('nextLabel');
+      nl.textContent = n === TOTAL ? 'Crear cuenta ✓' : 'Siguiente →';
+    }
+
+    // ── VALIDACIONES ──
+    function validateStep(s) {
+      clearErrors();
+      if (s === 1) {
+        let ok = true;
+        if (!v('nombres'))   { err('f-nombres'); ok = false; }
+        if (!v('apellidos')) { err('f-apellidos'); ok = false; }
+        if (!v('cedula'))    { err('f-cedula'); ok = false; }
+        if (!v('celular'))   { err('f-celular'); ok = false; }
+        if (!v('fechaNac'))  { err('f-fecha-nac'); ok = false; }
+        return ok;
+      }
+      if (s === 2) {
+        let ok = true;
+        const correo = document.getElementById('correo').value.trim();
+        const pass   = document.getElementById('pass').value;
+        const pass2  = document.getElementById('pass2').value;
+        if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { err('f-correo'); ok = false; }
+        if (!isPassValid(pass)) { err('f-pass'); ok = false; }
+        if (pass !== pass2)     { err('f-pass2'); ok = false; }
+        return ok;
+      }
+      if (s === 3) {
+        if (!document.getElementById('terminos').checked) {
+          document.getElementById('errTerminos').textContent = 'Debes aceptar los términos para continuar.';
+          document.getElementById('errTerminos').style.display = 'block';
+          return false;
+        }
+      }
+      return true;
+    }
+    const v   = id => document.getElementById(id).value.trim() !== '';
+    const err = id => document.getElementById(id).classList.add('has-error');
+    function clearErrors() {
+      document.querySelectorAll('.field.has-error').forEach(f => f.classList.remove('has-error'));
+      const et = document.getElementById('errTerminos');
+      if (et) { et.style.display = 'none'; et.textContent = ''; }
+    }
+    function isPassValid(p) {
+      return p.length >= 8 && /[A-Z]/.test(p) && /[0-9]/.test(p) && /[^a-zA-Z0-9]/.test(p);
+    }
+
+    // ── FUERZA CONTRASEÑA ──
+    function checkStrength(p) {
+      let score = 0;
+      if (p.length >= 8)  score++;
+      if (/[A-Z]/.test(p)) score++;
+      if (/[0-9]/.test(p)) score++;
+      if (/[^a-zA-Z0-9]/.test(p)) score++;
+      const labels = ['','Débil 🔴','Regular 🟡','Buena 🔵','Fuerte 🟢'];
+      for (let i = 1; i <= 4; i++) {
+        const seg = document.getElementById('seg' + i);
+        seg.className = 'strength-seg' + (i <= score ? ' fill-' + score : '');
+      }
+      document.getElementById('strengthLbl').textContent = p ? labels[score] : 'Ingresa una contraseña';
+    }
+
+    // ── TOGGLE PASSWORD ──
+    function toggleVis(id, btn) {
+      const inp = document.getElementById(id);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+
+    // ── RESUMEN ──
+    function buildSummary() {
+      const d = {
+        nombre: `${g('nombres')} ${g('apellidos')}`,
+        cedula: g('cedula'), celular: g('celular'),
+        fechaNac: g('fechaNac'), barrio: g('barrio') || '—',
+        correo: g('correo')
+      };
+      document.getElementById('summaryBox').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          ${row('👤 Nombre completo', d.nombre)}
+          ${row('🪪 Cédula', d.cedula)}
+          ${row('📱 Celular', d.celular)}
+          ${row('🎂 Fecha nac.', d.fechaNac)}
+          ${row('📍 Barrio', d.barrio)}
+          ${row('📧 Correo', d.correo)}
+        </div>`;
+    }
+    const g   = id => document.getElementById(id).value.trim();
+    const row = (l, v) => `
+      <div style="background:#F8FBFE;border:1px solid var(--border);border-radius:10px;padding:12px;">
+        <div style="font-size:.72rem;font-weight:600;color:var(--text-m);margin-bottom:3px;">${l}</div>
+        <div style="font-size:.87rem;font-weight:600;color:var(--text-h);">${v}</div>
+      </div>`;
+
+    // ── ENVIAR ──
+    function submitForm() {
+      if (!validateStep(3)) return;
+      const btn = document.getElementById('btnNext');
+      btn.classList.add('loading');
+
+      const datos = {
+        nombres: g('nombres'), apellidos: g('apellidos'),
+        cedula: g('cedula'), celular: g('celular'),
+        correo: g('correo'), password: g('pass'), barrio: g('barrio')
+      };
+
+      setTimeout(async () => {
+        const resultado = await registrarPasajero(datos);
+        btn.classList.remove('loading');
+        if (!resultado.ok) {
+          toast(resultado.error, 'error'); return;
+        }
+        document.getElementById('sec3').style.display = 'none';
+        document.getElementById('formNav').style.display = 'none';
+        document.getElementById('stepper').style.display = 'none';
+        document.getElementById('successScreen').classList.add('show');
+        toast('¡Cuenta creada! Redirigiendo...', 'success');
+        setTimeout(() => { window.location.href = '../index.html'; }, 3000);
+      }, 1200);
+    }
+
+    // ── TOAST ──
+    function toast(msg, type='success') {
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.innerHTML = `<span>${type==='success'?'✅':'❌'}</span> ${msg}`;
+      document.getElementById('toastBox').appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+  </script>
+</body>
+</html>

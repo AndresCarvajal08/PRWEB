@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoviCali — Panel Pasajero</title>
+    <meta name="description" content="Consulta rutas, paradas y empresas del transporte público tradicional de Cali.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/panel-pasajero.css">
+    <!-- Leaflet.js - Mapa interactivo -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #leafletMap { width: 100%; height: 100%; border-radius: var(--radius); z-index: 1; }
+        .leaflet-container { border-radius: var(--radius); font-family: var(--font); }
+        .bus-marker-icon { font-size: 20px; line-height:1; filter: drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
+        .route-popup { font-family: var(--font); min-width: 160px; }
+        .route-popup strong { color: var(--primary); }
+    </style>
+</head>
+
+<body>
+    <!-- ============ MAIN APP ============ -->
+    <div id="mainApp" class="app-shell">
+
+        <!-- TOP NAV -->
+        <nav class="topnav">
+            <button class="btn-icon" onclick="toggleSidebar()" style="display:flex;align-items:center;">☰</button>
+            <a href="#" class="nav-brand" onclick="return false;">
+                <div class="nav-logo">🚌</div>
+                <span class="nav-brand-text">Movi<span>Cali</span></span>
+            </a>
+            <div class="nav-spacer"></div>
+            <div class="nav-search">
+                <span>🔍</span>
+                <input type="text" placeholder="Buscar rutas, paradas, zonas…" id="globalSearch"
+                    oninput="handleGlobalSearch(this.value)">
+            </div>
+            <div class="nav-actions">
+                <button class="nav-btn" onclick="toggleNotif()" title="Notificaciones">
+                    🔔
+                    <span class="badge" id="notifBadge">3</span>
+                </button>
+                <span class="nav-role-badge" id="roleLabel">🧍 Pasajero</span>
+                <span class="user-name-nav" id="navUserName" style="font-size:.82rem;font-weight:600;color:#374151;"></span>
+                <div class="nav-avatar" onclick="navigate('perfil')" title="Mi perfil" id="userAvatarNav">LR</div>
+                <button class="logout-btn" id="logoutBtn" onclick="logoutUsuario()">🚪 Salir</button>
+            </div>
+        </nav>
+
+        <!-- NOTIFICATION PANEL -->
+        <div class="notif-panel" id="notifPanel">
+            <div class="notif-header">
+                <h4>🔔 Notificaciones</h4>
+                <button class="btn btn-secondary btn-sm" onclick="markAllRead()">Marcar leídas</button>
+            </div>
+            <div class="notif-item unread" onclick="toggleNotif()">
+                <div class="notif-icon">⚠️</div>
+                <div class="notif-body">
+                    <div class="notif-title">Alerta de congestión — Ruta 22A</div>
+                    <div class="notif-desc">La Av. 6N presenta tráfico pesado. Tiempo adicional estimado: 18 min.</div>
+                    <div class="notif-time">Hace 5 minutos</div>
+                </div>
+            </div>
+            <div class="notif-item unread" onclick="toggleNotif()">
+                <div class="notif-icon">🚌</div>
+                <div class="notif-body">
+                    <div class="notif-title">Tu guala habitual — Ruta G-07 llega en 3 min</div>
+                    <div class="notif-desc">Parada: Av. 6N con Calle 34. Tu horario habitual.</div>
+                    <div class="notif-time">Hace 8 minutos</div>
+                </div>
+            </div>
+            <div class="notif-item unread" onclick="toggleNotif()">
+                <div class="notif-icon">🔐</div>
+                <div class="notif-body">
+                    <div class="notif-title">Zona de precaución nocturna</div>
+                    <div class="notif-desc">Para viajes después de las 9pm, se recomienda Ruta B-14 por Mayor Seguridad.
+                    </div>
+                    <div class="notif-time">Hace 22 minutos</div>
+                </div>
+            </div>
+            <div class="notif-item">
+                <div class="notif-icon">✅</div>
+                <div class="notif-body">
+                    <div class="notif-title">Ruta B-05 restablecida</div>
+                    <div class="notif-desc">El bloqueo en la Calle 5 fue despejado. Servicio normal.</div>
+                    <div class="notif-time">Hace 1 hora</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN WRAPPER -->
+        <div class="main-wrapper">
+
+            <!-- SIDEBAR -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-toggle">
+                    <button class="toggle-btn" onclick="toggleSidebar()">◀</button>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-section-label">Principal</div>
+                    <div class="nav-item active" id="nav-inicio" onclick="navigate('inicio')">
+                        <span class="nav-icon">🏠</span><span class="nav-label">Inicio</span>
+                    </div>
+                    <div class="nav-item" id="nav-mapa" onclick="navigate('mapa')">
+                        <span class="nav-icon">🗺️</span><span class="nav-label">Mapa & Rutas</span>
+                    </div>
+                    <div class="nav-item" id="nav-asistente" onclick="navigate('asistente')">
+                        <span class="nav-icon">🤖</span><span class="nav-label">Asistente IA</span>
+                    </div>
+                    <div class="nav-item" id="nav-alertas" onclick="navigate('alertas')">
+                        <span class="nav-icon">🔔</span><span class="nav-label">Alertas en Tiempo Real</span>
+                        <span class="nav-chip">3</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section" id="nav-section-pasajero">
+                    <div class="sidebar-section-label">Pasajero</div>
+                    <div class="nav-item" id="nav-seguridad" onclick="navigate('seguridad')">
+                        <span class="nav-icon">🛡️</span><span class="nav-label">Seguridad</span>
+                    </div>
+                    <div class="nav-item" id="nav-historial" onclick="navigate('historial')">
+                        <span class="nav-icon">📊</span><span class="nav-label">Mi Historial</span>
+                    </div>
+                    <div class="nav-item" id="nav-perfil" onclick="navigate('perfil')">
+                        <span class="nav-icon">👤</span><span class="nav-label">Mi Perfil</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section hidden" id="nav-section-conductor">
+                    <div class="sidebar-section-label">Conductor</div>
+                    <div class="nav-item" id="nav-reportes" onclick="navigate('reportes')">
+                        <span class="nav-icon">📋</span><span class="nav-label">Reportar Incidencia</span>
+                    </div>
+                    <div class="nav-item" id="nav-miRuta" onclick="navigate('miRuta')">
+                        <span class="nav-icon">🛣️</span><span class="nav-label">Mi Ruta Activa</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section hidden" id="nav-section-admin">
+                    <div class="sidebar-section-label">Administración</div>
+                    <div class="nav-item" id="nav-admin" onclick="navigate('admin')">
+                        <span class="nav-icon">⚙️</span><span class="nav-label">Panel Admin</span>
+                    </div>
+                    <div class="nav-item" id="nav-gestionRutas" onclick="navigate('gestionRutas')">
+                        <span class="nav-icon">🛤️</span><span class="nav-label">Gestión de Rutas</span>
+                    </div>
+                    <div class="nav-item" id="nav-usuarios" onclick="navigate('usuarios')">
+                        <span class="nav-icon">👥</span><span class="nav-label">Usuarios</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CONTENT AREA -->
+            <main class="content-area" id="contentArea">
+
+                <!-- ====== VIEW: INICIO ====== -->
+                <div class="view active" id="view-inicio">
+                    <div class="page-header-row">
+                        <div class="page-header">
+                            <h1>¡Buenos días, María! 👋</h1>
+                            <p>Cali, Valle del Cauca • Martes, 17 de Feb 2026 • 7:42 AM</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="navigate('asistente')">🤖 Consultar IA</button>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="grid-4 mb-4">
+                        <div class="stat-card">
+                            <div class="icon" style="background:#e6f7f1;">🚌</div>
+                            <div class="value">18</div>
+                            <div class="label">Rutas disponibles ahora</div>
+                            <div class="trend up">↑ 2 operativas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#fef3c7;">⏱️</div>
+                            <div class="value">12<span style="font-size:1rem;font-weight:400;color:var(--gray-400)">
+                                    min</span></div>
+                            <div class="label">Próxima guala habitual</div>
+                            <div class="trend up">G-07 en Av. 6N-34</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#fee2e2;">⚠️</div>
+                            <div class="value">3</div>
+                            <div class="label">Alertas activas en tu zona</div>
+                            <div class="trend down">↑ 1 nueva</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#eff6ff;">📍</div>
+                            <div class="value">5</div>
+                            <div class="label">Rutas frecuentes guardadas</div>
+                            <div class="trend up">2 favoritas</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Search -->
+                    <div class="card mb-4">
+                        <div class="card-title">🔍 ¿A dónde vas?</div>
+                        <div class="form-row mb-3">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Origen</label>
+                                <div class="input-icon-wrap">
+                                    <span class="input-icon">📍</span>
+                                    <input class="form-control" placeholder="Tu ubicación actual"
+                                        value="Barrio Centenario, Cali" id="quickOrigin">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Destino</label>
+                                <div class="input-icon-wrap">
+                                    <span class="input-icon">🏁</span>
+                                    <input class="form-control" placeholder="¿A dónde vas?" id="quickDest"
+                                        placeholder="Ej: Centro Comercial Unicentro">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chip-scroll mb-3">
+                            <div class="chip active" onclick="setDest(this,'Centro Comercial Unicentro')">🛍️ Unicentro
+                            </div>
+                            <div class="chip" onclick="setDest(this,'Universidad del Valle')">🎓 Univalle</div>
+                            <div class="chip" onclick="setDest(this,'Hospital Universitario')">🏥 Hospital U.</div>
+                            <div class="chip" onclick="setDest(this,'Terminal de Transportes')">🚉 Terminal</div>
+                            <div class="chip" onclick="setDest(this,'Plaza de Caicedo')">🏛️ Plaza Caicedo</div>
+                            <div class="chip" onclick="setDest(this,'Parque del Perro')">🌿 Parque Perro</div>
+                            <div class="chip" onclick="setDest(this,'Av. Las Americas')">🛣️ Las Américas</div>
+                        </div>
+                        <div style="display:flex;gap:10px;">
+                            <button class="btn btn-primary" onclick="buscarRutas()">Buscar Rutas →</button>
+                            <button class="btn btn-secondary" onclick="navigate('asistente')">🤖 Pedir recomendación
+                                IA</button>
+                        </div>
+                    </div>
+
+                    <!-- Grid: Alertas + Rutas frecuentes -->
+                    <div class="grid-2">
+                        <!-- Alertas -->
+                        <div class="card">
+                            <div class="card-title">⚠️ Alertas en tu zona</div>
+                            <div class="alert-item alert-warning">
+                                <div class="alert-icon">🚦</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">Congestión — Av. 6 Norte</div>
+                                    <div class="alert-desc">Tráfico denso entre Calle 34 y Calle 44. Rutas B-22 y G-07
+                                        afectadas.</div>
+                                    <div class="alert-time">Hace 8 min • 🔴 Alta congestión</div>
+                                </div>
+                            </div>
+                            <div class="alert-item alert-danger">
+                                <div class="alert-icon">🚧</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">Bloqueo — Calle 5 con Carrera 1</div>
+                                    <div class="alert-desc">Manifestación ciudadana. Ruta B-05 desviada por Av.
+                                        Colombia.</div>
+                                    <div class="alert-time">Hace 25 min • Tiempo indefinido</div>
+                                </div>
+                            </div>
+                            <div class="alert-item alert-info">
+                                <div class="alert-icon">ℹ️</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">Feria de Cali — Fin de semana</div>
+                                    <div class="alert-desc">Este sábado y domingo habrá rutas adicionales desde el
+                                        barrio Versalles.</div>
+                                    <div class="alert-time">Información preventiva</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary btn-sm mt-3" onclick="navigate('alertas')">Ver todas las
+                                alertas →</button>
+                        </div>
+
+                        <!-- Rutas Frecuentes -->
+                        <div class="card">
+                            <div class="card-title">⭐ Tus Rutas Frecuentes</div>
+                            <div style="display:flex;flex-direction:column;gap:10px;">
+                                <div class="route-card selected" onclick="verRuta('G-07')">
+                                    <div class="route-header">
+                                        <div class="route-number">
+                                            <div class="route-dot" style="background:#10b981;"></div>
+                                            Guala G-07
+                                        </div>
+                                        <div style="display:flex;gap:6px;">
+                                            <span class="tag tag-green">🟢 Activa</span>
+                                            <span class="tag tag-gray">⭐ Fav</span>
+                                        </div>
+                                    </div>
+                                    <div class="route-meta">
+                                        <span>📍 Centenario → Unicentro</span>
+                                        <span>⏱️ 28 min</span>
+                                        <span>💰 $1.800</span>
+                                    </div>
+                                </div>
+                                <div class="route-card" onclick="verRuta('B-22A')">
+                                    <div class="route-header">
+                                        <div class="route-number">
+                                            <div class="route-dot" style="background:#3b82f6;"></div>
+                                            Bus B-22A
+                                        </div>
+                                        <span class="tag tag-amber">🟡 Demorado</span>
+                                    </div>
+                                    <div class="route-meta">
+                                        <span>📍 Centenario → Centro</span>
+                                        <span>⏱️ +18 min</span>
+                                        <span>💰 $2.200</span>
+                                    </div>
+                                </div>
+                                <div class="route-card" onclick="verRuta('G-12')">
+                                    <div class="route-header">
+                                        <div class="route-number">
+                                            <div class="route-dot" style="background:#8b5cf6;"></div>
+                                            Guala G-12
+                                        </div>
+                                        <span class="tag tag-green">🟢 A tiempo</span>
+                                    </div>
+                                    <div class="route-meta">
+                                        <span>📍 Centenario → Univalle</span>
+                                        <span>⏱️ 35 min</span>
+                                        <span>💰 $2.000</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary btn-sm mt-3" onclick="navigate('mapa')">Ver mapa completo
+                                →</button>
+                        </div>
+                    </div>
+
+                    <!-- IA Recommendation Banner -->
+                    <div class="card mt-4"
+                        style="background:linear-gradient(135deg,#064e3b,#065f46);color:#fff;border:none;">
+                        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+                            <div style="font-size:48px;">🤖</div>
+                            <div style="flex:1;">
+                                <div style="font-size:1.1rem;font-weight:700;margin-bottom:6px;">Recomendación IA para
+                                    tu viaje</div>
+                                <div style="opacity:.9;font-size:.875rem;line-height:1.6;">
+                                    Basado en tu historial, <strong>los martes a las 7:45 AM</strong> usas la ruta G-07.
+                                    Hoy hay congestión en la Av. 6N — te recomiendo salir <strong>10 minutos
+                                        antes</strong> o tomar la <strong>Ruta B-14</strong> por la Av. 3N.
+                                </div>
+                            </div>
+                            <button class="btn"
+                                style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);"
+                                onclick="navigate('asistente')">
+                                Consultar IA completo →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: MAPA & RUTAS ====== -->
+                <div class="view" id="view-mapa">
+                    <div class="page-header-row">
+                        <div class="page-header">
+                            <h1>🗺️ Mapa & Consulta de Rutas</h1>
+                            <p>Buses y gualas del transporte informal de Cali</p>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-secondary" onclick="filtrarRutas('bus')">🚌 Solo Buses</button>
+                            <button class="btn btn-secondary" onclick="filtrarRutas('guala')">🚐 Solo Gualas</button>
+                            <button class="btn btn-primary" onclick="filtrarRutas('all')">Todo</button>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="card mb-4">
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Origen</label>
+                                <div class="input-icon-wrap">
+                                    <span class="input-icon">📍</span>
+                                    <input class="form-control" value="Barrio Centenario" id="mapaOrigen">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Destino</label>
+                                <div class="input-icon-wrap">
+                                    <span class="input-icon">🏁</span>
+                                    <input class="form-control" value="Centro Comercial Unicentro" id="mapaDest">
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:10px;margin-top:12px;">
+                            <button class="btn btn-primary" onclick="buscarRutasMapa()">🔍 Buscar</button>
+                            <div style="display:flex;gap:6px;align-items:center;">
+                                <span class="text-sm text-gray">Filtrar:</span>
+                                <div class="chip active" onclick="chipFilter(this,'Ahora')">⏰ Ahora</div>
+                                <div class="chip" onclick="chipFilter(this,'Mañana')">🌅 Mañana</div>
+                                <div class="chip" onclick="chipFilter(this,'Noche')">🌙 Noche</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="grid-template-columns:1.4fr 1fr;">
+                        <!-- Mapa Leaflet Real -->
+                        <div>
+                            <div class="map-container" style="height:460px;padding:0;overflow:hidden;">
+                                <div id="leafletMap"></div>
+                            </div>
+                            <!-- Stop info below map (dinámico) -->
+                            <div class="card mt-3" id="stopPanel">
+                                <div class="card-title" style="margin-bottom:10px;">📍 Cargando paradas...</div>
+                                <div class="route-stop-row"></div>
+                            </div>
+                        </div>
+
+                        <!-- Resultados de rutas -->
+                        <div>
+                            <div class="card-title mb-3">📋 Rutas encontradas (4)</div>
+                            <div style="display:flex;flex-direction:column;gap:12px;" id="routeResults">
+                                <div class="route-card selected" onclick="selectRoute(this)">
+                                    <div class="route-header">
+                                        <div class="route-number">
+                                            <div class="route-dot" style="background:#10b981;"></div>
+                                            Guala G-07
+                                        </div>
+                                        <span class="tag tag-green">⭐ Recomendada</span>
+                                    </div>
+                                    <div class="route-meta mb-3">
+                                        <span>⏱️ 28 min</span>
+                                        <span>💰 $1.800</span>
+                                        <span>🚐 Guala</span>
+                                    </div>
+                                    <div class="text-sm text-gray mb-3">Empresa: Coopcencar · Centenario → Unicentro · 5
+                                        paradas</div>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <span class="tag tag-green">🟢 Operando</span>
+                                        <span class="tag tag-amber">⚠️ Moderada demora</span>
+                                    </div>
+                                </div>
+
+                                <div class="route-card" onclick="selectRoute(this)">
+                                    <div class="route-header">
+                                        <div class="route-number">
+                                            <div class="route-dot" style="background:#3b82f6;"></div>
+                                            Bus B-22A
+                                        </div>
+                                        <span class="tag tag-amber">🕐 Demorado</span>
+                                    </div>
+                                    <div class="route-meta mb-3">
+                                        <span>⏱️ +18 min</span>
+                                        <span>💰 $2.200</span>
+                                        <span>🚌 Bus</span>
+                                    </div>
+                                    <div class="text-sm text-gray mb-3">Empresa: Transurbano · Centenario → Unicentro ·
+                                        8 paradas</div>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <span class="tag tag-red">🔴 Congestión Av.6N</span>
+                                    </div>
+                                </div>
+
+                                <div class="route-card" onclick="selectRoute(this)">
+                                    <div class="route-header">
+                                        <div class="route-number">
+                                            <div class="route-dot" style="background:#8b5cf6;"></div>
+                                            Guala G-12
+                                        </div>
+                                        <span class="tag tag-blue">🔄 Alternativa</span>
+                                    </div>
+                                    <div class="route-meta mb-3">
+                                        <span>⏱️ 32 min</span>
+                                        <span>💰 $2.000</span>
+                                        <span>🚐 Guala</span>
+                                    </div>
+                                    <div class="text-sm text-gray mb-3">Empresa: Coopcencar · Ruta alternativa por Av.3N
+                                        · 6 paradas</div>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <span class="tag tag-green">🟢 Sin inconvenientes</span>
+                                    </div>
+                                </div>
+
+                                <div class="route-card" onclick="selectRoute(this)">
+                                    <div class="route-header">
+                                        <div class="route-number">
+                                            <div class="route-dot" style="background:#f59e0b;"></div>
+                                            Bus B-14
+                                        </div>
+                                        <span class="tag tag-gray">Económico</span>
+                                    </div>
+                                    <div class="route-meta mb-3">
+                                        <span>⏱️ 42 min</span>
+                                        <span>💰 $1.600</span>
+                                        <span>🚌 Bus</span>
+                                    </div>
+                                    <div class="text-sm text-gray mb-3">Empresa: Unitransco · Centenario → Unicentro ·
+                                        10 paradas</div>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                        <span class="tag tag-green">🟢 A tiempo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: ASISTENTE IA ====== -->
+                <div class="view" id="view-asistente">
+                    <div class="page-header">
+                        <h1>🤖 Asistente Inteligente de Movilidad</h1>
+                        <p>IA contextual para Cali — RF-03 & RF-04. Recomendaciones basadas en hora, tráfico e
+                            historial.</p>
+                    </div>
+
+                    <div class="grid-2" style="grid-template-columns:1.5fr 1fr;align-items:start;">
+                        <!-- Chat IA -->
+                        <div class="ai-chat">
+                            <div class="ai-chat-header">
+                                <div class="ai-avatar">🤖</div>
+                                <div class="info">
+                                    <h3>MobiIA — Asistente MoviCali</h3>
+                                    <p><span class="ai-status-dot"></span>En línea • Contexto: Cali, 7:42 AM</p>
+                                </div>
+                            </div>
+                            <div class="ai-messages" id="aiMessages">
+                                <div class="msg msg-bot">
+                                    <div class="msg-bubble">
+                                        ¡Hola María! 👋 Soy MobiIA, tu asistente de movilidad para Cali.<br><br>
+                                        Veo que estás en el barrio <strong>Centenario</strong>.
+                                        ¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura, los precios
+                                        (Buses convencionales y Gualas) según cómo esté el tráfico actual de Cali.
+                                    </div>
+                                    <div class="msg-meta">MobiIA • Ahora</div>
+                                </div>
+                            </div>
+                            <div class="ai-suggestions">
+                                <div class="suggestion-chip" onclick="sendAISuggestion(this)">¿Cuánto demora en hora
+                                    pico?</div>
+                                <div class="suggestion-chip" onclick="sendAISuggestion(this)">Rutas más económicas</div>
+                                <div class="suggestion-chip" onclick="sendAISuggestion(this)">Seguridad en la noche
+                                </div>
+                                <div class="suggestion-chip" onclick="sendAISuggestion(this)">¿Cuándo sale el próximo?
+                                </div>
+                            </div>
+                            <div class="ai-input-area">
+                                <input type="text" class="ai-input" id="aiInput"
+                                    placeholder="Escribe tu consulta de movilidad…"
+                                    onkeypress="if(event.key==='Enter')sendAI()">
+                                <button class="ai-send-btn" onclick="sendAI()">→</button>
+                            </div>
+                        </div>
+
+                        <!-- Panel de Contexto IA -->
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                            <div class="card">
+                                <div class="card-title">📊 Contexto detectado</div>
+                                <div style="display:flex;flex-direction:column;gap:10px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                                        <span class="text-sm text-gray">📍 Ubicación</span>
+                                        <span class="text-sm font-medium">Centenario, Cali</span>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                                        <span class="text-sm text-gray">🕐 Hora</span>
+                                        <span class="text-sm font-medium">7:42 AM (hora pico)</span>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                                        <span class="text-sm text-gray">📅 Día</span>
+                                        <span class="text-sm font-medium">Martes laboral</span>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                                        <span class="text-sm text-gray">🌤️ Clima</span>
+                                        <span class="text-sm font-medium">Parcialmente nublado</span>
+                                    </div>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                                        <span class="text-sm text-gray">🚦 Tráfico</span>
+                                        <span class="tag tag-amber">Moderado</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-title">🧠 Base de aprendizaje IA</div>
+                                <div class="text-sm text-gray mb-3">Basado en tus últimos 30 días de uso:</div>
+                                <div style="display:flex;flex-direction:column;gap:12px;">
+                                    <div>
+                                        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                            <span class="text-xs text-gray">Guala G-07</span>
+                                            <span class="text-xs font-bold">68%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width:68%;"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                            <span class="text-xs text-gray">Bus B-22A</span>
+                                            <span class="text-xs font-bold">22%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width:22%;background:var(--blue);"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                            <span class="text-xs text-gray">Guala G-12</span>
+                                            <span class="text-xs font-bold">10%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width:10%;background:var(--purple);">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="text-sm text-gray">Horario más frecuente: <strong
+                                        style="color:var(--gray-800);">7:30 – 8:00 AM</strong></div>
+                            </div>
+
+                            <div class="card" style="background:var(--amber-light);border-color:#fde68a;">
+                                <div class="card-title" style="color:#b45309;">💡 Recomendación Activa</div>
+                                <div class="text-sm" style="color:#92400e;line-height:1.6;">
+                                    Hoy hay <strong>+12 min de demora</strong> en tu ruta habitual G-07. Considera salir
+                                    a las <strong>7:50 AM</strong> en vez de las 8:00 AM, o usar G-12 por Av.3N.
+                                </div>
+                                <button class="btn btn-amber btn-sm mt-3" onclick="navigate('asistente')">Aplicar
+                                    sugerencia</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: ALERTAS ====== -->
+                <div class="view" id="view-alertas">
+                    <div class="page-header-row">
+                        <div class="page-header">
+                            <h1>🔔 Alertas en Tiempo Real</h1>
+                            <p>RF-04 & RF-05 — Eventos activos que afectan la movilidad en Cali</p>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <span class="tag tag-red" style="font-size:.82rem;padding:6px 12px;">● 2 Críticas</span>
+                            <span class="tag tag-amber" style="font-size:.82rem;padding:6px 12px;">● 3 Moderadas</span>
+                        </div>
+                    </div>
+
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab(this,'tab-todas')">Todas (5)</button>
+                        <button class="tab-btn" onclick="switchTab(this,'tab-congestion')">Congestión (2)</button>
+                        <button class="tab-btn" onclick="switchTab(this,'tab-bloqueo')">Bloqueos (1)</button>
+                        <button class="tab-btn" onclick="switchTab(this,'tab-seguridad')">Seguridad (2)</button>
+                    </div>
+
+                    <div id="tab-todas" class="tab-content active">
+                        <div class="grid-2">
+                            <div style="display:flex;flex-direction:column;gap:10px;">
+                                <div class="alert-item alert-danger">
+                                    <div class="alert-icon">🚧</div>
+                                    <div class="alert-content">
+                                        <div
+                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                                            <div class="alert-title">Bloqueo — Calle 5 con Carrera 1</div>
+                                            <span class="tag tag-red">🔴 Activo</span>
+                                        </div>
+                                        <div class="alert-desc">Manifestación ciudadana. Rutas afectadas: B-05, B-08.
+                                            Desvío por Av. Colombia.</div>
+                                        <div class="alert-time">Iniciado: hace 25 min · Duración estimada: indefinida
+                                        </div>
+                                        <div style="margin-top:8px;display:flex;gap:6px;">
+                                            <span class="tag tag-red">Ruta B-05</span>
+                                            <span class="tag tag-red">Ruta B-08</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert-item alert-warning">
+                                    <div class="alert-icon">🚦</div>
+                                    <div class="alert-content">
+                                        <div
+                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                                            <div class="alert-title">Congestión alta — Av. 6 Norte (Cll 34-44)</div>
+                                            <span class="tag tag-amber">🟡 Activo</span>
+                                        </div>
+                                        <div class="alert-desc">Tráfico pesado por obras viales. Tiempo adicional: +18
+                                            min. Rutas B-22A y G-07 demoradas.</div>
+                                        <div class="alert-time">Reportado: hace 8 min · Resolución estimada: 9:30 AM
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert-item alert-warning">
+                                    <div class="alert-icon">⛈️</div>
+                                    <div class="alert-content">
+                                        <div
+                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                                            <div class="alert-title">Lluvia fuerte — Zona Sur (Aguablanca)</div>
+                                            <span class="tag tag-amber">🟡 Moderado</span>
+                                        </div>
+                                        <div class="alert-desc">Precipitaciones fuertes en el sector de Aguablanca. Ruta
+                                            G-18 con demora de 25 min. Posible inundación en Calle 16.</div>
+                                        <div class="alert-time">Meteorología · Pronóstico: próximas 2 horas</div>
+                                    </div>
+                                </div>
+
+                                <div class="alert-item alert-danger"
+                                    style="border-left-color:var(--purple)!important;background:#f5f3ff;border-color:#c4b5fd;">
+                                    <div class="alert-icon">🔐</div>
+                                    <div class="alert-content">
+                                        <div
+                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                                            <div class="alert-title">Alerta de seguridad — Barrio Desepaz (Nocturno)
+                                            </div>
+                                            <span class="tag tag-purple">🔴 Precaución</span>
+                                        </div>
+                                        <div class="alert-desc">Se reportaron 3 incidentes menores en la zona. Se
+                                            recomienda NO tomar rutas G-18 después de las 8 PM en este sector.</div>
+                                        <div class="alert-time">Seguridad · Vigente: 8 PM – 5 AM</div>
+                                    </div>
+                                </div>
+
+                                <div class="alert-item alert-success">
+                                    <div class="alert-icon">✅</div>
+                                    <div class="alert-content">
+                                        <div
+                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                                            <div class="alert-title">Ruta B-05 restablecida — Calle 15</div>
+                                            <span class="tag tag-green">Resuelto</span>
+                                        </div>
+                                        <div class="alert-desc">El bloqueo en Calle 15 fue despejado. La ruta B-05 opera
+                                            con normalidad por su recorrido habitual.</div>
+                                        <div class="alert-time">Resuelto: hace 1 hora</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mapa de alertas -->
+                            <div>
+                                <div class="map-container" style="height:380px;">
+                                    <div class="map-grid"></div>
+                                    <div class="map-road-h" style="top:35%;"></div>
+                                    <div class="map-road-h" style="top:60%;"></div>
+                                    <div class="map-road-v" style="left:30%;"></div>
+                                    <div class="map-road-v" style="left:65%;"></div>
+                                    <!-- Alert pins -->
+                                    <div class="map-pin map-pin-red" style="left:28%;top:36%;">
+                                        <div class="pin-dot"><span>🚧</span></div>
+                                        <div class="map-pin-label">Bloqueo Cll 5</div>
+                                    </div>
+                                    <div class="map-pin map-pin-amber" style="left:50%;top:36%;">
+                                        <div class="pin-dot"><span>🚦</span></div>
+                                        <div class="map-pin-label">Congestión Av.6N</div>
+                                    </div>
+                                    <div class="map-pin map-pin-blue" style="left:65%;top:61%;">
+                                        <div class="pin-dot"><span>⛈️</span></div>
+                                        <div class="map-pin-label">Lluvia Aguablanca</div>
+                                    </div>
+                                    <div class="map-overlay" style="top:12px;left:12px;">
+                                        <div style="font-size:.75rem;font-weight:700;color:var(--gray-700);">5 alertas
+                                            activas</div>
+                                        <div style="font-size:.7rem;color:var(--gray-400);">Actualizado: ahora</div>
+                                    </div>
+                                </div>
+                                <div class="card mt-3">
+                                    <div class="card-title" style="margin-bottom:10px;">📊 Resumen por tipo</div>
+                                    <div style="display:flex;flex-direction:column;gap:8px;">
+                                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                                            <span class="text-sm">🚧 Bloqueos</span>
+                                            <div style="display:flex;align-items:center;gap:8px;">
+                                                <div class="progress-bar" style="width:80px;">
+                                                    <div class="progress-fill" style="width:33%;background:var(--red);">
+                                                    </div>
+                                                </div>
+                                                <span class="text-xs font-bold">1</span>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                                            <span class="text-sm">🚦 Congestión</span>
+                                            <div style="display:flex;align-items:center;gap:8px;">
+                                                <div class="progress-bar" style="width:80px;">
+                                                    <div class="progress-fill"
+                                                        style="width:66%;background:var(--amber);"></div>
+                                                </div>
+                                                <span class="text-xs font-bold">2</span>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                                            <span class="text-sm">🔐 Seguridad</span>
+                                            <div style="display:flex;align-items:center;gap:8px;">
+                                                <div class="progress-bar" style="width:80px;">
+                                                    <div class="progress-fill"
+                                                        style="width:33%;background:var(--purple);"></div>
+                                                </div>
+                                                <span class="text-xs font-bold">1</span>
+                                            </div>
+                                        </div>
+                                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                                            <span class="text-sm">⛈️ Clima</span>
+                                            <div style="display:flex;align-items:center;gap:8px;">
+                                                <div class="progress-bar" style="width:80px;">
+                                                    <div class="progress-fill"
+                                                        style="width:33%;background:var(--blue);"></div>
+                                                </div>
+                                                <span class="text-xs font-bold">1</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-congestion" class="tab-content">
+                        <div class="alert-item alert-warning">
+                            <div class="alert-icon">🚦</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Congestión — Av. 6 Norte (Cll 34-44)</div>
+                                <div class="alert-desc">+18 min adicionales. Rutas B-22A y G-07 afectadas.</div>
+                                <div class="alert-time">Hace 8 min</div>
+                            </div>
+                        </div>
+                        <div class="alert-item alert-warning">
+                            <div class="alert-icon">🚦</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Congestión moderada — Av. Roosevelt (Cll 5-9)</div>
+                                <div class="alert-desc">+8 min adicionales. Ruta B-03 levemente afectada.</div>
+                                <div class="alert-time">Hace 15 min</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-bloqueo" class="tab-content">
+                        <div class="alert-item alert-danger">
+                            <div class="alert-icon">🚧</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Bloqueo — Calle 5 con Carrera 1</div>
+                                <div class="alert-desc">Manifestación. Rutas B-05 y B-08 desviadas por Av. Colombia.
+                                </div>
+                                <div class="alert-time">Hace 25 min · Duración: indefinida</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-seguridad" class="tab-content">
+                        <div class="alert-item" style="border-left:4px solid var(--purple);background:#f5f3ff;">
+                            <div class="alert-icon">🔐</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Precaución nocturna — Barrio Desepaz</div>
+                                <div class="alert-desc">3 incidentes menores reportados. Evitar rutas G-18 después de 8
+                                    PM.</div>
+                                <div class="alert-time">Vigente: 8 PM – 5 AM</div>
+                            </div>
+                        </div>
+                        <div class="alert-item"
+                            style="border-left:4px solid var(--purple);background:#f5f3ff;margin-top:8px;">
+                            <div class="alert-icon">🔐</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Zona de precaución — Barrio Petecuy (Nocturno)</div>
+                                <div class="alert-desc">Historial de incidentes. Se recomienda compartir ubicación al
+                                    transitar por este sector.</div>
+                                <div class="alert-time">Alerta permanente nocturna</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: SEGURIDAD ====== -->
+                <div class="view" id="view-seguridad">
+                    <div class="page-header">
+                        <h1>🛡️ Seguridad Asistida</h1>
+                        <p>RF-06 — Herramientas de seguridad con apoyo inteligente para tu viaje</p>
+                    </div>
+
+                    <div class="grid-3" style="margin-bottom:20px;">
+                        <!-- SOS -->
+                        <div class="card" style="grid-column:span 1;text-align:center;">
+                            <div class="card-title" style="justify-content:center;">🆘 Botón de Emergencia</div>
+                            <p class="text-sm text-gray mb-4">Presiona en caso de emergencia. Notificará a tus contactos
+                                y servicios de seguridad.</p>
+                            <button class="sos-btn" onclick="activarSOS()">
+                                <div class="sos-ring">🆘</div>
+                                EMERGENCIA — SOS
+                            </button>
+                            <div class="text-xs text-gray mt-3">Mantén presionado 3 segundos para activar</div>
+                        </div>
+
+                        <!-- Compartir Ubicación -->
+                        <div class="card">
+                            <div class="card-title">📍 Compartir Ubicación</div>
+                            <p class="text-sm text-gray mb-3">Comparte tu trayecto en tiempo real con contactos de
+                                confianza.</p>
+                            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+                                <div class="pref-row">
+                                    <div class="pref-info">
+                                        <div class="pref-title">🟢 Trayecto activo</div>
+                                        <div class="pref-desc">G-07: Centenario → Unicentro</div>
+                                    </div>
+                                    <label class="toggle-switch"><input type="checkbox" checked><span
+                                            class="toggle-slider"></span></label>
+                                </div>
+                                <div class="pref-row">
+                                    <div class="pref-info">
+                                        <div class="pref-title">👨‍👩‍👧 Compartir con familia</div>
+                                        <div class="pref-desc">Mamá (🟢), Carlos (🟢)</div>
+                                    </div>
+                                    <label class="toggle-switch"><input type="checkbox" checked><span
+                                            class="toggle-slider"></span></label>
+                                </div>
+                            </div>
+                            <div class="map-container" style="height:140px;">
+                                <div class="map-grid"></div>
+                                <div class="map-road-h" style="top:50%;"></div>
+                                <div class="map-road-v" style="left:50%;"></div>
+                                <div class="map-pin map-pin-green" style="left:50%;top:51%;">
+                                    <div class="pin-dot"><span>📍</span></div>
+                                    <div class="map-pin-label">Tú aquí</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contactos de Confianza -->
+                        <div class="card">
+                            <div class="card-title">👥 Contactos de Confianza</div>
+                            <div class="text-sm text-gray mb-3">IA recomienda notificar a estos contactos en viajes
+                                nocturnos.</div>
+                            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                                <div class="user-item" style="padding:10px 0;">
+                                    <div class="user-avatar-sm"
+                                        style="background:linear-gradient(135deg,#10b981,#047857);">MG</div>
+                                    <div class="user-info">
+                                        <div class="user-name">Mamá — Gloria García</div>
+                                        <div class="user-detail">📱 +57 315 XXX XXXX • 🟢 Recibe alertas</div>
+                                    </div>
+                                    <button class="btn btn-secondary btn-sm">📞</button>
+                                </div>
+                                <div class="user-item" style="padding:10px 0;">
+                                    <div class="user-avatar-sm"
+                                        style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">CG</div>
+                                    <div class="user-info">
+                                        <div class="user-name">Carlos García</div>
+                                        <div class="user-detail">📱 +57 318 XXX XXXX • 🟢 Recibe alertas</div>
+                                    </div>
+                                    <button class="btn btn-secondary btn-sm">📞</button>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary btn-sm"
+                                onclick="showToast('Contacto agregado correctamente')">+ Agregar contacto</button>
+                        </div>
+                    </div>
+
+                    <!-- Zonas Seguras -->
+                    <div class="card">
+                        <div class="card-title">🏥 Zonas Seguras Cercanas — Recomendadas por IA</div>
+                        <div class="text-sm text-gray mb-3">Puntos de encuentro seguros en caso de emergencia o
+                            inseguridad en tu zona.</div>
+                        <div class="grid-3">
+                            <div
+                                style="background:var(--green-light);border:1px solid #6ee7b7;border-radius:var(--radius-sm);padding:14px;">
+                                <div style="font-size:24px;margin-bottom:8px;">👮</div>
+                                <div class="text-sm font-bold" style="color:var(--green-dark);">CAI Centenario</div>
+                                <div class="text-xs text-gray">Cll 34 con Cra 5N · 280m de distancia</div>
+                                <div class="tag tag-green mt-2">🕐 24 horas</div>
+                            </div>
+                            <div
+                                style="background:var(--blue-light);border:1px solid #93c5fd;border-radius:var(--radius-sm);padding:14px;">
+                                <div style="font-size:24px;margin-bottom:8px;">🏥</div>
+                                <div class="text-sm font-bold" style="color:#1d4ed8;">Clínica Versalles</div>
+                                <div class="text-xs text-gray">Cll 44 con Cra 5 · 1.2 km</div>
+                                <div class="tag tag-blue mt-2">Urgencias 24h</div>
+                            </div>
+                            <div
+                                style="background:var(--amber-light);border:1px solid #fde68a;border-radius:var(--radius-sm);padding:14px;">
+                                <div style="font-size:24px;margin-bottom:8px;">🏪</div>
+                                <div class="text-sm font-bold" style="color:#b45309;">Supermercado Éxito</div>
+                                <div class="text-xs text-gray">Chipichape · 600m · Concurrido</div>
+                                <div class="tag tag-amber mt-2">🕐 6am – 10pm</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: HISTORIAL ====== -->
+                <div class="view" id="view-historial">
+                    <div class="page-header">
+                        <h1>📊 Mi Historial & Aprendizaje</h1>
+                        <p>RF-08 — Análisis de tus patrones de movilidad para mejorar las recomendaciones de IA</p>
+                    </div>
+
+                    <div class="grid-4 mb-4">
+                        <div class="stat-card">
+                            <div class="icon" style="background:#e6f7f1;">🚌</div>
+                            <div class="value">142</div>
+                            <div class="label">Viajes este mes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#eff6ff;">⏱️</div>
+                            <div class="value">28<span
+                                    style="font-size:1rem;font-weight:400;color:var(--gray-400)">h</span></div>
+                            <div class="label">Tiempo en transporte</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#fef3c7;">💰</div>
+                            <div class="value">$284k</div>
+                            <div class="label">Gasto en pasajes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#f5f3ff;">🎯</div>
+                            <div class="value">92%</div>
+                            <div class="label">Precisión recomendaciones IA</div>
+                            <div class="trend up">↑ Mejorando</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-title">📅 Viajes recientes</div>
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-left">
+                                        <div class="timeline-dot filled"></div>
+                                        <div class="timeline-line"></div>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Guala G-07 · Centenario → Unicentro</div>
+                                        <div class="timeline-desc">Duración: 31 min · Costo: $1.800 · 🟡 Pequeña demora
+                                        </div>
+                                        <div class="timeline-time">Hoy, 7:15 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-left">
+                                        <div class="timeline-dot filled"></div>
+                                        <div class="timeline-line"></div>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Bus B-22A · Centro → Centenario</div>
+                                        <div class="timeline-desc">Duración: 38 min · Costo: $2.200 · 🟢 A tiempo</div>
+                                        <div class="timeline-time">Ayer, 6:10 PM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-left">
+                                        <div class="timeline-dot filled"></div>
+                                        <div class="timeline-line"></div>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Guala G-07 · Centenario → Unicentro</div>
+                                        <div class="timeline-desc">Duración: 28 min · Costo: $1.800 · 🟢 Normal</div>
+                                        <div class="timeline-time">Lun, 7:50 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-left">
+                                        <div class="timeline-dot filled"></div>
+                                        <div class="timeline-line"></div>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Bus B-14 · Unicentro → Hospital U.</div>
+                                        <div class="timeline-desc">Duración: 22 min · Costo: $1.600 · 🟢 A tiempo</div>
+                                        <div class="timeline-time">Dom, 10:00 AM</div>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-left">
+                                        <div class="timeline-dot"></div>
+                                    </div>
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Guala G-07 · Centenario → Unicentro</div>
+                                        <div class="timeline-desc">Duración: 30 min · Costo: $1.800</div>
+                                        <div class="timeline-time">Vie, 8:05 AM</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                            <div class="card">
+                                <div class="card-title">🏆 Rutas más usadas</div>
+                                <div style="display:flex;flex-direction:column;gap:12px;">
+                                    <div style="display:flex;align-items:center;gap:12px;">
+                                        <span style="font-size:1.2rem;">🥇</span>
+                                        <div style="flex:1;">
+                                            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                                <span class="text-sm font-bold">Guala G-07</span>
+                                                <span class="text-xs font-bold">97 viajes</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width:68%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;align-items:center;gap:12px;">
+                                        <span style="font-size:1.2rem;">🥈</span>
+                                        <div style="flex:1;">
+                                            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                                <span class="text-sm font-bold">Bus B-22A</span>
+                                                <span class="text-xs font-bold">31 viajes</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width:22%;background:var(--blue);">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;align-items:center;gap:12px;">
+                                        <span style="font-size:1.2rem;">🥉</span>
+                                        <div style="flex:1;">
+                                            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                                <span class="text-sm font-bold">Bus B-14</span>
+                                                <span class="text-xs font-bold">14 viajes</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width:10%;background:var(--amber);">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-title">🕐 Horarios frecuentes</div>
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    <div class="pref-row">
+                                        <span class="text-sm">7:30 – 8:00 AM</span>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div class="progress-bar" style="width:60px;">
+                                                <div class="progress-fill" style="width:75%;"></div>
+                                            </div>
+                                            <span class="text-xs font-bold">75%</span>
+                                        </div>
+                                    </div>
+                                    <div class="pref-row">
+                                        <span class="text-sm">5:30 – 6:30 PM</span>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div class="progress-bar" style="width:60px;">
+                                                <div class="progress-fill" style="width:60%;background:var(--blue);">
+                                                </div>
+                                            </div>
+                                            <span class="text-xs font-bold">60%</span>
+                                        </div>
+                                    </div>
+                                    <div class="pref-row">
+                                        <span class="text-sm">12:00 – 1:00 PM</span>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div class="progress-bar" style="width:60px;">
+                                                <div class="progress-fill" style="width:20%;background:var(--purple);">
+                                                </div>
+                                            </div>
+                                            <span class="text-xs font-bold">20%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card" style="background:var(--green-light);border-color:#6ee7b7;">
+                                <div class="card-title" style="color:var(--green-dark);">✨ Insight IA del mes</div>
+                                <div class="text-sm" style="color:#065f46;line-height:1.6;">
+                                    Tu ruta más eficiente es la <strong>G-07 a las 7:30 AM</strong> (evitas la hora
+                                    pico).
+                                    Podrías ahorrar hasta <strong>$12.000/mes</strong> si usas el Bus B-14 los fines de
+                                    semana.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: PERFIL ====== -->
+                <div class="view" id="view-perfil">
+                    <div class="page-header">
+                        <h1>👤 Mi Perfil</h1>
+                        <p>RF-01 — Gestión de datos personales y preferencias de movilidad</p>
+                    </div>
+
+                    <div class="profile-header">
+                        <div class="profile-avatar-lg" id="perfilAvatarLg">--</div>
+                        <div class="profile-info">
+                            <h2 id="perfilNombreHeader">Cargando...</h2>
+                            <p id="perfilContactoHeader">📧 ... · 📱 ...</p>
+                            <p style="margin-top:4px;" id="perfilUbicacionHeader">📍 ...</p>
+                            <div class="profile-stats">
+                                <div class="profile-stat">
+                                    <div class="profile-stat-value">142</div>
+                                    <div class="profile-stat-label">Viajes/mes</div>
+                                </div>
+                                <div class="profile-stat">
+                                    <div class="profile-stat-value">8</div>
+                                    <div class="profile-stat-label">Meses activa</div>
+                                </div>
+                                <div class="profile-stat">
+                                    <div class="profile-stat-value">⭐ 4.8</div>
+                                    <div class="profile-stat-label">Valoración</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn"
+                            style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);margin-left:auto;align-self:flex-start;"
+                            onclick="showToast('Modo edición activado')">✏️ Editar</button>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-title">📋 Datos personales</div>
+                            <div class="form-group">
+                                <label class="form-label">Nombre completo</label>
+                                <input class="form-control" id="inputPerfilNombre" value="">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Correo</label>
+                                    <input class="form-control" id="inputPerfilCorreo" value="" type="email" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Teléfono</label>
+                                    <input class="form-control" id="inputPerfilCelular" value="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Barrio / Sector</label>
+                                <input class="form-control" id="inputPerfilBarrio" value="">
+                            </div>
+                            <button class="btn btn-primary btn-sm"
+                                onclick="showToast('✅ Datos actualizados correctamente')">Guardar cambios</button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">⚙️ Preferencias de movilidad</div>
+                            <div class="pref-row">
+                                <div class="pref-info">
+                                    <div class="pref-title">🔔 Alertas de congestión</div>
+                                    <div class="pref-desc">Notificar cuando mis rutas estén demoradas</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span
+                                        class="toggle-slider"></span></label>
+                            </div>
+                            <div class="pref-row">
+                                <div class="pref-info">
+                                    <div class="pref-title">🤖 Recomendaciones IA automáticas</div>
+                                    <div class="pref-desc">Recibir sugerencias de ruta cada mañana</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span
+                                        class="toggle-slider"></span></label>
+                            </div>
+                            <div class="pref-row">
+                                <div class="pref-info">
+                                    <div class="pref-title">🌙 Alertas de seguridad nocturna</div>
+                                    <div class="pref-desc">Avisos extra para viajes después de 8 PM</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" checked><span
+                                        class="toggle-slider"></span></label>
+                            </div>
+                            <div class="pref-row">
+                                <div class="pref-info">
+                                    <div class="pref-title">📍 Compartir ubicación automático</div>
+                                    <div class="pref-desc">Al iniciar un viaje, compartir con contactos</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox"><span
+                                        class="toggle-slider"></span></label>
+                            </div>
+                            <div class="pref-row">
+                                <div class="pref-info">
+                                    <div class="pref-title">💸 Preferir rutas económicas</div>
+                                    <div class="pref-desc">Priorizar menor tarifa sobre menor tiempo</div>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox"><span
+                                        class="toggle-slider"></span></label>
+                            </div>
+                            <div class="form-group mt-3">
+                                <label class="form-label">Zona de residencia</label>
+                                <select class="form-control">
+                                    <option>Barrio Centenario</option>
+                                    <option>Chapinero</option>
+                                    <option>Ciudad Jardín</option>
+                                    <option>Agua Blanca</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-title">⭐ Rutas favoritas guardadas</div>
+                        <div class="grid-3">
+                            <div class="route-card">
+                                <div class="route-header">
+                                    <div class="route-number">
+                                        <div class="route-dot" style="background:#10b981;"></div>Guala G-07
+                                    </div>
+                                    <span class="tag tag-green">⭐ Fav</span>
+                                </div>
+                                <div class="route-meta">
+                                    <span>📍 Centenario → Unicentro</span>
+                                    <span>💰 $1.800</span>
+                                </div>
+                            </div>
+                            <div class="route-card">
+                                <div class="route-header">
+                                    <div class="route-number">
+                                        <div class="route-dot" style="background:#3b82f6;"></div>Bus B-22A
+                                    </div>
+                                    <span class="tag tag-green">⭐ Fav</span>
+                                </div>
+                                <div class="route-meta">
+                                    <span>📍 Centenario → Centro</span>
+                                    <span>💰 $2.200</span>
+                                </div>
+                            </div>
+                            <div class="route-card"
+                                style="border:2px dashed var(--gray-200);background:var(--gray-50);cursor:pointer;"
+                                onclick="showToast('Agrega una nueva ruta favorita')">
+                                <div style="text-align:center;padding:12px;">
+                                    <div style="font-size:24px;margin-bottom:8px;">➕</div>
+                                    <div class="text-sm text-gray">Agregar ruta favorita</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: REPORTES (CONDUCTOR) ====== -->
+                <div class="view" id="view-reportes">
+                    <div class="page-header">
+                        <h1>📋 Reportar Incidencia</h1>
+                        <p>RF-07 — Portal de reporte para conductores del transporte informal de Cali</p>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <!-- Botones rápidos de reporte -->
+                            <div class="card mb-4">
+                                <div class="card-title">⚡ Reporte rápido</div>
+                                <div style="display:flex;flex-direction:column;gap:10px;">
+                                    <button class="incident-btn block" onclick="reportarIncidente('bloqueo')">
+                                        🚧 Reportar Bloqueo o Desvío
+                                    </button>
+                                    <button class="incident-btn mechanic" onclick="reportarIncidente('falla')">
+                                        🔧 Reportar Falla Mecánica
+                                    </button>
+                                    <button class="incident-btn security" onclick="reportarIncidente('seguridad')">
+                                        🚨 Reportar Incidente de Seguridad
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Formulario detallado -->
+                            <div class="card">
+                                <div class="card-title">📝 Reporte detallado</div>
+                                <div class="form-group">
+                                    <label class="form-label">Tipo de incidencia</label>
+                                    <select class="form-control" id="tipoReporte">
+                                        <option>🚧 Bloqueo vial</option>
+                                        <option>🚦 Congestión inusual</option>
+                                        <option>🔧 Falla mecánica del vehículo</option>
+                                        <option>🚨 Incidente de seguridad</option>
+                                        <option>⛈️ Daño por clima</option>
+                                        <option>📢 Otro</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Ubicación del incidente</label>
+                                    <div class="input-icon-wrap">
+                                        <span class="input-icon">📍</span>
+                                        <input class="form-control" placeholder="Ej: Av. 6N con Calle 34"
+                                            value="Av. 6N con Calle 34, Cali">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Descripción</label>
+                                    <textarea class="form-control" rows="3"
+                                        placeholder="Describe el incidente con el mayor detalle posible…">Semáforo dañado en la intersección. Genera congestión de aprox. 10 vehículos.</textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Ruta afectada</label>
+                                        <select class="form-control">
+                                            <option>G-07</option>
+                                            <option>B-22A</option>
+                                            <option>B-05</option>
+                                            <option>G-12</option>
+                                            <option>B-14</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Severidad estimada</label>
+                                        <select class="form-control">
+                                            <option>🟡 Moderada</option>
+                                            <option>🔴 Alta</option>
+                                            <option>🟢 Baja</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" onclick="enviarReporte()">Enviar Reporte →</button>
+                            </div>
+                        </div>
+
+                        <!-- Reportes previos -->
+                        <div class="card">
+                            <div class="card-title">📊 Mis reportes recientes</div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Ubicación</th>
+                                            <th>Estado</th>
+                                            <th>Fecha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>🚦 Congestión</td>
+                                            <td>Av.6N cll 34</td>
+                                            <td><span class="tag tag-green">✅ Validado</span></td>
+                                            <td class="text-xs text-gray">Hoy 6:30 AM</td>
+                                        </tr>
+                                        <tr>
+                                            <td>🚧 Bloqueo</td>
+                                            <td>Calle 5 Cra 1</td>
+                                            <td><span class="tag tag-amber">⏳ En revisión</span></td>
+                                            <td class="text-xs text-gray">Ayer 2:15 PM</td>
+                                        </tr>
+                                        <tr>
+                                            <td>🔧 Falla mec.</td>
+                                            <td>Av. Colombia</td>
+                                            <td><span class="tag tag-green">✅ Validado</span></td>
+                                            <td class="text-xs text-gray">Lun 11:00 AM</td>
+                                        </tr>
+                                        <tr>
+                                            <td>🚨 Seguridad</td>
+                                            <td>Barrio Desepaz</td>
+                                            <td><span class="tag tag-red">🔴 Urgente</span></td>
+                                            <td class="text-xs text-gray">Dom 9:40 PM</td>
+                                        </tr>
+                                        <tr>
+                                            <td>⛈️ Clima</td>
+                                            <td>Cll 16 Aguablanca</td>
+                                            <td><span class="tag tag-gray">Cerrado</span></td>
+                                            <td class="text-xs text-gray">Vie 4:00 PM</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="divider"></div>
+                            <div style="display:flex;gap:12px;">
+                                <div
+                                    style="flex:1;text-align:center;padding:12px;background:var(--green-light);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;color:var(--green-dark);">12</div>
+                                    <div class="text-xs text-gray">Este mes</div>
+                                </div>
+                                <div
+                                    style="flex:1;text-align:center;padding:12px;background:var(--blue-light);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;color:#1d4ed8;">9</div>
+                                    <div class="text-xs text-gray">Validados</div>
+                                </div>
+                                <div
+                                    style="flex:1;text-align:center;padding:12px;background:var(--amber-light);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;color:#b45309;">3</div>
+                                    <div class="text-xs text-gray">Pendientes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: MI RUTA ACTIVA (CONDUCTOR) ====== -->
+                <div class="view" id="view-miRuta">
+                    <div class="page-header">
+                        <h1>🛣️ Mi Ruta Activa</h1>
+                        <p>Vista del conductor — Guala G-07 · Coopcencar</p>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="driver-card mb-4">
+                            <div
+                                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                                <div>
+                                    <div style="font-size:1.3rem;font-weight:700;color:var(--gray-900);">Guala G-07
+                                    </div>
+                                    <div class="text-sm text-gray">Centenario → Unicentro · Empresa: Coopcencar</div>
+                                </div>
+                                <span class="tag tag-green" style="font-size:.85rem;padding:6px 14px;">🟢 En
+                                    servicio</span>
+                            </div>
+                            <div class="grid-2 mb-4">
+                                <div
+                                    style="text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;">28 km/h</div>
+                                    <div class="text-xs text-gray">Velocidad actual</div>
+                                </div>
+                                <div
+                                    style="text-align:center;padding:14px;background:var(--green-light);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;color:var(--green-dark);">Parada 3/5
+                                    </div>
+                                    <div class="text-xs text-gray">Chipichape</div>
+                                </div>
+                            </div>
+                            <div class="card-title" style="margin-bottom:10px;font-size:.9rem;">🗺️ Progreso del
+                                recorrido</div>
+                            <div class="route-stop-row">
+                                <div class="route-stop">
+                                    <div class="route-stop-dot start"></div>
+                                    <div class="route-stop-name">Centenario</div>
+                                </div>
+                                <div class="route-stop-line"></div>
+                                <div class="route-stop">
+                                    <div class="route-stop-dot start"></div>
+                                    <div class="route-stop-name">Av.6N Cll34</div>
+                                </div>
+                                <div class="route-stop-line"></div>
+                                <div class="route-stop">
+                                    <div class="route-stop-dot start"
+                                        style="border-color:var(--amber);background:var(--amber);animation:pulse 1s infinite;">
+                                    </div>
+                                    <div class="route-stop-name" style="font-weight:700;color:var(--amber);">◀ Aquí
+                                    </div>
+                                </div>
+                                <div class="route-stop-line" style="background:var(--gray-200);"></div>
+                                <div class="route-stop">
+                                    <div class="route-stop-dot"></div>
+                                    <div class="route-stop-name">Parque Perro</div>
+                                </div>
+                                <div class="route-stop-line" style="background:var(--gray-200);"></div>
+                                <div class="route-stop">
+                                    <div class="route-stop-dot"></div>
+                                    <div class="route-stop-name">Unicentro</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                            <div class="alert-item alert-warning">
+                                <div class="alert-icon">⚠️</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">Congestión moderada adelante</div>
+                                    <div class="alert-desc">IA detecta tráfico en Parque del Perro. Tiempo adicional: +8
+                                        min. Considera avanzar por Av.3N.</div>
+                                    <button class="btn btn-secondary btn-sm mt-2">Ver ruta alternativa</button>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-title" style="margin-bottom:12px;">🚨 Reportar incidencia rápida</div>
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    <button class="incident-btn block" style="padding:10px;"
+                                        onclick="reportarIncidente('bloqueo')">🚧 Bloqueo</button>
+                                    <button class="incident-btn mechanic" style="padding:10px;"
+                                        onclick="reportarIncidente('falla')">🔧 Falla mecánica</button>
+                                    <button class="incident-btn security" style="padding:10px;"
+                                        onclick="reportarIncidente('seguridad')">🚨 Seguridad</button>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-title" style="margin-bottom:12px;">📊 Turno de hoy</div>
+                                <div style="display:flex;gap:12px;">
+                                    <div
+                                        style="flex:1;text-align:center;padding:10px;background:var(--gray-50);border-radius:8px;">
+                                        <div style="font-weight:700;font-size:1.2rem;">7</div>
+                                        <div class="text-xs text-gray">Vueltas</div>
+                                    </div>
+                                    <div
+                                        style="flex:1;text-align:center;padding:10px;background:var(--green-light);border-radius:8px;">
+                                        <div style="font-weight:700;font-size:1.2rem;color:var(--green-dark);">4h 20m
+                                        </div>
+                                        <div class="text-xs text-gray">Tiempo activo</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: ADMIN ====== -->
+                <div class="view" id="view-admin">
+                    <div class="page-header">
+                        <h1>⚙️ Panel Administrativo</h1>
+                        <p>RF-09 — Gestión del sistema de transporte informal de Cali</p>
+                    </div>
+
+                    <div class="admin-header">
+                        <div class="admin-kpi">
+                            <div class="kpi">
+                                <div class="kpi-value">18</div>
+                                <div class="kpi-label">Rutas activas</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value">142</div>
+                                <div class="kpi-label">Vehículos en servicio</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value">2,841</div>
+                                <div class="kpi-label">Usuarios activos hoy</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value">7</div>
+                                <div class="kpi-label">Reportes pendientes</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value">5</div>
+                                <div class="kpi-label">Alertas activas</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <!-- Reportes pendientes de validación -->
+                        <div class="card">
+                            <div class="card-title">📋 Reportes pendientes de validación <span class="nav-chip"
+                                    style="position:static;margin-left:4px;">7</span></div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Conductor</th>
+                                            <th>Tipo</th>
+                                            <th>Ruta</th>
+                                            <th>Severidad</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Carlos R.</td>
+                                            <td>🚧 Bloqueo</td>
+                                            <td>G-07</td>
+                                            <td><span class="tag tag-amber">🟡 Media</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;">
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="validarReporte(this)">✅</button>
+                                                    <button class="btn btn-secondary btn-sm"
+                                                        onclick="rechazarReporte(this)">❌</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Luis M.</td>
+                                            <td>🔧 Falla</td>
+                                            <td>B-22A</td>
+                                            <td><span class="tag tag-red">🔴 Alta</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;">
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="validarReporte(this)">✅</button>
+                                                    <button class="btn btn-secondary btn-sm"
+                                                        onclick="rechazarReporte(this)">❌</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Ana P.</td>
+                                            <td>🚨 Seguridad</td>
+                                            <td>G-18</td>
+                                            <td><span class="tag tag-red">🔴 Urgente</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;">
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="validarReporte(this)">✅</button>
+                                                    <button class="btn btn-secondary btn-sm"
+                                                        onclick="rechazarReporte(this)">❌</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pedro V.</td>
+                                            <td>🚦 Congestión</td>
+                                            <td>B-05</td>
+                                            <td><span class="tag tag-amber">🟡 Media</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;">
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="validarReporte(this)">✅</button>
+                                                    <button class="btn btn-secondary btn-sm"
+                                                        onclick="rechazarReporte(this)">❌</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Estado rutas en tiempo real -->
+                        <div class="card">
+                            <div class="card-title">🗺️ Estado rutas en tiempo real</div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Ruta</th>
+                                            <th>Empresa</th>
+                                            <th>Estado</th>
+                                            <th>Vehículos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>G-07</strong></td>
+                                            <td>Coopcencar</td>
+                                            <td><span class="tag tag-amber">🟡 Demorada</span></td>
+                                            <td>8</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>B-22A</strong></td>
+                                            <td>Transurbano</td>
+                                            <td><span class="tag tag-red">🔴 Congestionada</span></td>
+                                            <td>5</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>G-12</strong></td>
+                                            <td>Coopcencar</td>
+                                            <td><span class="tag tag-green">🟢 Normal</span></td>
+                                            <td>6</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>B-14</strong></td>
+                                            <td>Unitransco</td>
+                                            <td><span class="tag tag-green">🟢 Normal</span></td>
+                                            <td>10</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>B-05</strong></td>
+                                            <td>Transurbano</td>
+                                            <td><span class="tag tag-red">🔴 Desviada</span></td>
+                                            <td>4</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>G-18</strong></td>
+                                            <td>Cootranscali</td>
+                                            <td><span class="tag tag-amber">🟡 Precaución</span></td>
+                                            <td>7</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: GESTIÓN RUTAS (ADMIN) ====== -->
+                <div class="view" id="view-gestionRutas">
+                    <div class="page-header-row">
+                        <div class="page-header">
+                            <h1>🛤️ Gestión de Rutas</h1>
+                            <p>RF-09 — Administración de rutas y paradas del transporte informal</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="showToast('Formulario de nueva ruta abierto')">+ Nueva
+                            ruta</button>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Buscar ruta</label>
+                                <input class="form-control" placeholder="Nombre, número o empresa…">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Filtrar por empresa</label>
+                                <select class="form-control">
+                                    <option>Todas las empresas</option>
+                                    <option>Coopcencar</option>
+                                    <option>Transurbano</option>
+                                    <option>Unitransco</option>
+                                    <option>Cootranscali</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ruta</th>
+                                    <th>Tipo</th>
+                                    <th>Empresa</th>
+                                    <th>Origen → Destino</th>
+                                    <th>Paradas</th>
+                                    <th>Tarifa</th>
+                                    <th>Horario</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>G-07</strong></td>
+                                    <td><span class="tag tag-purple">Guala</span></td>
+                                    <td>Coopcencar</td>
+                                    <td>Centenario → Unicentro</td>
+                                    <td>5</td>
+                                    <td>$1.800</td>
+                                    <td>5:30 – 9:30 PM</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
+                                                class="btn-icon">👁️</button></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>B-22A</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>Transurbano</td>
+                                    <td>Centenario → Centro</td>
+                                    <td>8</td>
+                                    <td>$2.200</td>
+                                    <td>5:00 – 10:00 PM</td>
+                                    <td><span class="tag tag-amber">🟡 Demorada</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
+                                                class="btn-icon">👁️</button></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>G-12</strong></td>
+                                    <td><span class="tag tag-purple">Guala</span></td>
+                                    <td>Coopcencar</td>
+                                    <td>Centenario → Univalle</td>
+                                    <td>6</td>
+                                    <td>$2.000</td>
+                                    <td>6:00 – 9:00 PM</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
+                                                class="btn-icon">👁️</button></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>B-14</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>Unitransco</td>
+                                    <td>Centenario → Unicentro</td>
+                                    <td>10</td>
+                                    <td>$1.600</td>
+                                    <td>5:00 – 10:00 PM</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
+                                                class="btn-icon">👁️</button></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>B-05</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>Transurbano</td>
+                                    <td>Centenario → Aguablanca</td>
+                                    <td>12</td>
+                                    <td>$2.400</td>
+                                    <td>5:00 – 9:00 PM</td>
+                                    <td><span class="tag tag-red">🔴 Desviada</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
+                                                class="btn-icon">👁️</button></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>G-18</strong></td>
+                                    <td><span class="tag tag-purple">Guala</span></td>
+                                    <td>Cootranscali</td>
+                                    <td>Aguablanca → Centro</td>
+                                    <td>7</td>
+                                    <td>$1.900</td>
+                                    <td>5:30 – 8:00 PM</td>
+                                    <td><span class="tag tag-amber">🟡 Precaución</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
+                                                class="btn-icon">👁️</button></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>B-03</strong></td>
+                                    <td><span class="tag tag-blue">Bus</span></td>
+                                    <td>Transurbano</td>
+                                    <td>Sur → Ciudad Jardín</td>
+                                    <td>9</td>
+                                    <td>$2.100</td>
+                                    <td>5:30 – 9:30 PM</td>
+                                    <td><span class="tag tag-green">🟢 Activa</span></td>
+                                    <td>
+                                        <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
+                                                class="btn-icon">👁️</button></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ====== VIEW: USUARIOS (ADMIN) ====== -->
+                <div class="view" id="view-usuarios">
+                    <div class="page-header-row">
+                        <div class="page-header">
+                            <h1>👥 Gestión de Usuarios</h1>
+                            <p>RF-01 & RF-09 — Usuarios registrados en el sistema</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="showToast('Formulario de nuevo usuario')">+ Nuevo
+                            usuario</button>
+                    </div>
+
+                    <div class="grid-4 mb-4">
+                        <div class="stat-card">
+                            <div class="icon" style="background:#e6f7f1;">👥</div>
+                            <div class="value">2,841</div>
+                            <div class="label">Total usuarios</div>
+                            <div class="trend up">↑ +23 hoy</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#eff6ff;">👤</div>
+                            <div class="value">2,694</div>
+                            <div class="label">Pasajeros</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#fef3c7;">🚌</div>
+                            <div class="value">142</div>
+                            <div class="label">Conductores</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#f5f3ff;">⚙️</div>
+                            <div class="value">5</div>
+                            <div class="label">Administradores</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div
+                            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap;">
+                            <div class="tabs" style="margin-bottom:0;">
+                                <button class="tab-btn active" onclick="switchTab(this,'utab-todos')">Todos</button>
+                                <button class="tab-btn" onclick="switchTab(this,'utab-pasajeros')">Pasajeros</button>
+                                <button class="tab-btn"
+                                    onclick="switchTab(this,'utab-conductores')">Conductores</button>
+                            </div>
+                            <input class="form-control" style="width:220px;" placeholder="🔍 Buscar usuario…">
+                        </div>
+
+                        <div id="utab-todos" class="tab-content active">
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Rol</th>
+                                            <th>Zona</th>
+                                            <th>Viajes</th>
+                                            <th>Último acceso</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="width:32px;height:32px;font-size:12px;background:linear-gradient(135deg,#10b981,#047857);">
+                                                        MG</div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">María García
+                                                        </div>
+                                                        <div class="text-xs text-gray">maria.garcia@gmail.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-green">Pasajera</span></td>
+                                            <td>Centenario</td>
+                                            <td>142</td>
+                                            <td class="text-xs text-gray">Hoy 7:42 AM</td>
+                                            <td><span class="tag tag-green">🟢 Activa</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn-icon">✏️</button><button class="btn-icon">🔐</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="width:32px;height:32px;font-size:12px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);">
+                                                        CR</div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">Carlos Rodríguez
+                                                        </div>
+                                                        <div class="text-xs text-gray">c.rodriguez@coopcencar.co</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-blue">Conductor</span></td>
+                                            <td>Centenario</td>
+                                            <td>—</td>
+                                            <td class="text-xs text-gray">Hoy 5:30 AM</td>
+                                            <td><span class="tag tag-green">🟢 En ruta</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn-icon">✏️</button><button class="btn-icon">🔐</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="width:32px;height:32px;font-size:12px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);">
+                                                        LT</div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">Luisa Torres
+                                                        </div>
+                                                        <div class="text-xs text-gray">luisa.t@gmail.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-green">Pasajera</span></td>
+                                            <td>Agua Blanca</td>
+                                            <td>89</td>
+                                            <td class="text-xs text-gray">Ayer 6:15 PM</td>
+                                            <td><span class="tag tag-green">🟢 Activa</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn-icon">✏️</button><button class="btn-icon">🔐</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="width:32px;height:32px;font-size:12px;background:linear-gradient(135deg,#f59e0b,#b45309);">
+                                                        JM</div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">Jhon Mosquera
+                                                        </div>
+                                                        <div class="text-xs text-gray">j.mosquera@unitransco.co</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-blue">Conductor</span></td>
+                                            <td>Sur</td>
+                                            <td>—</td>
+                                            <td class="text-xs text-gray">Hoy 5:55 AM</td>
+                                            <td><span class="tag tag-amber">🟡 Pausa</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn-icon">✏️</button><button class="btn-icon">🔐</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="user-avatar-sm"
+                                                        style="width:32px;height:32px;font-size:12px;background:linear-gradient(135deg,#ef4444,#b91c1c);">
+                                                        AP</div>
+                                                    <div>
+                                                        <div style="font-weight:600;font-size:.875rem;">Andrea Patiño
+                                                        </div>
+                                                        <div class="text-xs text-gray">a.patino@email.com</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="tag tag-green">Pasajera</span></td>
+                                            <td>Ciudad Jardín</td>
+                                            <td>56</td>
+                                            <td class="text-xs text-gray">Hace 3 días</td>
+                                            <td><span class="tag tag-gray">⬜ Inactiva</span></td>
+                                            <td>
+                                                <div style="display:flex;gap:4px;"><button
+                                                        class="btn-icon">✏️</button><button class="btn-icon">🔐</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="utab-pasajeros" class="tab-content">
+                            <div class="empty-state">
+                                <div class="empty-icon">👤</div>
+                                <h3>Filtrando solo pasajeros</h3>
+                                <p>2.694 pasajeros registrados en el sistema</p>
+                            </div>
+                        </div>
+                        <div id="utab-conductores" class="tab-content">
+                            <div class="empty-state">
+                                <div class="empty-icon">🚌</div>
+                                <h3>Filtrando solo conductores</h3>
+                                <p>142 conductores activos en el sistema</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+        <!-- BOTTOM NAV (Mobile) -->
+        <nav class="bottom-nav" id="bottomNav">
+            <button class="bottom-nav-item active" id="bnav-inicio" onclick="navigate('inicio')">
+                <div class="icon">🏠</div>
+                <div class="label">Inicio</div>
+            </button>
+            <button class="bottom-nav-item" id="bnav-mapa" onclick="navigate('mapa')">
+                <div class="icon">🗺️</div>
+                <div class="label">Mapa</div>
+            </button>
+            <button class="bottom-nav-item" id="bnav-asistente" onclick="navigate('asistente')">
+                <div class="icon">🤖</div>
+                <div class="label">IA</div>
+            </button>
+            <button class="bottom-nav-item" id="bnav-alertas" onclick="navigate('alertas')">
+                <div class="icon">🔔</div>
+                <div class="label">Alertas</div>
+            </button>
+            <button class="bottom-nav-item" id="bnav-perfil" onclick="navigate('perfil')">
+                <div class="icon">👤</div>
+                <div class="label">Perfil</div>
+            </button>
+        </nav>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast">
+        <span id="toastMsg">Mensaje</span>
+    </div>
+
+    <script>
+        // ===== STATE =====
+        let currentRole = 'pasajero';
+        let currentView = 'inicio';
+        let notifOpen = false;
+
+        const roleUsers = {
+            pasajero: { name: 'María García', initials: 'MG', label: 'Pasajera', avatar: 'linear-gradient(135deg,#10b981,#047857)' },
+            conductor: { name: 'Carlos Rodríguez', initials: 'CR', label: 'Conductor', avatar: 'linear-gradient(135deg,#3b82f6,#1d4ed8)' },
+            admin: { name: 'Admin Sistema', initials: 'AS', label: 'Administrador', avatar: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }
+        };
+
+        const greetings = {
+            pasajero: '¡Buenos días, María! 👋',
+            conductor: '¡Buenos días, Carlos! 🚌',
+            admin: '¡Buenos días, Administrador! ⚙️'
+        };
+
+        // ===== LOGIN =====
+        function selectRole(el, role) {
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('sel'));
+            el.classList.add('sel');
+            currentRole = role;
+        }
+
+        function quickLogin(role) {
+            document.querySelectorAll('.role-btn').forEach((b, i) => {
+                b.classList.remove('sel');
+                if (['pasajero', 'conductor', 'admin'][i] === role) { b.classList.add('sel'); }
+            });
+            currentRole = role;
+            doLogin();
+        }
+
+        function doLogin() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            applyRole(currentRole);
+            navigate('inicio');
+            showToast(`✅ Bienvenido como ${roleUsers[currentRole].label}`);
+        }
+
+        // ===== ROLE APPLY =====
+        function applyRole(role) {
+            const u = roleUsers[role];
+            document.getElementById('roleLabel').textContent = u.label;
+            const av = document.getElementById('userAvatarNav');
+            av.textContent = u.initials;
+            av.style.background = u.avatar;
+
+            // Show/hide sidebar sections
+            document.getElementById('nav-section-pasajero').classList.toggle('hidden', role !== 'pasajero');
+            document.getElementById('nav-section-conductor').classList.toggle('hidden', role !== 'conductor');
+            document.getElementById('nav-section-admin').classList.toggle('hidden', role !== 'admin');
+
+            // Update greeting
+            const h1 = document.querySelector('#view-inicio .page-header h1');
+            if (h1) h1.textContent = greetings[role];
+        }
+
+        // ===== NAVIGATION =====
+        function navigate(view) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            // Remove active from nav items
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav-item').forEach(i => i.classList.remove('active'));
+
+            // Show target view
+            const targetView = document.getElementById('view-' + view);
+            if (targetView) {
+                targetView.classList.add('active');
+                currentView = view;
+            }
+
+            // Activate nav items
+            const navItem = document.getElementById('nav-' + view);
+            if (navItem) navItem.classList.add('active');
+            const bnavItem = document.getElementById('bnav-' + view);
+            if (bnavItem) bnavItem.classList.add('active');
+
+            // Close notifications
+            if (notifOpen) toggleNotif();
+
+            // Scroll to top
+            document.getElementById('contentArea').scrollTo(0, 0);
+        }
+
+        // ===== SIDEBAR TOGGLE =====
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+
+        // ===== NOTIFICATIONS =====
+        function toggleNotif() {
+            const panel = document.getElementById('notifPanel');
+            notifOpen = !notifOpen;
+            panel.classList.toggle('open', notifOpen);
+        }
+
+        function markAllRead() {
+            document.querySelectorAll('.notif-item.unread').forEach(i => i.classList.remove('unread'));
+            document.getElementById('notifBadge').style.display = 'none';
+            showToast('✅ Notificaciones marcadas como leídas');
+            toggleNotif();
+        }
+
+        // Close notif on outside click
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notifPanel');
+            const btn = e.target.closest('.nav-btn');
+            if (!panel.contains(e.target) && !btn && notifOpen) {
+                toggleNotif();
+            }
+        });
+
+        // ===== TOAST =====
+        function showToast(msg, duration = 2800) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), duration);
+        }
+
+        // ===== ROUTE ACTIONS =====
+        function buscarRutas() {
+            const dest = document.getElementById('quickDest').value || document.querySelector('.chip.active')?.textContent;
+            navigate('mapa');
+            setTimeout(() => showToast(`🔍 Buscando rutas hacia ${dest || 'Unicentro'}…`), 200);
+        }
+
+        function buscarRutasMapa() {
+            showToast('🔍 Actualizando resultados de búsqueda…');
+        }
+
+        function verRuta(ruta) {
+            navigate('mapa');
+            setTimeout(() => showToast(`🗺️ Mostrando detalles de la ruta ${ruta}`), 200);
+        }
+
+        function selectRoute(el) {
+            document.querySelectorAll('.route-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            showToast('✅ Ruta seleccionada');
+        }
+
+        function setDest(el, dest) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('quickDest').value = dest;
+        }
+
+        function filtrarRutas(tipo) {
+            showToast(`🔍 Filtrando: ${tipo === 'all' ? 'Todos los vehículos' : tipo === 'bus' ? 'Solo buses' : 'Solo gualas'}`);
+        }
+
+        function chipFilter(el, label) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            showToast(`⏰ Filtrado por: ${label}`);
+        }
+
+        // ===== AI CHAT =====
+        const aiResponses = {
+            '¿Cuánto demora en hora pico?': `⏱️ En <strong>hora pico</strong> (7-9 AM y 5-7 PM), la ruta G-07 demora aprox. <strong>35-45 min</strong> por la Av.6N.\n\nTe recomiendo tomar la G-07 antes de las 7:30 AM o después de las 9:00 AM para un viaje de 25-28 min.`,
+            'Rutas más económicas': `💰 <strong>Rutas más económicas hacia Unicentro:</strong>\n\n1. 🥇 Bus B-14 — $1.600 (42 min)\n2. 🥈 Guala G-07 — $1.800 (28 min)\n3. 🥉 Guala G-12 — $2.000 (32 min)\n\nEl B-14 es el más barato pero tarda 14 min más. ¿Vale el ahorro?`,
+            'Seguridad en la noche': `🛡️ <strong>Recomendaciones nocturnas (después 8 PM):</strong>\n\n✅ Usa la Ruta B-14 por Av. Colombia — más iluminada.\n✅ Activa "Compartir ubicación" con tu familia.\n⚠️ Evita la zona Desepaz — alerta activa.\n🏥 CAI Centenario: tu punto seguro más cercano (280m).`,
+            '¿Cuándo sale el próximo?': `🕐 <strong>Próximas salidas desde Av.6N-Cll34:</strong>\n\n• G-07 → 7:54 AM (en 12 min) 🟡 Leve demora\n• G-12 → 8:01 AM (en 19 min) 🟢\n• B-22A → 8:07 AM (en 25 min) 🔴 Congestionada`,
+            'default': `Entendido 🤖 Estoy analizando tu consulta sobre movilidad en Cali. Considera las alertas activas de tráfico en la Av.6N al planear tu viaje. ¿Quieres que te recomiende una ruta específica basada en tu ubicación actual?`
+        };
+
+        function sendAI() {
+            const input = document.getElementById('aiInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            appendAIMsg(msg, 'user');
+            input.value = '';
+
+            setTimeout(() => {
+                const resp = aiResponses[msg] || aiResponses['default'];
+                appendAIMsg(resp, 'bot');
+            }, 900);
+        }
+
+        function sendAISuggestion(el) {
+            document.getElementById('aiInput').value = el.textContent;
+            sendAI();
+        }
+
+        function appendAIMsg(text, role) {
+            const msgs = document.getElementById('aiMessages');
+            const now = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+            const div = document.createElement('div');
+            div.className = `msg msg-${role}`;
+            div.innerHTML = `
+      <div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>
+      <div class="msg-meta">${role === 'bot' ? 'MobiIA' : 'Tú'} • ${now}</div>
+    `;
+            msgs.appendChild(div);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        // ===== SEGURIDAD =====
+        function activarSOS() {
+            if (confirm('🆘 ¿Activar EMERGENCIA? Se notificará a tus contactos y servicios de seguridad.')) {
+                showToast('🆘 SOS ACTIVADO — Notificando a contactos y CAI Centenario…', 5000);
+            }
+        }
+
+        // ===== REPORTES =====
+        function reportarIncidente(tipo) {
+            const tipos = {
+                bloqueo: '🚧 Bloqueo vial reportado',
+                falla: '🔧 Falla mecánica reportada',
+                seguridad: '🚨 Incidente de seguridad reportado'
+            };
+            showToast(`${tipos[tipo]} — Enviando al centro de control…`);
+        }
+
+        function enviarReporte() {
+            showToast('✅ Reporte enviado correctamente. Revisión en 5 minutos.');
+        }
+
+        function validarReporte(btn) {
+            const row = btn.closest('tr');
+            row.querySelector('.tag').outerHTML = '<span class="tag tag-green">✅ Validado</span>';
+            btn.parentElement.innerHTML = '<span class="tag tag-green">✅</span>';
+            showToast('✅ Reporte validado y publicado como alerta');
+        }
+
+        function rechazarReporte(btn) {
+            const row = btn.closest('tr');
+            row.style.opacity = '0.4';
+            btn.parentElement.innerHTML = '<span class="tag tag-gray">❌ Rechazado</span>';
+            showToast('❌ Reporte rechazado');
+        }
+
+        // ===== TABS =====
+        function switchTab(btn, targetId) {
+            const parent = btn.closest('.tabs') || btn.parentElement.closest('.card') || btn.closest('.card') || document.body;
+            const section = btn.closest('.view') || btn.closest('.card') || document.body;
+
+            section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            section.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const target = document.getElementById(targetId);
+            if (target) target.classList.add('active');
+        }
+
+        // ===== GLOBAL SEARCH =====
+        function handleGlobalSearch(val) {
+            if (val.length > 2) {
+                // Would show results in production
+            }
+        }
+
+        // ===== INIT =====
+        // Start with login screen
+
+        // El mapa y sus rutas se gestionan desde js/mapa-rutas.js
+    </script>
+    <!-- Scripts de la Aplicación -->
+    <script src="../js/auth.js"></script>
+    <script src="../js/mapa-rutas.js"></script>
+    <script src="../js/ia.js"></script>
+    <script>
+        (function() {
+            const user = requireAuth('pasajero');
+            if (!user) return;
+            
+            // Navbar e Inicio
+            const avatarEl  = document.getElementById('userAvatarNav');
+            const nameEl    = document.getElementById('navUserName');
+            const welcomeEl = document.querySelector('#view-inicio .page-header h1');
+            const userFirstName = user.nombre ? user.nombre.split(' ')[0] : 'Pasajero';
+            
+            if (avatarEl)  avatarEl.textContent  = user.avatar || userFirstName.slice(0,2).toUpperCase();
+            if (nameEl)    nameEl.textContent     = userFirstName;
+            if (welcomeEl) welcomeEl.textContent  = '\u00a1Bienvenido, ' + userFirstName + '! \ud83d\udc4b';
+
+            // Mi Perfil
+            const fullProfile = typeof getUsuarioCompleto === 'function' ? getUsuarioCompleto() : user;
+            if (fullProfile) {
+                const nombreCompleto = fullProfile.nombres ? (fullProfile.nombres + ' ' + (fullProfile.apellidos || '')) : fullProfile.nombre;
+                const correo = fullProfile.correo || '';
+                const celular = fullProfile.celular || 'No registrado';
+                const barrio = fullProfile.barrio || 'Cali';
+                const avatar = user.avatar || userFirstName.slice(0,2).toUpperCase();
+
+                // Cabecera perfil
+                const pAvatar = document.getElementById('perfilAvatarLg');
+                const pNombre = document.getElementById('perfilNombreHeader');
+                const pContacto = document.getElementById('perfilContactoHeader');
+                const pUbicacion = document.getElementById('perfilUbicacionHeader');
+
+                if (pAvatar) pAvatar.textContent = avatar;
+                if (pNombre) pNombre.textContent = nombreCompleto;
+                if (pContacto) pContacto.textContent = '\ud83d\udce7 ' + correo + ' \u00b7 \ud83d\udcf1 ' + celular;
+                if (pUbicacion) pUbicacion.textContent = '\ud83d\udccd ' + barrio + ', Cali \u00b7 Pasajero activo';
+
+                // Formulario
+                const inNombre = document.getElementById('inputPerfilNombre');
+                const inCorreo = document.getElementById('inputPerfilCorreo');
+                const inCelular = document.getElementById('inputPerfilCelular');
+                const inBarrio = document.getElementById('inputPerfilBarrio');
+
+                if (inNombre) inNombre.value = nombreCompleto;
+                if (inCorreo) inCorreo.value = correo;
+                if (inCelular) inCelular.value = celular;
+                if (inBarrio) inBarrio.value = barrio;
+            }
+        })();
+    </script>
+</body>
+
+</html>
