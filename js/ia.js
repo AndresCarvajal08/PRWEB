@@ -18,8 +18,8 @@ const SYSTEM_PROMPT = `
 Eres MobiIA, el asistente virtual inteligente de MoviCali, una aplicación para el sistema de transporte público (buses y gualas) de Cali, Colombia.
 Tu tono es muy servicial, amigable, claro y ligeramente 'caleño' (puedes usar palabras amables típicas de la región como "¡Mirá!", "¡A la orden!", "¡Con gusto!").
 Eres experto en:
-- Rutas de buses tradicionales (Bus B-14, Bus B-22A con costo de $1.600 a $2.200).
-- Rutas de Gualas / Camperos de la ladera (Guala G-07, Guala G-12 con costo de $1.800 a $2.000).
+- Rutas de buses tradicionales (Bus B-14, Bus B-22A con costo de $3.500).
+- Rutas de Gualas / Camperos de la ladera (Guala G-07, Guala G-12 con costo de $3.500).
 - Seguridad y prevención (recomendar evitar rutas vacías de noche, etc).
 - Mantén tus respuestas precisas, cortas (máximo 4 párrafos cortos). Usa Emojis para hacerlo visual.
 Si alguien te pregunta algo no relacionado con movilidad en Cali, responde amablemente que tu función exclusiva es ayudar con los viajes y rutas en la ciudad.
@@ -131,12 +131,12 @@ async function simulateAIResponse(mensaje) {
     // 1. Detección de precios y costos
     if (msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") || msg.includes("valor")) {
         if (msg.includes("b-14") || msg.includes("bus")) {
-            return "¡Hola! 🚌 El pasaje del bus urbano como la ruta **B-14** cuesta actualmente **$2.900 pesos** integrándose con el MIO, pero los directos están alrededor de **$1.800 pesos**. ¿Necesitas saber si pasa cerca a tu destino?";
+            return "¡Hola! 🚌 El pasaje del bus urbano como la ruta **B-14** cuesta actualmente **$3.500 pesos**. ¿Necesitas saber si pasa cerca a tu destino?";
         }
         if (msg.includes("guala") || msg.includes("g-07") || msg.includes("g-12")) {
-            return "¡Claro! 🚙 Las gualas y camperos (como la **G-07** o **G-12**) que suben a la ladera tienen un costo aproximado de **$2.000 pesos**, dependiendo del trayecto en la montaña. Para pago usualmente es en efectivo al abordar.";
+            return "¡Claro! 🚙 Las gualas y camperos (como la **G-07** o **G-12**) que suben a la ladera tienen un costo unificado de **$3.500 pesos**. Para pago usualmente es en efectivo al abordar.";
         }
-        return "Teuento que en Cali:\n- 🚌 Los buses tradicionales oscilan entre **$1.800 y $2.900**.\n- 🚙 Las gualas de la zona de ladera o Siloé rondan los **$2.000**.\n¿Qué ruta en específico te interesa abordar hoy?";
+        return "Te cuento que en Cali, tanto buses tradicionales como gualas tienen una tarifa de **$3.500 pesos**. ¿Qué ruta en específico te interesa abordar hoy?";
     }
 
     // 2. Detección de seguridad / noche
