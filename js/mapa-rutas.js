@@ -92,28 +92,34 @@
         },
         {
             id: 'B-14',
-            nombre: 'Bus B-14',
+            nombre: 'Bus B-14 (Especial Sur)',
             tipo: '\ud83d\ude8c',         // 🚌
             empresa: 'Unitransco',
             color: '#f59e0b',
-            precio: '$1.600',
-            tiempo: '42 min',
+            precio: '$1.800',
+            tiempo: '45 min',
             tagClass: 'tag-gray',
-            tagTexto: 'Econ\u00f3mico',
+            tagTexto: 'Económico',
             estadoClass: 'tag-green',
-            estadoTexto: '\ud83d\udfe2 A tiempo',
+            estadoTexto: '🟢 Loop Continuo',
             alertaClass: null,
             alertaTexto: null,
-            descripcion: 'Centenario \u2192 Av. Colombia \u2192 Unicentro',
-            // Ruta larga por Av. Colombia hacia el norte
+            descripcion: 'Ida: Calle 5 \u2192 Regreso: Pasoancho',
             paradas: [
-                { nombre: 'Barrio Centenario',    lat: 3.4284, lng: -76.5318 },
-                { nombre: 'Av. Ca\u00f1asgordas',    lat: 3.4320, lng: -76.5340 },
-                { nombre: 'Av. Colombia Cll 25',  lat: 3.4380, lng: -76.5380 },
-                { nombre: 'Hospital Militar',     lat: 3.4430, lng: -76.5330 },
-                { nombre: 'Bulevar del R\u00edo',    lat: 3.4482, lng: -76.5260 },
-                { nombre: 'Cll 48 con Cra 5N',    lat: 3.4528, lng: -76.5200 },
-                { nombre: 'Unicentro',             lat: 3.4562, lng: -76.5148 }
+                // ===== IDA (Norte a Sur por Calle 5) =====
+                { nombre: 'Centro (Plaza Caicedo)',     lat: 3.4516, lng: -76.5323 },
+                { nombre: 'Bulevar / San Antonio',      lat: 3.4410, lng: -76.5398 },
+                { nombre: 'Estadio (Calle 5)',          lat: 3.4285, lng: -76.5435 },
+                { nombre: 'Cosmocentro / Toros',        lat: 3.4140, lng: -76.5475 },
+                { nombre: 'Estaci\u00f3n Capri',             lat: 3.3910, lng: -76.5440 },
+                { nombre: 'Universidades (Retorno)',    lat: 3.3735, lng: -76.5325 },
+                // ===== VUELTA (Sur a Norte por Pasoancho y Roosevelt) =====
+                { nombre: 'Pasoancho Sur (Cra 100)',    lat: 3.3850, lng: -76.5330 },
+                { nombre: 'Pasoancho (Cra 66)',         lat: 3.4005, lng: -76.5360 },
+                { nombre: 'Pasoancho (Cra 50)',         lat: 3.4150, lng: -76.5385 },
+                { nombre: 'Av. Roosevelt (Imbanaco)',   lat: 3.4245, lng: -76.5412 },
+                { nombre: 'Parque Alameda',             lat: 3.4372, lng: -76.5350 },
+                { nombre: 'Centro (Cierre del Bucle)',  lat: 3.4516, lng: -76.5323 }
             ]
         }
     ];
@@ -442,9 +448,82 @@
                 if (view === 'mapa') setTimeout(iniciarMapa, 120);
             };
         }
-        // Si la vista mapa ya está activa al cargar
         const vm = document.getElementById('view-mapa');
         if (vm && vm.classList.contains('active')) setTimeout(iniciarMapa, 250);
+        
+        // Llamar la actualización de dashboard si estamos en la vista
+        setTimeout(window.actualizarDashboardInicio, 200);
     });
+
+    // ── GESTIÓN DE UBICACIÓN (GPS) Y DASHBOARD ──────────────────────
+    window.actualizarDashboardInicio = function() {
+        const dRutasActivas = document.getElementById('statRutasActivas');
+        const dProximaGuala = document.getElementById('statProximaGuala');
+        const dTiempoGuala  = document.getElementById('statTiempoGuala');
+
+        if (dRutasActivas) dRutasActivas.textContent = RUTAS.length;
+        
+        // Asignar el primer bus / guala recomendado como próximo
+        const prox = RUTAS.find(r => r.tagClass === 'tag-green') || RUTAS[0];
+        if (dProximaGuala) dProximaGuala.textContent = `${prox.id} hacia ${prox.paradas[prox.paradas.length-1].nombre}`;
+        if (dTiempoGuala) {
+           const min = parseInt(prox.tiempo) || 12;
+           dTiempoGuala.innerHTML = `${min} <span style="font-size:1rem;font-weight:400;color:var(--gray-400)">min</span>`;
+        }
+    };
+
+    window.detectarUbicacion = function() {
+        const btn = document.getElementById('btnDetectGPS');
+        if(btn) { btn.textContent = '⏱️'; btn.style.transform = 'scale(0.9)'; }
+        
+        if (!navigator.geolocation) {
+            alert('❌ Tu navegador no soporta geolocalización o la tienes bloqueada.');
+            if(btn) { btn.textContent = '🎯'; btn.style.transform = 'scale(1)'; }
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                
+                // Encontrar la parada más cercana en la base de datos de rutas (Fórmula de Distancia Euclidiana Básica)
+                let paradaMasCercana = null;
+                let distMin = Infinity;
+                
+                RUTAS.forEach(ruta => {
+                    ruta.paradas.forEach(p => {
+                        const dist = Math.sqrt(Math.pow(p.lat - lat, 2) + Math.pow(p.lng - lng, 2));
+                        if (dist < distMin) {
+                            distMin = dist;
+                            paradaMasCercana = p;
+                        }
+                    });
+                });
+
+                const inputOrigin = document.getElementById('quickOrigin');
+                if (inputOrigin) {
+                    if (paradaMasCercana) {
+                        inputOrigin.value = `${paradaMasCercana.nombre}`;
+                        if (typeof showToast === 'function') showToast(`📍 GPS: Estás a unos metros de '${paradaMasCercana.nombre}'`);
+                    } else {
+                        inputOrigin.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    }
+                }
+                
+                if(btn) { 
+                    btn.innerHTML = '✅'; 
+                    btn.style.transform = 'scale(1)'; 
+                    setTimeout(() => { btn.innerHTML = '🎯'; }, 3000);
+                }
+            },
+            (err) => {
+                console.warn("MoviCali GPS Error:", err);
+                alert('⚠️ No se pudo obtener tu ubicación. Verifica los permisos de tu navegador o celular.');
+                if(btn) { btn.textContent = '🎯'; btn.style.transform = 'scale(1)'; }
+            },
+            { enableHighAccuracy: true, timeout: 6000 }
+        );
+    };
 
 })();

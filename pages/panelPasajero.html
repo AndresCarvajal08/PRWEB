@@ -171,16 +171,16 @@
                     <div class="grid-4 mb-4">
                         <div class="stat-card">
                             <div class="icon" style="background:#e6f7f1;">🚌</div>
-                            <div class="value">18</div>
+                            <div class="value" id="statRutasActivas">--</div>
                             <div class="label">Rutas disponibles ahora</div>
-                            <div class="trend up">↑ 2 operativas</div>
+                            <div class="trend up">Actualizado en vivo</div>
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#fef3c7;">⏱️</div>
-                            <div class="value">12<span style="font-size:1rem;font-weight:400;color:var(--gray-400)">
+                            <div class="value" id="statTiempoGuala">--<span style="font-size:1rem;font-weight:400;color:var(--gray-400)">
                                     min</span></div>
                             <div class="label">Próxima guala habitual</div>
-                            <div class="trend up">G-07 en Av. 6N-34</div>
+                            <div class="trend up" id="statProximaGuala">Calculando...</div>
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#fee2e2;">⚠️</div>
@@ -201,11 +201,12 @@
                         <div class="card-title">🔍 ¿A dónde vas?</div>
                         <div class="form-row mb-3">
                             <div class="form-group" style="margin-bottom:0;">
-                                <label class="form-label">Origen</label>
-                                <div class="input-icon-wrap">
+                                <label class="form-label">Origen (Ubicación actual)</label>
+                                <div class="input-icon-wrap" style="display:flex;gap:6px;">
                                     <span class="input-icon">📍</span>
-                                    <input class="form-control" placeholder="Tu ubicación actual"
-                                        value="Barrio Centenario, Cali" id="quickOrigin">
+                                    <input class="form-control" placeholder="Toca el radar para detectarte..."
+                                        value="" id="quickOrigin">
+                                    <button class="btn btn-primary btn-sm" id="btnDetectGPS" onclick="detectarUbicacion()" title="Detectar tu radar GPS" style="padding: 0 14px; border-radius: 6px; font-size:1.1rem;">🎯</button>
                                 </div>
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
