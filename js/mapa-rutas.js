@@ -1,5 +1,5 @@
 /* ================================================================
-   MAPA & RUTAS — MoviCali
+   MAPA & RUTAS — WayRoute
    Ruta precalculada con OSRM — 330 puntos reales de calles de Cali.
    Sin fetch, sin API key, sin CORS. Funciona 100% offline.
    ================================================================ */
@@ -113,7 +113,7 @@
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap | MoviCali',
+      attribution: '© OpenStreetMap | WayRoute',
     }).addTo(leafletMap);
 
     const puntos = RUTA_PUNTOS;
@@ -163,5 +163,72 @@
   });
 
   window.iniciarMapa = iniciarMapa;
+
+  /* ----------------------------------------------------------------
+     API PÚBLICA para WayAI — Posición de buses en tiempo real
+  ---------------------------------------------------------------- */
+  window.WayRoute = window.WayRoute || {};
+
+  window.WayRoute.obtenerPosicionBuses = function() {
+    if (!buses.length) return null;
+
+    return buses.map((bus, i) => {
+      // Coordenada actual del bus
+      const posActual = posicionEnMetros(bus.puntos, bus.distAcum, bus.metros);
+
+      // Encontrar la parada más cercana
+      let paradaProxima = PARADAS[0];
+      let distMinima = Infinity;
+      PARADAS.forEach(parada => {
+        const d = distanciaMetros(posActual, parada.latlng);
+        if (d < distMinima) {
+          distMinima = d;
+          paradaProxima = parada;
+        }
+      });
+
+      // Calcular metros hasta la siguiente parada en sentido de avance
+      const totalMetros = bus.distAcum[bus.distAcum.length - 1];
+      const metrosActuales = ((bus.metros % totalMetros) + totalMetros) % totalMetros;
+      const porcentaje = Math.round((metrosActuales / totalMetros) * 100);
+
+      return {
+        numero: i + 1,
+        paradaCercana: paradaProxima.nombre,
+        distanciaMetros: Math.round(distMinima),
+        porcentajeRuta: porcentaje
+      };
+    });
+  };
+
+  // Calcula cuánto tarda el bus más cercano en llegar a cada parada
+  window.WayRoute.tiempoLlegadaProximo = function() {
+    if (!buses.length) return null;
+
+    const VELOCIDAD_MS_LOCAL = VELOCIDAD_KMH * 1000 / 3600; // m/s
+
+    return PARADAS.map(parada => {
+      let minSegundos = Infinity;
+      let busProximo = 1;
+
+      buses.forEach((bus, i) => {
+        const posActual = posicionEnMetros(bus.puntos, bus.distAcum, bus.metros);
+        const distMetros = distanciaMetros(posActual, parada.latlng);
+        const segundos = distMetros / VELOCIDAD_MS_LOCAL;
+
+        if (segundos < minSegundos) {
+          minSegundos = segundos;
+          busProximo = i + 1;
+        }
+      });
+
+      const minutos = Math.max(1, Math.round(minSegundos / 60));
+      return {
+        parada: parada.nombre,
+        busProximo,
+        minutos
+      };
+    });
+  };
 
 })();

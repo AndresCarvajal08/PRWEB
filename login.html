@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoviCali — Iniciar Sesión</title>
-  <meta name="description" content="Accede a MoviCali, la plataforma de consulta de transporte público tradicional de Santiago de Cali.">
+  <title>WayRoute — Iniciar Sesión</title>
+  <meta name="description" content="Accede a WayRoute, la plataforma de consulta de transporte público tradicional de Santiago de Cali.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/login.css">
@@ -33,7 +33,7 @@
       <div class="hero-brand">
         <div class="hero-logo">🚌</div>
         <div>
-          <div class="hero-name">Movi<span>Cali</span></div>
+          <div class="hero-name">Way<span>Route</span></div>
           <div class="hero-tagline">Transporte Público Tradicional</div>
         </div>
       </div>
@@ -180,12 +180,12 @@
     const DEMO_CREDS = {
       pasajero:      { email: 'lauraruiz@gmail.com',        pass: 'Pasajero1*',   hint: '📧 lauraruiz@gmail.com<br>🔒 Pasajero1*' },
       conductor:     { email: 'jcaicedo@laermita.com.co',   pass: 'Conductor1*',  hint: '📧 jcaicedo@laermita.com.co<br>🔒 Conductor1*' },
-      administrador: { email: 'admin@movicali.gov.co',      pass: 'Admin2025*',   hint: '📧 admin@movicali.gov.co<br>🔒 Admin2025*' }
+      administrador: { email: 'admin@wayroute.gov.co',      pass: 'Admin2025*',   hint: '📧 admin@wayroute.gov.co<br>🔒 Admin2025*' }
     };
 
     // Verificar si ya hay sesión
     (function() {
-      const s = sessionStorage.getItem('movicali_sesion');
+      const s = sessionStorage.getItem('wayroute_sesion');
       if (s) {
         const sesion = JSON.parse(s);
         if (sesion.rol) redirigirPorRol(sesion.rol);

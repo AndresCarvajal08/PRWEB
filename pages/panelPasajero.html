@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoviCali — Panel Pasajero</title>
+    <title>WayRoute — Panel Pasajero</title>
     <meta name="description" content="Consulta rutas, paradas y empresas del transporte público tradicional de Cali.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -52,7 +52,7 @@
             <button class="btn-icon" onclick="toggleSidebar()" style="display:flex;align-items:center;">☰</button>
             <a href="#" class="nav-brand" onclick="return false;">
                 <div class="nav-logo">🚌</div>
-                <span class="nav-brand-text">Movi<span>Cali</span></span>
+                <span class="nav-brand-text">Way<span>Route</span></span>
             </a>
             <div class="nav-spacer"></div>
             <div class="nav-search">
@@ -534,19 +534,19 @@
                             <div class="ai-chat-header">
                                 <div class="ai-avatar">🤖</div>
                                 <div class="info">
-                                    <h3>MobiIA — Asistente MoviCali</h3>
+                                    <h3>WayAI — Asistente WayRoute</h3>
                                     <p><span class="ai-status-dot"></span>En línea • Contexto: Cali, 7:42 AM</p>
                                 </div>
                             </div>
                             <div class="ai-messages" id="aiMessages">
                                 <div class="msg msg-bot">
                                     <div class="msg-bubble">
-                                        ¡Hola María! 👋 Soy MobiIA, tu asistente de movilidad para Cali.<br><br>
+                                        ¡Hola María! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>
                                         Veo que estás en el barrio <strong>Centenario</strong>.
                                         ¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura, los precios
                                         (Buses convencionales y Gualas) según cómo esté el tráfico actual de Cali.
                                     </div>
-                                    <div class="msg-meta">MobiIA • Ahora</div>
+                                    <div class="msg-meta">WayAI • Ahora</div>
                                 </div>
                             </div>
                             <div class="ai-suggestions">
@@ -1234,7 +1234,7 @@
                                 <input class="form-control" id="inputPerfilBarrio" value="">
                             </div>
                             <button class="btn btn-primary btn-sm"
-                                onclick="showToast('✅ Datos actualizados correctamente')">Guardar cambios</button>
+                                onclick="guardarPerfil()">Guardar cambios</button>
                         </div>
 
                         <div class="card">
@@ -2302,45 +2302,7 @@
             showToast(`⏰ Filtrado por: ${label}`);
         }
 
-        // ===== AI CHAT =====
-        const aiResponses = {
-            '¿Cuánto demora en hora pico?': `⏱️ En <strong>hora pico</strong> (7-9 AM y 5-7 PM), la ruta G-07 demora aprox. <strong>35-45 min</strong> por la Av.6N.\n\nTe recomiendo tomar la G-07 antes de las 7:30 AM o después de las 9:00 AM para un viaje de 25-28 min.`,
-            'Rutas más económicas': `💰 <strong>Rutas más económicas hacia Unicentro:</strong>\n\n1. 🥇 Bus B-14 — $3.500 (42 min)\n2. 🥈 Guala G-07 — $3.500 (28 min)\n3. 🥉 Guala G-12 — $3.500 (32 min)\n\nLas tarifas están unificadas en $3.500. ¿Quieres ver la ruta más rápida?`,
-            'Seguridad en la noche': `🛡️ <strong>Recomendaciones nocturnas (después 8 PM):</strong>\n\n✅ Usa la Ruta B-14 por Av. Colombia — más iluminada.\n✅ Activa "Compartir ubicación" con tu familia.\n⚠️ Evita la zona Desepaz — alerta activa.\n🏥 CAI Centenario: tu punto seguro más cercano (280m).`,
-            '¿Cuándo sale el próximo?': `🕐 <strong>Próximas salidas desde Av.6N-Cll34:</strong>\n\n• G-07 → 7:54 AM (en 12 min) 🟡 Leve demora\n• G-12 → 8:01 AM (en 19 min) 🟢\n• B-22A → 8:07 AM (en 25 min) 🔴 Congestionada`,
-            'default': `Entendido 🤖 Estoy analizando tu consulta sobre movilidad en Cali. Considera las alertas activas de tráfico en la Av.6N al planear tu viaje. ¿Quieres que te recomiende una ruta específica basada en tu ubicación actual?`
-        };
-
-        function sendAI() {
-            const input = document.getElementById('aiInput');
-            const msg = input.value.trim();
-            if (!msg) return;
-            appendAIMsg(msg, 'user');
-            input.value = '';
-
-            setTimeout(() => {
-                const resp = aiResponses[msg] || aiResponses['default'];
-                appendAIMsg(resp, 'bot');
-            }, 900);
-        }
-
-        function sendAISuggestion(el) {
-            document.getElementById('aiInput').value = el.textContent;
-            sendAI();
-        }
-
-        function appendAIMsg(text, role) {
-            const msgs = document.getElementById('aiMessages');
-            const now = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-            const div = document.createElement('div');
-            div.className = `msg msg-${role}`;
-            div.innerHTML = `
-      <div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>
-      <div class="msg-meta">${role === 'bot' ? 'MobiIA' : 'Tú'} • ${now}</div>
-    `;
-            msgs.appendChild(div);
-            msgs.scrollTop = msgs.scrollHeight;
-        }
+        // AI Chat gestionado por js/ia.js
 
         // ===== SEGURIDAD =====
         function activarSOS() {
@@ -2454,6 +2416,44 @@
                 if (inCelular) inCelular.value = celular;
                 if (inBarrio) inBarrio.value = barrio;
             }
+
+            // --- Lógica de Guardado ---
+            window.guardarPerfil = async function() {
+                const nombre = document.getElementById('inputPerfilNombre').value;
+                const celular = document.getElementById('inputPerfilCelular').value;
+                const barrio = document.getElementById('inputPerfilBarrio').value;
+
+                // Dividir nombre y apellido para la BD (asunción simple: primer espacio)
+                const partes = nombre.split(' ');
+                const nombres = partes[0];
+                const apellidos = partes.length > 1 ? partes.slice(1).join(' ') : '';
+
+                showToast('⏳ Guardando cambios...');
+                
+                const resultado = await actualizarUsuario({
+                    nombres, 
+                    apellidos, 
+                    celular, 
+                    barrio
+                });
+
+                if (resultado.ok) {
+                    showToast('✅ Datos actualizados correctamente');
+                    // Actualizar UI sin recargar
+                    document.getElementById('perfilNombreHeader').textContent = nombre;
+                    document.getElementById('perfilContactoHeader').textContent = '📧 ' + resultado.usuario.correo + ' · 📱 ' + celular;
+                    document.getElementById('perfilUbicacionHeader').textContent = '📍 ' + barrio + ', Cali · Pasajero activo';
+                    
+                    // Actualizar Navbar si el nombre cambió
+                    const firstName = nombres;
+                    const navName = document.getElementById('navUserName');
+                    if(navName) navName.textContent = firstName;
+                    const navWelcome = document.querySelector('#view-inicio .page-header h1');
+                    if(navWelcome) navWelcome.textContent = '¡Bienvenido, ' + firstName + '! 👋';
+                } else {
+                    showToast('❌ Error: ' + resultado.error);
+                }
+            };
         })();
     </script>
 </body>

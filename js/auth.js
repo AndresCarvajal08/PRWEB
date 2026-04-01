@@ -244,7 +244,7 @@ async function loginUsuario(correo, password) {
       avatar: (usuario.nombres[0] + (usuario.apellidos ? usuario.apellidos[0] : '')).toUpperCase(),
       timestamp: Date.now()
     };
-    sessionStorage.setItem('movicali_sesion', JSON.stringify(sesion));
+    sessionStorage.setItem('wayroute_sesion', JSON.stringify(sesion));
     sessionStorage.setItem('movicali_usuario_full', JSON.stringify(usuario));
     
     // Mapeo local para compatibilidad (por si otros scripts leen .nombre)
@@ -274,7 +274,7 @@ async function loginUsuario(correo, password) {
     avatar: usuario.avatar,
     timestamp: Date.now()
   };
-  sessionStorage.setItem('movicali_sesion', JSON.stringify(sesion));
+  sessionStorage.setItem('wayroute_sesion', JSON.stringify(sesion));
   sessionStorage.setItem('movicali_usuario_full', JSON.stringify(usuario));
 
   return { ok: true, usuario };
@@ -284,7 +284,7 @@ async function loginUsuario(correo, password) {
  * Cierra la sesión activa.
  */
 function logoutUsuario() {
-  sessionStorage.removeItem('movicali_sesion');
+  sessionStorage.removeItem('wayroute_sesion');
   sessionStorage.removeItem('movicali_usuario_full');
   window.location.href = '../login.html';
 }
@@ -294,7 +294,7 @@ function logoutUsuario() {
  * @returns {object|null}
  */
 function getSesion() {
-  const raw = sessionStorage.getItem('movicali_sesion');
+  const raw = sessionStorage.getItem('wayroute_sesion');
   return raw ? JSON.parse(raw) : null;
 }
 
@@ -383,7 +383,7 @@ async function registrarPasajero(datos) {
 
     // 3. Crear sesión en el navegador (Local)
     const nuevo = userData;
-    sessionStorage.setItem('movicali_sesion', JSON.stringify({
+    sessionStorage.setItem('wayroute_sesion', JSON.stringify({
       id: nuevo.id, 
       nombre: nuevo.nombres, 
       correo: nuevo.correo,
@@ -417,7 +417,7 @@ async function registrarPasajero(datos) {
   };
   USUARIOS_DB.push(nuevo);
   // Iniciar sesión automáticamente tras registro
-  sessionStorage.setItem('movicali_sesion', JSON.stringify({
+  sessionStorage.setItem('wayroute_sesion', JSON.stringify({
     id: nuevo.id, nombre: nuevo.nombre, correo: nuevo.correo,
     rol: nuevo.rol, avatar: nuevo.avatar, timestamp: Date.now()
   }));
@@ -479,11 +479,55 @@ function registrarConductor(datos) {
   return { ok: true, usuario: nuevo };
 }
 
+/**
+ * Actualiza los datos del usuario actual.
+ * @param {object} nuevosDatos 
+ * @returns {{ ok: boolean, error?: string }}
+ */
+async function actualizarUsuario(nuevosDatos) {
+  const usuario = getUsuarioCompleto();
+  if (!usuario) return { ok: false, error: 'No hay una sesión activa.' };
+
+  // 1. Actualizar en Supabase si está disponible
+  if (typeof window.supabaseClient !== 'undefined') {
+    const { error } = await window.supabaseClient
+      .from('usuarios')
+      .update({
+        nombres: nuevosDatos.nombres,
+        apellidos: nuevosDatos.apellidos,
+        celular: nuevosDatos.celular,
+        barrio: nuevosDatos.barrio
+      })
+      .eq('id', usuario.id);
+
+    if (error) return { ok: false, error: 'Error en base de datos: ' + error.message };
+  }
+
+  // 2. Actualizar objetos locales
+  const userFull = { ...usuario, ...nuevosDatos };
+  // Si mandamos nombres/apellidos por separado, reconstruimos el nombre completo para la sesión
+  if (nuevosDatos.nombres) {
+    userFull.nombre = nuevosDatos.nombres + (nuevosDatos.apellidos ? ' ' + nuevosDatos.apellidos : '');
+  }
+
+  // 3. Actualizar SessionStorage
+  sessionStorage.setItem('movicali_usuario_full', JSON.stringify(userFull));
+  
+  const sesion = getSesion();
+  if (sesion) {
+    sesion.nombre = userFull.nombre;
+    sessionStorage.setItem('wayroute_sesion', JSON.stringify(sesion));
+  }
+
+  return { ok: true, usuario: userFull };
+}
+
 // Exportar para uso con módulos (cuando se integre con bundler o Supabase)
 if (typeof module !== 'undefined') {
   module.exports = {
     loginUsuario, logoutUsuario, getSesion, getUsuarioCompleto,
     requireAuth, redirigirPorRol, registrarPasajero, registrarConductor,
+    actualizarUsuario,
     USUARIOS_DB
   };
 }
