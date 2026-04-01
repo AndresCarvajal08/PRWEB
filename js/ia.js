@@ -17,12 +17,20 @@ let chatHistory = [];
 const SYSTEM_PROMPT = `
 Eres MobiIA, el asistente virtual inteligente de MoviCali, una aplicación para el sistema de transporte público (buses y gualas) de Cali, Colombia.
 Tu tono es muy servicial, amigable, claro y ligeramente 'caleño' (puedes usar palabras amables típicas de la región como "¡Mirá!", "¡A la orden!", "¡Con gusto!").
-Eres experto en:
-- Rutas de buses tradicionales (Bus B-14, Bus B-22A con costo de $3.500).
-- Rutas de Gualas / Camperos de la ladera (Guala G-07, Guala G-12 con costo de $3.500).
-- Seguridad y prevención (recomendar evitar rutas vacías de noche, etc).
-- Mantén tus respuestas precisas, cortas (máximo 4 párrafos cortos). Usa Emojis para hacerlo visual.
-Si alguien te pregunta algo no relacionado con movilidad en Cali, responde amablemente que tu función exclusiva es ayudar con los viajes y rutas en la ciudad.
+
+Conocimiento específico del proyecto:
+- Actualmente contamos con la "Ruta Especial Sur" activa.
+- Paradas principales de la Ruta Especial Sur: La Ermita (Inicio/Cierre), Parada 2, Parada 3 (Cerca a Calle 5), Parada 4, Parada 5, Parada 6 y Parada 7.
+- Hay 4 buses operando en tiempo real en este circuito.
+- Tarifa unificada: $3.500 pesos (tanto para buses urbanos como para Gualas/Camperos).
+- Las Gualas (como la G-07 o G-12) suben a la ladera occidente (Siloe, Terrón Colorado).
+- Seguridad: Recomienda usar el botón 'Compartir mi viaje' de la app y preferir rutas iluminadas de noche.
+
+Instrucciones:
+1. Responde SIEMPRE basándote en que eres parte de MoviCali.
+2. Si preguntan por rutas, prioriza mencionar la "Ruta Especial Sur" y las Gualas.
+3. Mantén tus respuestas precisas y cortas (máximo 3-4 párrafos). Usa Emojis.
+4. Si alguien te pregunta algo ajeno a movilidad en Cali o el proyecto MoviCali, redirige la conversación amablemente a temas de transporte local.
 `;
 
 // Función principal que lee el cuadro de texto y envía el mensaje
@@ -31,50 +39,62 @@ async function sendAI() {
     const msg = inputEl.value.trim();
     if (!msg) return;
 
-    // 1. Mostrar mensaje del usuario en la pantalla
+    // 1. Mostrar mensaje del usuario
     agregarBurbuja(msg, "user");
-    inputEl.value = ""; // Limpiar input
+    inputEl.value = ""; 
 
-    // Validar que el dev ya puso su llave
-    if (GEMINI_API_KEY === "PEGA_TU_LLAVE_AQUÍ") {
-        agregarBurbuja("⚠️ Error: El desarrollador aún no ha pegado la llave secreta de Gemini en el archivo <code>js/ia.js</code>. Ve a <a href='https://aistudio.google.com/app/apikey' target='_blank' style='color:#3b82f6;'>Google AI Studio</a>, obtén una gratis y reemplázala en el código.", "bot");
-        return;
-    }
+    // 2. Burbuja de carga
+    const loadingId = agregarBurbuja("MobiIA está pensando... 🤔", "bot");
 
-    // 2. Crear un id para la burbuja temporal de "Cargando..."
-    const loadingId = agregarBurbuja("Escribiendo... ⏳", "bot");
-
-    // 3. Preparar el historial para enviarlo a Gemini
-    const contents = [
-        { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
-        { role: "model", parts: [{ text: "¡Entendido! Soy MobiIA, el asistente de MoviCali. Estoy listo para ayudar a los caleños con sus rutas." }] }
+    // 3. Preparar el historial de mensajes para Gemini
+    // Formato requerido por Gemini (role: 'user' o 'model')
+    const historyForGemini = [
+        { role: "user", parts: [{ text: "Contexto del sistema: " + SYSTEM_PROMPT }] },
+        { role: "model", parts: [{ text: "¡Entendido! Soy MobiIA de MoviCali. ¿En qué puedo ayudarte a moverte por Cali hoy?" }] }
     ];
 
-    // Añadir memoria previa
     chatHistory.forEach(h => {
-        contents.push({ role: h.role, parts: [{ text: h.text }] });
+        historyForGemini.push({
+            role: h.role === "bot" ? "model" : "user",
+            parts: [{ text: h.text }]
+        });
     });
 
-    // Añadir el mensaje actual
-    contents.push({ role: "user", parts: [{ text: msg }] });
-    chatHistory.push({ role: "user", text: msg });
+    // Agregar mensaje actual
+    historyForGemini.push({ role: "user", parts: [{ text: msg }] });
 
     try {
-        // 4. MODO PROTOTIPO: Generador Inteligente Local
-        // Como las cuotas de Google Cloud bloquearon la llave, pasamos a responder desde el cliente
-        // simulando latencia de red para la presentación.
-        const respuestaBot = await simulateAIResponse(msg);
+        // Enviar a la API de Gemini
+        const response = await fetch(GEMINI_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: historyForGemini })
+        });
+
+        const data = await response.json();
+        
+        let respuestaBot = "";
+        if (data.candidates && data.candidates[0].content.parts[0].text) {
+            respuestaBot = data.candidates[0].content.parts[0].text;
+        } else {
+            throw new Error("Respuesta de IA vacía");
+        }
 
         // 5. Mostrar la respuesta real
         actualizarBurbuja(loadingId, formatText(respuestaBot));
-        chatHistory.push({ role: "model", text: respuestaBot });
+        chatHistory.push({ role: "user", text: msg });
+        chatHistory.push({ role: "bot", text: respuestaBot });
 
-        // Scroll abajo automático
         const container = document.getElementById("aiMessages");
         container.scrollTop = container.scrollHeight;
 
     } catch (e) {
-        actualizarBurbuja(loadingId, "❌ Ocurrió un error inesperado al contactar al cerebro de IA: " + e.message);
+        console.error("Error Gemini:", e);
+        // FALLBACK: Si falla la API, usamos el motor local simulado
+        const fallbackRes = await simulateAIResponse(msg);
+        actualizarBurbuja(loadingId, formatText(fallbackRes + "\n\n*(Nota: Estoy en modo local porque el satélite está fallando un poco)*"));
+        chatHistory.push({ role: "user", text: msg });
+        chatHistory.push({ role: "bot", text: fallbackRes });
     }
 }
 
@@ -123,37 +143,31 @@ function formatText(t) {
 // CEREBRO DEL ASISTENTE (MOTOR LOCAL)
 // ──────────────────────────────────────────────
 async function simulateAIResponse(mensaje) {
-    // Simulamos que el bot está pensando en internet (1.5 segundos)
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Simulamos que el bot está pensando (1.2 segundos)
+    await new Promise(resolve => setTimeout(resolve, 1200));
     
     const msg = mensaje.toLowerCase();
 
-    // 1. Detección de precios y costos
-    if (msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") || msg.includes("valor")) {
-        if (msg.includes("b-14") || msg.includes("bus")) {
-            return "¡Hola! 🚌 El pasaje del bus urbano como la ruta **B-14** cuesta actualmente **$3.500 pesos**. ¿Necesitas saber si pasa cerca a tu destino?";
-        }
-        if (msg.includes("guala") || msg.includes("g-07") || msg.includes("g-12")) {
-            return "¡Claro! 🚙 Las gualas y camperos (como la **G-07** o **G-12**) que suben a la ladera tienen un costo unificado de **$3.500 pesos**. Para pago usualmente es en efectivo al abordar.";
-        }
-        return "Te cuento que en Cali, tanto buses tradicionales como gualas tienen una tarifa de **$3.500 pesos**. ¿Qué ruta en específico te interesa abordar hoy?";
+    // 1. Detección de la Ruta Especial Sur
+    if (msg.includes("ruta") || msg.includes("sur") || msg.includes("ermita")) {
+        return "¡Mirá! 🚌 Actualmente la **Ruta Especial Sur** está operando con 4 buses. Pasa por **La Ermita** y tiene 7 paradas en total. ¿Te gustaría saber cuánto falta para que pase el próximo bus?";
     }
 
-    // 2. Detección de seguridad / noche
-    if (msg.includes("segur") || msg.includes("noche") || msg.includes("oscuro") || msg.includes("9pm")) {
-        return "🛡️ **Recomendación de seguridad:**\nPara viajes en la noche te sugiero optar por rutas que transitán por avenidas iluminadas y principales como la **Av. 6N** (Ruta B-14). \nAdemás, nuestra app tiene el botón **'Compartir mi viaje'** que puedes enviarle a un familiar apenas te subas al vehículo. ¡La seguridad primero!";
+    // 2. Detección de precios y costos
+    if (msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") || msg.includes("valor") || msg.includes("cuanto")) {
+        return "¡A la orden! 💸 El pasaje en MoviCali (buses y gualas) cuesta **$3.500 pesos**. El pago se hace en efectivo directamente al conductor. ¡Buen viaje!";
     }
 
-    // 3. Detección de Demoras / Hora Pico
-    if (msg.includes("demora") || msg.includes("hora pico") || msg.includes("tarde") || msg.includes("tráfico")) {
-        return "⚠️ Actualmente, debido a la hora pico, las rutas principales reportan **15 a 20 minutos de retraso** en promedio.\n\nPara llegar a tiempo te recomendaría salir antes o tomar alternativas como la ruta **G-12** por la vía norte para evitar los mayores embotellamientos del sur.";
+    // 3. Detección de seguridad / noche
+    if (msg.includes("segur") || msg.includes("noche") || msg.includes("peligro")) {
+        return "🛡️ **Seguridad MoviCali:**\nTe recomiendo usar siempre el botón **'Compartir mi viaje'** dentro de la app para que tus familiares sepan dónde vas. Además, la **Ruta Especial Sur** transita por zonas bien iluminadas. ¡Cuídate vé!";
     }
 
     // 4. Saludos y genéricos
-    if (msg.includes("hola") || msg.includes("buenos") || msg.includes("buenas")) {
-        return "¡Hola! 👋 Soy **MobiIA**, tu asistente caleño de MoviCali. ¿Qué ruta estás buscando o en qué zona de la ciudad te encuentras ahora mismo?";
+    if (msg.includes("hola") || msg.includes("mobiia") || msg.includes("buenos") || msg.includes("buenas")) {
+        return "¡Hola vé! 👋 Soy **MobiIA**, tu asistente de MoviCali. ¿Buscás la **Ruta Especial Sur** o necesitás llegar a la ladera en una **Guala**?";
     }
 
     // 5. Fallback por defecto
-    return "¡Entendido! 🗺️ Tu historial me dice que usas mucho las Gualas de la ladera occidente. La **ruta G-07** pasará cerca a tu zona en **12 minutos**. Es buena idea ir saliendo a la parada.\n\n¿Tienes alguna otra consulta sobre tiempos o seguridad en tu recorrido?";
+    return "¡Entendido! 🗺️ Recordá que en MoviCali tenemos la **Ruta Especial Sur** activa ahora mismo. Si necesitás ayuda con los horarios o alguna parada específica como **La Ermita**, aquí estoy para servirte.";
 }
