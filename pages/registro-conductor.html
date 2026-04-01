@@ -299,11 +299,54 @@
 
   <div class="toast-container" id="toastBox"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
   <script src="../js/auth.js"></script>
   <script>
     let cur = 1;
-    const TOTAL = 5;
     let licCatSel = 'C3';
+    const TOTAL = 5;
+
+    // --- CARGAR EMPRESAS DESDE SUPABASE ---
+    async function cargarEmpresas() {
+      const selectEmpresa = document.getElementById('empresa');
+      if (!selectEmpresa) return;
+
+      // Intentar cargar desde Supabase si está disponible
+      if (typeof window.supabaseClient !== 'undefined') {
+        try {
+          const { data, error } = await window.supabaseClient
+            .from('empresas')
+            .select('nombre')
+            .eq('activo', true)
+            .order('nombre', { ascending: true });
+
+          if (error) throw error;
+
+          if (data && data.length > 0) {
+            // Limpiar opciones actuales (excepto la primera)
+            selectEmpresa.innerHTML = '<option value="">Seleccionar…</option>';
+            data.forEach(emp => {
+              const opt = document.createElement('option');
+              opt.value = emp.nombre;
+              opt.textContent = emp.nombre;
+              selectEmpresa.appendChild(opt);
+            });
+            // Opción para empresas no listadas
+            const optOtra = document.createElement('option');
+            optOtra.value = 'Otra';
+            optOtra.textContent = 'Otra empresa...';
+            selectEmpresa.appendChild(optOtra);
+            console.log('✅ Empresas cargadas desde BD');
+          }
+        } catch (err) {
+          console.warn('⚠️ No se pudieron cargar empresas de la BD, usando predefinidas.', err);
+        }
+      }
+    }
+
+    // Ejecutar al cargar la página
+    document.addEventListener('DOMContentLoaded', cargarEmpresas);
 
     function selLic(btn) {
       document.querySelectorAll('.lic-btn').forEach(b => b.classList.remove('selected'));
@@ -457,7 +500,7 @@
         </div>`;
     }
 
-    function submit() {
+    async function submit() {
       if (!validate(TOTAL)) return;
       const btn = document.getElementById('btnNext'); btn.classList.add('loading');
       const rutaRaw = g('rutaAsig'); const [cr, nr] = rutaRaw.split('|');
@@ -476,16 +519,22 @@
         restricciones: g('restricciones'),
         ruta_asignada: nr||cr, codigo_ruta: cr
       };
-      setTimeout(() => {
-        btn.classList.remove('loading');
-        const res = registrarConductor(datos);
-        if (!res.ok) { toast(res.error, 'error'); return; }
-        document.getElementById('sec5').style.display='none';
-        document.getElementById('formNav').style.display='none';
-        document.getElementById('stepper').style.display='none';
-        document.getElementById('successScreen').classList.add('show');
-        toast('¡Ficha registrada exitosamente!','success');
-      }, 1400);
+
+      // Llamada real a la base de datos
+      const res = await registrarConductor(datos);
+      
+      btn.classList.remove('loading');
+      if (!res.ok) { 
+        toast(res.error, 'error'); 
+        return; 
+      }
+
+      // Si todo salió bien, ocultar formulario y mostrar éxito
+      document.getElementById('sec5').style.display='none';
+      document.getElementById('formNav').style.display='none';
+      document.getElementById('stepper').style.display='none';
+      document.getElementById('successScreen').classList.add('show');
+      toast('¡Ficha registrada exitosamente!','success');
     }
 
     function toast(msg, type='success') {

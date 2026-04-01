@@ -432,47 +432,93 @@ async function registrarPasajero(datos) {
  * @param {object} datos
  * @returns {{ ok: boolean, error?: string }}
  */
-function registrarConductor(datos) {
-  const existe = USUARIOS_DB.find(u => u.correo.toLowerCase() === datos.correo.toLowerCase());
-  if (existe) {
-    return { ok: false, error: 'Ya existe una cuenta registrada con este correo.' };
+/**
+ * Registra un nuevo conductor.
+ * Realiza el registro en Auth, en la tabla usuarios (base) y en la tabla conductores (técnica).
+ * @param {object} datos
+ * @returns {{ ok: boolean, error?: string }}
+ */
+async function registrarConductor(datos) {
+  // 1. Verificamos si Supabase está activo
+  if (typeof window.supabaseClient !== 'undefined') {
+    try {
+      // A. Crear usuario en Auth de Supabase
+      const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
+        email: datos.correo,
+        password: datos.password,
+      });
+
+      if (authError) {
+        if (authError.status === 400 && authError.message.includes('already registered')) {
+          return { ok: false, error: 'Ya existe una cuenta con este correo.' };
+        }
+        return { ok: false, error: authError.message };
+      }
+
+      // B. Insertar en tabla base "usuarios"
+      const { data: userData, error: userError } = await window.supabaseClient
+        .from('usuarios')
+        .insert([{
+          auth_uid: authData.user.id,
+          nombres: datos.nombres,
+          apellidos: datos.apellidos,
+          correo: datos.correo,
+          rol: 'conductor',
+          cedula: datos.cedula,
+          celular: datos.celular,
+          activo: true
+        }])
+        .select()
+        .single();
+
+      if (userError) throw new Error('Error en tabla usuarios: ' + userError.message);
+
+      // C. Insertar en tabla técnica "conductores"
+      const { error: condError } = await window.supabaseClient
+        .from('conductores')
+        .insert([{
+          id: userData.id,
+          empresa: datos.empresa,
+          ruta_asignada: datos.ruta_asignada,
+          codigo_ruta: datos.codigo_ruta,
+          turno: datos.turno,
+          vehiculo_placa: datos.placa,
+          vehiculo_tipo: datos.tipo_vehiculo,
+          vehiculo_marca: datos.marca_vehiculo,
+          vehiculo_modelo: datos.modelo_vehiculo,
+          vehiculo_anio: parseInt(datos.anio_vehiculo),
+          vehiculo_color: datos.color_vehiculo,
+          vehiculo_capacidad: parseInt(datos.capacidad),
+          vehiculo_tarjeta_operacion: datos.tarjeta_operacion,
+          vehiculo_soat_vence: datos.soat_vence,
+          vehiculo_tecnomecanica_vence: datos.tecnomecanica_vence,
+          licencia_numero: datos.licencia_numero,
+          licencia_categoria: datos.licencia_categoria,
+          licencia_restricciones: datos.restricciones,
+          licencia_expedicion: datos.licencia_expedicion,
+          licencia_vencimiento: datos.licencia_vencimiento
+        }]);
+
+      if (condError) throw new Error('Error en tabla conductores: ' + condError.message);
+
+      return { ok: true, usuario: userData };
+
+    } catch (err) {
+      console.error('❌ Error registro conductor:', err);
+      return { ok: false, error: err.message };
+    }
   }
+
+  // Fallback Modo Demo (se mantiene por seguridad)
+  const existe = USUARIOS_DB.find(u => u.correo.toLowerCase() === datos.correo.toLowerCase());
+  if (existe) return { ok: false, error: 'Ya existe una cuenta registrada con este correo.' };
+  
   const nuevo = {
     id: 'con-' + String(Date.now()).slice(-6),
     nombre: `${datos.nombres} ${datos.apellidos}`,
     correo: datos.correo,
     password: datos.password,
     rol: 'conductor',
-    empresa: datos.empresa,
-    ruta_asignada: datos.ruta_asignada || 'Por asignar',
-    codigo_ruta: datos.codigo_ruta || 'N/A',
-    turno: datos.turno || 'Por asignar',
-    cedula: datos.cedula,
-    celular: datos.celular,
-    fecha_ingreso: new Date().toISOString().split('T')[0],
-    vehiculo: {
-      placa: datos.placa,
-      marca: datos.marca_vehiculo,
-      modelo: datos.modelo_vehiculo,
-      año: datos.anio_vehiculo,
-      color: datos.color_vehiculo,
-      capacidad: datos.capacidad,
-      tipo: datos.tipo_vehiculo,
-      tarjeta_operacion: datos.tarjeta_operacion,
-      soat_vence: datos.soat_vence,
-      tecnomecanica_vence: datos.tecnomecanica_vence,
-      ultimo_mantenimiento: ''
-    },
-    licencia: {
-      numero: datos.licencia_numero,
-      categoria: datos.licencia_categoria,
-      restricciones: datos.restricciones || 'Ninguna',
-      fecha_expedicion: datos.licencia_expedicion,
-      fecha_vencimiento: datos.licencia_vencimiento,
-      autoridad_expedidora: 'Secretaría de Movilidad de Cali',
-      horas_conduccion_acumuladas: 0
-    },
-    avatar: (datos.nombres[0] + (datos.apellidos[0] || '')).toUpperCase(),
     activo: true
   };
   USUARIOS_DB.push(nuevo);
