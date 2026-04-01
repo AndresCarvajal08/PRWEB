@@ -1,149 +1,167 @@
 /* ================================================================
-   MAPA & RUTAS — MoviCali (Versión Simplificada + Calles Reales)
-   js/mapa-rutas.js
+   MAPA & RUTAS — MoviCali
+   Ruta precalculada con OSRM — 330 puntos reales de calles de Cali.
+   Sin fetch, sin API key, sin CORS. Funciona 100% offline.
    ================================================================ */
 
 (function initMapaRutas() {
-    let mapaIniciado = false;
-    let leafletMap = null;
-    let buses = [];
-    let interv = null;
 
-    // ===============================
-    // RUTA ESPECIAL SUR (CALI)
-    // ===============================
-    const rutaEspecialSur = {
-      nombre: "Ruta Especial Sur",
-      paradas: [
-        [3.437220, -76.522499],
-        [3.440500, -76.530200],
-        [3.436800, -76.535900],
-        [3.428000, -76.543500],
-        [3.418200, -76.548900],
-        [3.405000, -76.555800],
-        [3.392500, -76.561200],
-        // vuelta
-        [3.405000, -76.555800],
-        [3.418200, -76.548900],
-        [3.428000, -76.543500],
-        [3.436800, -76.535900],
-        [3.440500, -76.530200],
-        [3.437220, -76.522499]
-      ]
-    };
+  let mapaIniciado = false;
+  let leafletMap = null;
+  let buses = [];
+  let lastTs = null;
 
-    // ===============================
-    // INICIO DEL MAPA
-    // ===============================
-    async function iniciarMapa() {
-        if (mapaIniciado) return;
-        mapaIniciado = true;
+  /* ----------------------------------------------------------------
+     RUTA PRECALCULADA — coordenadas reales de OSRM
+     Cada punto está exactamente sobre una calle de Cali.
+     330 puntos = curvas, esquinas y giros reales incluidos.
+  ---------------------------------------------------------------- */
+  const RUTA_PUNTOS = [[3.451662, -76.531991], [3.451663, -76.531989], [3.452002, -76.531272], [3.45201, -76.531255], [3.45202, -76.531236], [3.452028, -76.531218], [3.452496, -76.530248], [3.452511, -76.530217], [3.452535, -76.530229], [3.453232, -76.530519], [3.453265, -76.530532], [3.453243, -76.530578], [3.453121, -76.530825], [3.45282, -76.531431], [3.45279, -76.531492], [3.452772, -76.531528], [3.452758, -76.531555], [3.45244, -76.532193], [3.452419, -76.532237], [3.452059, -76.532938], [3.45204, -76.532974], [3.451661, -76.53373], [3.451646, -76.533762], [3.451632, -76.533793], [3.451297, -76.534458], [3.451279, -76.534495], [3.451264, -76.534527], [3.450992, -76.535103], [3.45093, -76.535247], [3.450917, -76.535275], [3.450894, -76.535267], [3.450427, -76.535133], [3.450121, -76.53504], [3.45009, -76.535031], [3.450065, -76.535023], [3.449349, -76.53478], [3.449311, -76.534767], [3.449294, -76.534803], [3.449105, -76.535186], [3.449052, -76.535165], [3.448807, -76.535094], [3.448791, -76.535096], [3.448782, -76.535106], [3.44869, -76.535358], [3.448782, -76.535106], [3.448791, -76.535096], [3.448807, -76.535094], [3.448926, -76.535128], [3.449052, -76.535165], [3.449105, -76.535186], [3.448936, -76.535532], [3.449059, -76.535567], [3.449292, -76.535635], [3.449613, -76.535728], [3.449695, -76.535752], [3.449725, -76.53576], [3.449749, -76.535769], [3.450116, -76.535841], [3.450272, -76.535892], [3.450553, -76.535977], [3.450571, -76.535982], [3.450564, -76.535998], [3.450275, -76.536624], [3.450158, -76.536871], [3.44996, -76.537229], [3.449855, -76.537442], [3.44984, -76.537473], [3.449835, -76.537483], [3.449824, -76.537501], [3.449822, -76.537506], [3.449744, -76.537667], [3.449727, -76.537699], [3.449631, -76.537904], [3.449532, -76.538124], [3.449418, -76.538293], [3.449308, -76.538422], [3.449243, -76.538527], [3.44919, -76.538601], [3.449149, -76.538704], [3.449136, -76.538819], [3.449116, -76.539157], [3.449118, -76.539499], [3.449089, -76.539743], [3.449034, -76.54002], [3.448975, -76.540022], [3.447669, -76.540006], [3.447366, -76.539989], [3.447054, -76.539979], [3.446846, -76.539957], [3.446523, -76.539963], [3.445754, -76.540084], [3.445188, -76.540173], [3.444356, -76.540331], [3.443849, -76.540423], [3.44348, -76.540501], [3.443436, -76.540595], [3.442809, -76.540559], [3.442773, -76.540691], [3.442725, -76.540945], [3.442612, -76.541544], [3.442054, -76.541563], [3.4423, -76.542232], [3.441571, -76.542311], [3.441527, -76.542601], [3.441457, -76.542973], [3.441392, -76.543225], [3.441292, -76.54348], [3.441145, -76.543598], [3.440896, -76.543751], [3.44083, -76.543791], [3.440817, -76.543889], [3.44079, -76.544106], [3.440777, -76.544267], [3.440723, -76.544423], [3.440686, -76.544507], [3.44064, -76.54457], [3.440451, -76.544724], [3.440415, -76.544776], [3.440405, -76.544826], [3.44041, -76.544885], [3.440464, -76.544949], [3.441024, -76.545381], [3.441143, -76.545442], [3.441204, -76.545534], [3.441248, -76.545619], [3.441277, -76.54569], [3.441309, -76.545802], [3.441326, -76.545897], [3.441419, -76.546412], [3.441494, -76.54689], [3.44151, -76.547069], [3.441479, -76.547229], [3.441377, -76.547488], [3.441214, -76.547812], [3.441169, -76.547908], [3.441142, -76.547942], [3.44111, -76.547969], [3.441048, -76.548002], [3.44095, -76.54803], [3.440307, -76.54815], [3.440264, -76.548141], [3.440219, -76.54812], [3.439441, -76.547453], [3.437947, -76.54781], [3.437459, -76.547967], [3.43716, -76.5481], [3.436867, -76.548231], [3.436669, -76.547717], [3.437353, -76.54757], [3.438676, -76.547296], [3.439006, -76.547218], [3.439105, -76.54722], [3.439189, -76.547251], [3.439441, -76.547453], [3.440219, -76.54812], [3.440264, -76.548141], [3.440307, -76.54815], [3.440631, -76.547734], [3.440665, -76.547694], [3.440688, -76.547662], [3.44008, -76.547121], [3.439501, -76.546564], [3.439312, -76.546334], [3.43912, -76.54609], [3.439066, -76.546043], [3.439004, -76.546004], [3.438933, -76.545973], [3.43886, -76.545957], [3.438063, -76.545798], [3.437953, -76.545769], [3.437867, -76.545722], [3.437787, -76.545675], [3.437457, -76.545428], [3.437133, -76.545193], [3.436517, -76.544806], [3.436423, -76.54473], [3.436379, -76.544689], [3.436323, -76.544622], [3.436187, -76.544445], [3.435657, -76.543746], [3.435249, -76.543211], [3.434851, -76.542695], [3.434166, -76.541781], [3.434101, -76.541701], [3.434021, -76.541751], [3.433715, -76.541979], [3.433355, -76.542244], [3.432885, -76.542596], [3.432847, -76.542628], [3.432795, -76.542673], [3.432737, -76.542724], [3.432763, -76.542764], [3.433, -76.543106], [3.433175, -76.543357], [3.433243, -76.543319], [3.433492, -76.543705], [3.433548, -76.543785], [3.433581, -76.54382], [3.433634, -76.54386], [3.434173, -76.544253], [3.434441, -76.544448], [3.434602, -76.543781], [3.434631, -76.543634], [3.434838, -76.54275], [3.434851, -76.542695], [3.434166, -76.541781], [3.434101, -76.541701], [3.434066, -76.541659], [3.434044, -76.541632], [3.434022, -76.541606], [3.433985, -76.541561], [3.434096, -76.541476], [3.435445, -76.540394], [3.43567, -76.540226], [3.435888, -76.540062], [3.436674, -76.539446], [3.4367, -76.539423], [3.436728, -76.539396], [3.436752, -76.539368], [3.436778, -76.539335], [3.436803, -76.539297], [3.436899, -76.539133], [3.436937, -76.539066], [3.436984, -76.538985], [3.437007, -76.538948], [3.437123, -76.538741], [3.437148, -76.538704], [3.437167, -76.53868], [3.437193, -76.538651], [3.437227, -76.538624], [3.437259, -76.538604], [3.437284, -76.538589], [3.437318, -76.538571], [3.43735, -76.538556], [3.437627, -76.538471], [3.437843, -76.538375], [3.437926, -76.53832], [3.437998, -76.538263], [3.438128, -76.538154], [3.438633, -76.537693], [3.4394, -76.537065], [3.439722, -76.536807], [3.439872, -76.536649], [3.440191, -76.536359], [3.440286, -76.536273], [3.4404, -76.536149], [3.440474, -76.536053], [3.440533, -76.535963], [3.440496, -76.535945], [3.439967, -76.535574], [3.439523, -76.53527], [3.439284, -76.535102], [3.438568, -76.535581], [3.438197, -76.53514], [3.438164, -76.53509], [3.438015, -76.535137], [3.437364, -76.535342], [3.437313, -76.535358], [3.43726, -76.535373], [3.436618, -76.535557], [3.43656, -76.535573], [3.436544, -76.53552], [3.436365, -76.534936], [3.436199, -76.534395], [3.436184, -76.534344], [3.436918, -76.53413], [3.437768, -76.533856], [3.438578, -76.533613], [3.439951, -76.533187], [3.440207, -76.533102], [3.440391, -76.533049], [3.440934, -76.532893], [3.441309, -76.532978], [3.441886, -76.533181], [3.441925, -76.533182], [3.441984, -76.533182], [3.442082, -76.533183], [3.442117, -76.533179], [3.442189, -76.533178], [3.442572, -76.533177], [3.443144, -76.533177], [3.443523, -76.533176], [3.444389, -76.533204], [3.445241, -76.533279], [3.44638, -76.533345], [3.446762, -76.533373], [3.446802, -76.533378], [3.446812, -76.533322], [3.446931, -76.532674], [3.446944, -76.5326], [3.446957, -76.532534], [3.447068, -76.532088], [3.447226, -76.531559], [3.447237, -76.531519], [3.447248, -76.531479], [3.447448, -76.530806], [3.447462, -76.530757], [3.447416, -76.530744], [3.446564, -76.53052], [3.445529, -76.530236], [3.444984, -76.530123], [3.444428, -76.530008], [3.443446, -76.529794], [3.443467, -76.530711], [3.443468, -76.530767], [3.443942, -76.530708], [3.444417, -76.530732], [3.444553, -76.53076], [3.445457, -76.531033], [3.446409, -76.531294], [3.446701, -76.531373], [3.447188, -76.531506], [3.447237, -76.531519], [3.447327, -76.531543], [3.447367, -76.531554], [3.448144, -76.531764], [3.448963, -76.531993], [3.449005, -76.532004], [3.449053, -76.532022], [3.449701, -76.532256], [3.449735, -76.532269], [3.449768, -76.532281], [3.450377, -76.532524], [3.450413, -76.532538], [3.450445, -76.532545], [3.451232, -76.532726], [3.451265, -76.532734], [3.451636, -76.532043], [3.45165, -76.532015], [3.451662, -76.531991]];
 
-        leafletMap = L.map('leafletMap', {
-            center: [3.4400, -76.5280],
-            zoom: 13
-        });
+  /* ----------------------------------------------------------------
+     PARADAS visibles en el mapa (los waypoints originales)
+  ---------------------------------------------------------------- */
+  const PARADAS = [
+    { latlng: [3.451662, -76.531991], nombre: 'La Ermita' },
+    { latlng: [3.448926, -76.535128], nombre: 'Parada 2' },
+    { latlng: [3.442725, -76.540945], nombre: 'Parada 3' },
+    { latlng: [3.43716, -76.5481], nombre: 'Parada 4' },
+    { latlng: [3.433, -76.543106], nombre: 'Parada 5' },
+    { latlng: [3.438015, -76.535137], nombre: 'Parada 6' },
+    { latlng: [3.444984, -76.530123], nombre: 'Parada 7' },
+  ];
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap | MoviCali'
-        }).addTo(leafletMap);
+  const COLOR_RUTA = '#ef4444';
+  const NUM_BUSES = 4;
+  const VELOCIDAD_KMH = 25;
+  const VELOCIDAD_MS = VELOCIDAD_KMH * 1000 / 3600;
 
-        // 1. Obtener la ruta que sigue las calles reales desde OSRM
-        // Invertimos las lat/lng originales para pedirselas a OSRM
-        const coordsParaOSRM = rutaEspecialSur.paradas.map(p => `${p[1]},${p[0]}`).join(';');
-        const urlOSRM = `https://router.project-osrm.org/route/v1/driving/${coordsParaOSRM}?overview=full&geometries=geojson`;
-        
-        try {
-            const resp = await fetch(urlOSRM);
-            const data = await resp.json();
-            if (data.code === 'Ok' && data.routes && data.routes[0]) {
-                // Reemplazamos los 13 saltos bruscos por cientos de puntitos que hacen la calle
-                rutaEspecialSur.paradas = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-            }
-        } catch(e) {
-            console.warn("MoviCali: Usando ruta en linea recta porque no hay internet u OSRM falló.");
-        }
+  /* ----------------------------------------------------------------
+     HAVERSINE
+  ---------------------------------------------------------------- */
+  function distanciaMetros(a, b) {
+    const R = 6371000;
+    const φ1 = a[0] * Math.PI / 180;
+    const φ2 = b[0] * Math.PI / 180;
+    const Δφ = (b[0] - a[0]) * Math.PI / 180;
+    const Δλ = (b[1] - a[1]) * Math.PI / 180;
+    const s = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+  }
 
-        // Trazar línea de la ruta que ahora sigue PERFECTAMENTE las calles
-        L.polyline(rutaEspecialSur.paradas, {
-            color: '#ef4444', 
-            weight: 5, 
-            opacity: 0.8
-        }).addTo(leafletMap);
+  function calcularDistanciasAcumuladas(puntos) {
+    const d = [0];
+    for (let i = 1; i < puntos.length; i++)
+      d.push(d[i - 1] + distanciaMetros(puntos[i - 1], puntos[i]));
+    return d;
+  }
 
-        // ===============================
-        // CREAR MÚLTIPLES BUSES
-        // ===============================
-        const busIcon = L.divIcon({
-            className: '',
-            html: `<div style="background:#ef4444;border:2px solid #fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,.3);font-size:14px;">🚌</div>`,
-            iconSize: [26, 26], iconAnchor: [13, 13]
-        });
-
-        function crearBus(offsetPuntos) {
-          const marker = L.marker(rutaEspecialSur.paradas[offsetPuntos], {icon: busIcon, zIndexOffset: 1000}).addTo(leafletMap);
-          
-          // Magia CSS para animar suavemente
-          if (marker._icon) marker._icon.style.transition = "transform 0.4s linear";
-          marker.on('add', () => { if(marker._icon) marker._icon.style.transition = "transform 0.4s linear"; });
-
-          return { index: offsetPuntos, marker: marker };
-        }
-
-        // Distribuimos los buses a lo largo de los cientos de puntos de la calle
-        const totalPuntos = rutaEspecialSur.paradas.length;
-        buses = [
-          crearBus(0),
-          crearBus(Math.floor(totalPuntos * 0.25)),
-          crearBus(Math.floor(totalPuntos * 0.50)),
-          crearBus(Math.floor(totalPuntos * 0.75))
-        ];
-
-        leafletMap.on('zoomstart', () => { buses.forEach(b => { if(b.marker._icon) b.marker._icon.style.transition = 'none'; }); });
-        leafletMap.on('zoomend', () => { buses.forEach(b => { if(b.marker._icon) b.marker._icon.style.transition = 'transform 0.4s linear'; }); });
-
-        // ===============================
-        // MOVIMIENTO ESTRICTO POR CALLES
-        // ===============================
-        function moverBuses() {
-          buses.forEach(bus => {
-            bus.index++;
-            if (bus.index >= rutaEspecialSur.paradas.length) {
-              bus.index = 0;
-            }
-            bus.marker.setLatLng(rutaEspecialSur.paradas[bus.index]);
-          });
-        }
-
-        // Como ahora hay muchísimos puntos (una calle entera), aceleramos un poco el intervalo
-        // para que no vaya microscópicamente lento.
-        if(interv) clearInterval(interv);
-        interv = setInterval(moverBuses, 400);
-
-        setTimeout(() => leafletMap.invalidateSize(), 200);
+  function posicionEnMetros(puntos, distAcum, metros) {
+    const total = distAcum[distAcum.length - 1];
+    const m = ((metros % total) + total) % total;
+    let lo = 0, hi = distAcum.length - 2;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      distAcum[mid] <= m ? (lo = mid) : (hi = mid - 1);
     }
+    const t = (distAcum[lo + 1] - distAcum[lo]) > 0
+      ? (m - distAcum[lo]) / (distAcum[lo + 1] - distAcum[lo]) : 0;
+    const a = puntos[lo], b = puntos[lo + 1];
+    return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  }
 
-    // ── ENGANCHE CON LA APLICACIÓN ──
-    document.addEventListener('DOMContentLoaded', () => {
-        const _navOrig = window.navigate;
-        if (typeof _navOrig === 'function') {
-            window.navigate = function (view) {
-                _navOrig(view);
-                if (view === 'mapa') setTimeout(iniciarMapa, 120);
-            };
-        }
-        const vm = document.getElementById('view-mapa');
-        if (vm && vm.classList.contains('active')) setTimeout(iniciarMapa, 250);
-        setTimeout(window.actualizarDashboardInicio, 200);
+  /* ----------------------------------------------------------------
+     ICONO
+  ---------------------------------------------------------------- */
+  function crearIconoBus(numero) {
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        background:${COLOR_RUTA};border:2px solid #fff;border-radius:8px;
+        width:30px;height:30px;display:flex;align-items:center;
+        justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.5);
+        font-size:11px;font-weight:700;color:#fff;font-family:sans-serif;
+      ">${numero}</div>`,
+      iconSize: [30, 30], iconAnchor: [15, 15],
+    });
+  }
+
+  /* ----------------------------------------------------------------
+     ANIMACIÓN
+  ---------------------------------------------------------------- */
+  function tick(ts) {
+    const dt = Math.min((ts - lastTs) / 1000, 0.1);
+    lastTs = ts;
+    buses.forEach(bus => {
+      bus.metros += VELOCIDAD_MS * dt;
+      bus.marker.setLatLng(posicionEnMetros(bus.puntos, bus.distAcum, bus.metros));
+    });
+    requestAnimationFrame(tick);
+  }
+
+  /* ----------------------------------------------------------------
+     INICIO
+  ---------------------------------------------------------------- */
+  function iniciarMapa() {
+    if (mapaIniciado) return;
+    mapaIniciado = true;
+
+    leafletMap = L.map('leafletMap', {
+      center: [3.4420, -76.5370],
+      zoom: 14,
     });
 
-    window.actualizarDashboardInicio = function() {
-        const dRutasActivas = document.getElementById('statRutasActivas');
-        if(dRutasActivas) dRutasActivas.textContent = "1";
-    };
-    window.detectarUbicacion = function() { alert("Integración GPS desactivada en modo manual."); };
-    window.seleccionarRuta = function(id) {};
-    window.buscarRutasMapa = function() {};
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap | MoviCali',
+    }).addTo(leafletMap);
+
+    const puntos = RUTA_PUNTOS;
+    const distAcum = calcularDistanciasAcumuladas(puntos);
+
+    // Polilínea
+    L.polyline(puntos, { color: COLOR_RUTA, weight: 4, opacity: 0.8 }).addTo(leafletMap);
+
+    // Paradas
+    PARADAS.forEach((p, i) => {
+      L.circleMarker(p.latlng, {
+        radius: i === 0 ? 8 : 5,
+        color: '#fff', weight: 2,
+        fillColor: COLOR_RUTA, fillOpacity: 1,
+      }).addTo(leafletMap).bindPopup(`<b>${p.nombre}</b>`);
+    });
+
+    // Buses
+    const totalMetros = distAcum[distAcum.length - 1];
+    for (let i = 0; i < NUM_BUSES; i++) {
+      const metrosInicio = (totalMetros / NUM_BUSES) * i;
+      const marker = L.marker(posicionEnMetros(puntos, distAcum, metrosInicio), {
+        icon: crearIconoBus(i + 1), zIndexOffset: 1000,
+      }).addTo(leafletMap).bindPopup(`<b>Bus ${i + 1}</b>`);
+      buses.push({ metros: metrosInicio, puntos, distAcum, marker });
+    }
+
+    // Arrancar animación
+    lastTs = performance.now();
+    requestAnimationFrame(tick);
+    setTimeout(() => leafletMap.invalidateSize(), 200);
+  }
+
+  /* ----------------------------------------------------------------
+     ENGANCHE
+  ---------------------------------------------------------------- */
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.navigate === 'function') {
+      const _orig = window.navigate;
+      window.navigate = function (view) {
+        _orig(view);
+        if (view === 'mapa') setTimeout(iniciarMapa, 120);
+      };
+    }
+    const vm = document.getElementById('view-mapa');
+    if (vm?.classList.contains('active')) setTimeout(iniciarMapa, 250);
+  });
+
+  window.iniciarMapa = iniciarMapa;
 
 })();

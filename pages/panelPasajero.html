@@ -7,17 +7,39 @@
     <title>MoviCali — Panel Pasajero</title>
     <meta name="description" content="Consulta rutas, paradas y empresas del transporte público tradicional de Cali.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="../css/panel-pasajero.css">
     <!-- Leaflet.js - Mapa interactivo -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        #leafletMap { width: 100%; height: 100%; border-radius: var(--radius); z-index: 1; }
-        .leaflet-container { border-radius: var(--radius); font-family: var(--font); }
-        .bus-marker-icon { font-size: 20px; line-height:1; filter: drop-shadow(0 2px 4px rgba(0,0,0,.35)); }
-        .route-popup { font-family: var(--font); min-width: 160px; }
-        .route-popup strong { color: var(--primary); }
+        #leafletMap {
+            width: 100%;
+            height: 100%;
+            border-radius: var(--radius);
+            z-index: 1;
+        }
+
+        .leaflet-container {
+            border-radius: var(--radius);
+            font-family: var(--font);
+        }
+
+        .bus-marker-icon {
+            font-size: 20px;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .35));
+        }
+
+        .route-popup {
+            font-family: var(--font);
+            min-width: 160px;
+        }
+
+        .route-popup strong {
+            color: var(--primary);
+        }
     </style>
 </head>
 
@@ -44,7 +66,8 @@
                     <span class="badge" id="notifBadge">3</span>
                 </button>
                 <span class="nav-role-badge" id="roleLabel">🧍 Pasajero</span>
-                <span class="user-name-nav" id="navUserName" style="font-size:.82rem;font-weight:600;color:#374151;"></span>
+                <span class="user-name-nav" id="navUserName"
+                    style="font-size:.82rem;font-weight:600;color:#374151;"></span>
                 <div class="nav-avatar" onclick="navigate('perfil')" title="Mi perfil" id="userAvatarNav">LR</div>
                 <button class="logout-btn" id="logoutBtn" onclick="logoutUsuario()">🚪 Salir</button>
             </div>
@@ -177,7 +200,8 @@
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#fef3c7;">⏱️</div>
-                            <div class="value" id="statTiempoGuala">--<span style="font-size:1rem;font-weight:400;color:var(--gray-400)">
+                            <div class="value" id="statTiempoGuala">--<span
+                                    style="font-size:1rem;font-weight:400;color:var(--gray-400)">
                                     min</span></div>
                             <div class="label">Próxima guala habitual</div>
                             <div class="trend up" id="statProximaGuala">Calculando...</div>
@@ -204,9 +228,11 @@
                                 <label class="form-label">Origen (Ubicación actual)</label>
                                 <div class="input-icon-wrap" style="display:flex;gap:6px;">
                                     <span class="input-icon">📍</span>
-                                    <input class="form-control" placeholder="Toca el radar para detectarte..."
-                                        value="" id="quickOrigin">
-                                    <button class="btn btn-primary btn-sm" id="btnDetectGPS" onclick="detectarUbicacion()" title="Detectar tu radar GPS" style="padding: 0 14px; border-radius: 6px; font-size:1.1rem;">🎯</button>
+                                    <input class="form-control" placeholder="Toca el radar para detectarte..." value=""
+                                        id="quickOrigin">
+                                    <button class="btn btn-primary btn-sm" id="btnDetectGPS"
+                                        onclick="detectarUbicacion()" title="Detectar tu radar GPS"
+                                        style="padding: 0 14px; border-radius: 6px; font-size:1.1rem;">🎯</button>
                                 </div>
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
@@ -2378,22 +2404,24 @@
     </script>
     <!-- Scripts de la Aplicación -->
     <script src="../js/auth.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
     <script src="../js/mapa-rutas.js"></script>
     <script src="../js/ia.js"></script>
     <script>
-        (function() {
+        (function () {
             const user = requireAuth('pasajero');
             if (!user) return;
-            
+
             // Navbar e Inicio
-            const avatarEl  = document.getElementById('userAvatarNav');
-            const nameEl    = document.getElementById('navUserName');
+            const avatarEl = document.getElementById('userAvatarNav');
+            const nameEl = document.getElementById('navUserName');
             const welcomeEl = document.querySelector('#view-inicio .page-header h1');
             const userFirstName = user.nombre ? user.nombre.split(' ')[0] : 'Pasajero';
-            
-            if (avatarEl)  avatarEl.textContent  = user.avatar || userFirstName.slice(0,2).toUpperCase();
-            if (nameEl)    nameEl.textContent     = userFirstName;
-            if (welcomeEl) welcomeEl.textContent  = '\u00a1Bienvenido, ' + userFirstName + '! \ud83d\udc4b';
+
+            if (avatarEl) avatarEl.textContent = user.avatar || userFirstName.slice(0, 2).toUpperCase();
+            if (nameEl) nameEl.textContent = userFirstName;
+            if (welcomeEl) welcomeEl.textContent = '\u00a1Bienvenido, ' + userFirstName + '! \ud83d\udc4b';
 
             // Mi Perfil
             const fullProfile = typeof getUsuarioCompleto === 'function' ? getUsuarioCompleto() : user;
@@ -2402,7 +2430,7 @@
                 const correo = fullProfile.correo || '';
                 const celular = fullProfile.celular || 'No registrado';
                 const barrio = fullProfile.barrio || 'Cali';
-                const avatar = user.avatar || userFirstName.slice(0,2).toUpperCase();
+                const avatar = user.avatar || userFirstName.slice(0, 2).toUpperCase();
 
                 // Cabecera perfil
                 const pAvatar = document.getElementById('perfilAvatarLg');
