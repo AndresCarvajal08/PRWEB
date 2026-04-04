@@ -63,7 +63,7 @@
             <div class="nav-actions">
                 <button class="nav-btn" onclick="toggleNotif()" title="Notificaciones">
                     🔔
-                    <span class="badge" id="notifBadge">3</span>
+                    <span class="badge" id="notifBadge">0</span>
                 </button>
                 <span class="nav-role-badge" id="roleLabel">🧍 Pasajero</span>
                 <span class="user-name-nav" id="navUserName"
@@ -136,7 +136,7 @@
                     </div>
                     <div class="nav-item" id="nav-alertas" onclick="navigate('alertas')">
                         <span class="nav-icon">🔔</span><span class="nav-label">Alertas en Tiempo Real</span>
-                        <span class="nav-chip">3</span>
+                        <span class="nav-chip" id="navAlertChip">0</span>
                     </div>
                 </div>
 
@@ -184,8 +184,8 @@
                 <div class="view active" id="view-inicio">
                     <div class="page-header-row">
                         <div class="page-header">
-                            <h1>¡Buenos días, María! 👋</h1>
-                            <p>Cali, Valle del Cauca • Martes, 17 de Feb 2026 • 7:42 AM</p>
+                            <h1>¡Bienvenido, <span id="welcomeName">Pasajero</span>! 👋</h1>
+                            <p id="currentDateTime">Cali, Valle del Cauca • Cargando fecha...</p>
                         </div>
                         <button class="btn btn-primary" onclick="navigate('asistente')">🤖 Consultar IA</button>
                     </div>
@@ -208,9 +208,9 @@
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#fee2e2;">⚠️</div>
-                            <div class="value">3</div>
-                            <div class="label">Alertas activas en tu zona</div>
-                            <div class="trend down">↑ 1 nueva</div>
+                            <div class="value" id="inicioAlertCount">0</div>
+                            <div class="label">Alertas activas en Cali</div>
+                            <div class="trend down" id="inicioAlertTrend">Conectado</div>
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#eff6ff;">📍</div>
@@ -265,32 +265,14 @@
                     <div class="grid-2">
                         <!-- Alertas -->
                         <div class="card">
-                            <div class="card-title">⚠️ Alertas en tu zona</div>
-                            <div class="alert-item alert-warning">
-                                <div class="alert-icon">🚦</div>
-                                <div class="alert-content">
-                                    <div class="alert-title">Congestión — Av. 6 Norte</div>
-                                    <div class="alert-desc">Tráfico denso entre Calle 34 y Calle 44. Rutas B-22 y G-07
-                                        afectadas.</div>
-                                    <div class="alert-time">Hace 8 min • 🔴 Alta congestión</div>
-                                </div>
-                            </div>
-                            <div class="alert-item alert-danger">
-                                <div class="alert-icon">🚧</div>
-                                <div class="alert-content">
-                                    <div class="alert-title">Bloqueo — Calle 5 con Carrera 1</div>
-                                    <div class="alert-desc">Manifestación ciudadana. Ruta B-05 desviada por Av.
-                                        Colombia.</div>
-                                    <div class="alert-time">Hace 25 min • Tiempo indefinido</div>
-                                </div>
-                            </div>
-                            <div class="alert-item alert-info">
-                                <div class="alert-icon">ℹ️</div>
-                                <div class="alert-content">
-                                    <div class="alert-title">Feria de Cali — Fin de semana</div>
-                                    <div class="alert-desc">Este sábado y domingo habrá rutas adicionales desde el
-                                        barrio Versalles.</div>
-                                    <div class="alert-time">Información preventiva</div>
+                            <div class="card-title">⚠️ Alertas en el sistema</div>
+                            <div id="inicioAlertsList">
+                                <div class="alert-item alert-info">
+                                    <div class="alert-icon">🔄</div>
+                                    <div class="alert-content">
+                                        <div class="alert-title">Sincronizando...</div>
+                                        <div class="alert-desc">Obteniendo reportes viales en tiempo real.</div>
+                                    </div>
                                 </div>
                             </div>
                             <button class="btn btn-secondary btn-sm mt-3" onclick="navigate('alertas')">Ver todas las
@@ -361,15 +343,17 @@
                                 <div style="font-size:1.1rem;font-weight:700;margin-bottom:6px;">Recomendación IA para
                                     tu viaje</div>
                                 <div style="opacity:.9;font-size:.875rem;line-height:1.6;">
-                                    Basado en tu historial, <strong>los martes a las 7:45 AM</strong> usas la ruta G-07.
-                                    Hoy hay congestión en la Av. 6N — te recomiendo salir <strong>10 minutos
-                                        antes</strong> o tomar la <strong>Ruta B-14</strong> por la Av. 3N.
+                                    Basado en tu historial, <strong id="iaRecomendacionHora">los martes a esta
+                                        hora</strong> usas la ruta G-07.
+                                    Hoy hay congestión en la ruta habitual — te recomiendo salir <strong
+                                        id="iaRecomendacionMinutos">10 minutos antes</strong> o tomar la <strong>Ruta
+                                        B-14</strong> opcional.
                                 </div>
                             </div>
                             <button class="btn"
                                 style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);"
                                 onclick="navigate('asistente')">
-                                Consultar IA completo →
+                                Consultar WayAI completo →
                             </button>
                         </div>
                     </div>
@@ -573,15 +557,15 @@
                                 <div style="display:flex;flex-direction:column;gap:10px;">
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
                                         <span class="text-sm text-gray">📍 Ubicación</span>
-                                        <span class="text-sm font-medium">Centenario, Cali</span>
+                                        <span class="text-sm font-medium" id="ctxUbicacion">Cali</span>
                                     </div>
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
                                         <span class="text-sm text-gray">🕐 Hora</span>
-                                        <span class="text-sm font-medium">7:42 AM (hora pico)</span>
+                                        <span class="text-sm font-medium" id="ctxHora">Cargando...</span>
                                     </div>
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
                                         <span class="text-sm text-gray">📅 Día</span>
-                                        <span class="text-sm font-medium">Martes laboral</span>
+                                        <span class="text-sm font-medium" id="ctxDia">Cargando...</span>
                                     </div>
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
                                         <span class="text-sm text-gray">🌤️ Clima</span>
@@ -667,84 +651,8 @@
 
                     <div id="tab-todas" class="tab-content active">
                         <div class="grid-2">
-                            <div style="display:flex;flex-direction:column;gap:10px;">
-                                <div class="alert-item alert-danger">
-                                    <div class="alert-icon">🚧</div>
-                                    <div class="alert-content">
-                                        <div
-                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                                            <div class="alert-title">Bloqueo — Calle 5 con Carrera 1</div>
-                                            <span class="tag tag-red">🔴 Activo</span>
-                                        </div>
-                                        <div class="alert-desc">Manifestación ciudadana. Rutas afectadas: B-05, B-08.
-                                            Desvío por Av. Colombia.</div>
-                                        <div class="alert-time">Iniciado: hace 25 min · Duración estimada: indefinida
-                                        </div>
-                                        <div style="margin-top:8px;display:flex;gap:6px;">
-                                            <span class="tag tag-red">Ruta B-05</span>
-                                            <span class="tag tag-red">Ruta B-08</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="alert-item alert-warning">
-                                    <div class="alert-icon">🚦</div>
-                                    <div class="alert-content">
-                                        <div
-                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                                            <div class="alert-title">Congestión alta — Av. 6 Norte (Cll 34-44)</div>
-                                            <span class="tag tag-amber">🟡 Activo</span>
-                                        </div>
-                                        <div class="alert-desc">Tráfico pesado por obras viales. Tiempo adicional: +18
-                                            min. Rutas B-22A y G-07 demoradas.</div>
-                                        <div class="alert-time">Reportado: hace 8 min · Resolución estimada: 9:30 AM
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="alert-item alert-warning">
-                                    <div class="alert-icon">⛈️</div>
-                                    <div class="alert-content">
-                                        <div
-                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                                            <div class="alert-title">Lluvia fuerte — Zona Sur (Aguablanca)</div>
-                                            <span class="tag tag-amber">🟡 Moderado</span>
-                                        </div>
-                                        <div class="alert-desc">Precipitaciones fuertes en el sector de Aguablanca. Ruta
-                                            G-18 con demora de 25 min. Posible inundación en Calle 16.</div>
-                                        <div class="alert-time">Meteorología · Pronóstico: próximas 2 horas</div>
-                                    </div>
-                                </div>
-
-                                <div class="alert-item alert-danger"
-                                    style="border-left-color:var(--purple)!important;background:#f5f3ff;border-color:#c4b5fd;">
-                                    <div class="alert-icon">🔐</div>
-                                    <div class="alert-content">
-                                        <div
-                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                                            <div class="alert-title">Alerta de seguridad — Barrio Desepaz (Nocturno)
-                                            </div>
-                                            <span class="tag tag-purple">🔴 Precaución</span>
-                                        </div>
-                                        <div class="alert-desc">Se reportaron 3 incidentes menores en la zona. Se
-                                            recomienda NO tomar rutas G-18 después de las 8 PM en este sector.</div>
-                                        <div class="alert-time">Seguridad · Vigente: 8 PM – 5 AM</div>
-                                    </div>
-                                </div>
-
-                                <div class="alert-item alert-success">
-                                    <div class="alert-icon">✅</div>
-                                    <div class="alert-content">
-                                        <div
-                                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                                            <div class="alert-title">Ruta B-05 restablecida — Calle 15</div>
-                                            <span class="tag tag-green">Resuelto</span>
-                                        </div>
-                                        <div class="alert-desc">El bloqueo en Calle 15 fue despejado. La ruta B-05 opera
-                                            con normalidad por su recorrido habitual.</div>
-                                        <div class="alert-time">Resuelto: hace 1 hora</div>
-                                    </div>
-                                </div>
+                            <div style="display:flex;flex-direction:column;gap:10px;" id="globalAlertsContainer">
+                                <div class="text-sm text-gray text-center p-4">Cargando alertas del sistema...</div>
                             </div>
 
                             <!-- Mapa de alertas -->
@@ -1233,8 +1141,7 @@
                                 <label class="form-label">Barrio / Sector</label>
                                 <input class="form-control" id="inputPerfilBarrio" value="">
                             </div>
-                            <button class="btn btn-primary btn-sm"
-                                onclick="guardarPerfil()">Guardar cambios</button>
+                            <button class="btn btn-primary btn-sm" onclick="guardarPerfil()">Guardar cambios</button>
                         </div>
 
                         <div class="card">
@@ -2383,7 +2290,62 @@
 
             if (avatarEl) avatarEl.textContent = user.avatar || userFirstName.slice(0, 2).toUpperCase();
             if (nameEl) nameEl.textContent = userFirstName;
-            if (welcomeEl) welcomeEl.textContent = '\u00a1Bienvenido, ' + userFirstName + '! \ud83d\udc4b';
+            const welcomeNameEl = document.getElementById('welcomeName');
+            if (welcomeNameEl) welcomeNameEl.textContent = userFirstName;
+
+            // Actualizar Fecha y Hora en tiempo real
+            function actualizarReloj() {
+                const now = new Date();
+                const opciones = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                const str = now.toLocaleDateString('es-ES', opciones);
+                const capitalizada = str.charAt(0).toUpperCase() + str.slice(1);
+                const dtEl = document.getElementById('currentDateTime');
+                if (dtEl) dtEl.textContent = `Cali, Valle del Cauca • ${capitalizada}`;
+            }
+            actualizarReloj();
+            setInterval(actualizarReloj, 60000);
+
+            // Actualizar Stats Reales
+            function actualizarStatsBuses() {
+                if (window.WayRoute && typeof window.WayRoute.tiempoLlegadaProximo === 'function') {
+                    const tiempos = window.WayRoute.tiempoLlegadaProximo();
+                    if (tiempos && tiempos.length > 0) {
+                        // Buscamos la parada más cercana para el usuario (simulamos "La Ermita" como base)
+                        const proximo = tiempos[0]; // La Ermita
+                        const tGuala = document.getElementById('statTiempoGuala');
+                        const pGuala = document.getElementById('statProximaGuala');
+                        const rActivas = document.getElementById('statRutasActivas');
+
+                        if (tGuala) tGuala.innerHTML = `${proximo.minutos}<span style="font-size:1rem;font-weight:400;color:var(--gray-400)"> min</span>`;
+                        if (pGuala) pGuala.textContent = `Bus ${proximo.busProximo} llegando a ${proximo.parada}`;
+                        if (rActivas) rActivas.textContent = '4'; // Hardcoded por NUM_BUSES en mapa-rutas.js
+                    }
+                }
+            }
+
+            // Iniciar actualización periódica de buses
+            setTimeout(actualizarStatsBuses, 1000);
+            setInterval(actualizarStatsBuses, 5000);
+
+            // Personalizar Banner IA
+            const iaHora = document.getElementById('iaRecomendacionHora');
+            if (iaHora) {
+                const dias = ['domingos', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados'];
+                const hoy = dias[new Date().getDay()];
+                iaHora.textContent = `los ${hoy} a esta hora`;
+            }
+
+            // Chat IA Contextual
+            const aiMessages = document.getElementById('aiMessages');
+            if (aiMessages) {
+                const userBarrio = user.barrio || 'Cali';
+                const firstMsg = aiMessages.querySelector('.msg-bubble');
+                if (firstMsg) {
+                    firstMsg.innerHTML = `¡Hola ${userFirstName}! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
+                        `Veo que estás en el barrio <strong>${userBarrio}</strong>. ` +
+                        `¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura y económica según el tráfico actual.`;
+                }
+            }
 
             // Mi Perfil
             const fullProfile = typeof getUsuarioCompleto === 'function' ? getUsuarioCompleto() : user;
@@ -2402,8 +2364,8 @@
 
                 if (pAvatar) pAvatar.textContent = avatar;
                 if (pNombre) pNombre.textContent = nombreCompleto;
-                if (pContacto) pContacto.textContent = '\ud83d\udce7 ' + correo + ' \u00b7 \ud83d\udcf1 ' + celular;
-                if (pUbicacion) pUbicacion.textContent = '\ud83d\udccd ' + barrio + ', Cali \u00b7 Pasajero activo';
+                if (pContacto) pContacto.textContent = '📧 ' + correo + ' · 📱 ' + celular;
+                if (pUbicacion) pUbicacion.textContent = '📍 ' + barrio + ', Cali · Pasajero activo';
 
                 // Formulario
                 const inNombre = document.getElementById('inputPerfilNombre');
@@ -2415,45 +2377,153 @@
                 if (inCorreo) inCorreo.value = correo;
                 if (inCelular) inCelular.value = celular;
                 if (inBarrio) inBarrio.value = barrio;
+
+                // Actualizar contexto en otras vistas (Mapa Origen y Contexto IA)
+                const mapaOrigen = document.getElementById('mapaOrigen');
+                if (mapaOrigen && barrio) mapaOrigen.value = `Barrio ${barrio}`;
+
+                const quickOrigin = document.getElementById('quickOrigin');
+                if (quickOrigin && barrio) quickOrigin.value = `Barrio ${barrio}`;
+
+                const ctxUbicacion = document.getElementById('ctxUbicacion');
+                if (ctxUbicacion && barrio) ctxUbicacion.textContent = `${barrio}, Cali`;
+
+                function updateCtxTime() {
+                    const now = new Date();
+                    const ctxHora = document.getElementById('ctxHora');
+                    const ctxDia = document.getElementById('ctxDia');
+                    if (ctxHora) {
+                        const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
+                        const isPico = (now.getHours() >= 6 && now.getHours() <= 9) || (now.getHours() >= 17 && now.getHours() <= 20);
+                        ctxHora.textContent = `${timeStr} ${isPico ? '(hora pico)' : '(hora valle)'}`;
+                    }
+                    if (ctxDia) {
+                        const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                        ctxDia.textContent = `${dias[now.getDay()]} ${now.getDay() === 0 || now.getDay() === 6 ? 'festivo' : 'laboral'}`;
+                    }
+                }
+                updateCtxTime();
+                setInterval(updateCtxTime, 60000);
             }
 
             // --- Lógica de Guardado ---
-            window.guardarPerfil = async function() {
+            window.guardarPerfil = async function () {
                 const nombre = document.getElementById('inputPerfilNombre').value;
                 const celular = document.getElementById('inputPerfilCelular').value;
                 const barrio = document.getElementById('inputPerfilBarrio').value;
 
-                // Dividir nombre y apellido para la BD (asunción simple: primer espacio)
                 const partes = nombre.split(' ');
                 const nombres = partes[0];
                 const apellidos = partes.length > 1 ? partes.slice(1).join(' ') : '';
 
                 showToast('⏳ Guardando cambios...');
-                
+
                 const resultado = await actualizarUsuario({
-                    nombres, 
-                    apellidos, 
-                    celular, 
+                    nombres,
+                    apellidos,
+                    celular,
                     barrio
                 });
 
                 if (resultado.ok) {
                     showToast('✅ Datos actualizados correctamente');
-                    // Actualizar UI sin recargar
                     document.getElementById('perfilNombreHeader').textContent = nombre;
                     document.getElementById('perfilContactoHeader').textContent = '📧 ' + resultado.usuario.correo + ' · 📱 ' + celular;
                     document.getElementById('perfilUbicacionHeader').textContent = '📍 ' + barrio + ', Cali · Pasajero activo';
-                    
-                    // Actualizar Navbar si el nombre cambió
+
                     const firstName = nombres;
                     const navName = document.getElementById('navUserName');
-                    if(navName) navName.textContent = firstName;
-                    const navWelcome = document.querySelector('#view-inicio .page-header h1');
-                    if(navWelcome) navWelcome.textContent = '¡Bienvenido, ' + firstName + '! 👋';
+                    if (navName) navName.textContent = firstName;
+                    const welcomeNameEl = document.getElementById('welcomeName');
+                    if (welcomeNameEl) welcomeNameEl.textContent = firstName;
+
+                    // Actualizar saludo IA si cambia el barrio
+                    const aiMessages = document.getElementById('aiMessages');
+                    if (aiMessages) {
+                        const firstMsg = aiMessages.querySelector('.msg-bubble');
+                        if (firstMsg) {
+                            firstMsg.innerHTML = `¡Hola ${firstName}! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
+                                `Veo que estás en el barrio <strong>${barrio}</strong>. ` +
+                                `¿A dónde necesitas ir hoy?`;
+                        }
+                    }
                 } else {
                     showToast('❌ Error: ' + resultado.error);
                 }
             };
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/alertas.js"></script>
+    <script>
+        // Sincronizar alertas globales para pasajeros (SUPABASE REAL-TIME)
+        (function() {
+            async function renderAlertasPasajero() {
+                const container = document.getElementById('globalAlertsContainer');
+                const inicioList = document.getElementById('inicioAlertsList');
+                const countBadge = document.getElementById('inicioAlertCount');
+                const trendBadge = document.getElementById('inicioAlertTrend');
+                const topNotifBadge = document.getElementById('notifBadge');
+                const sidebarChip = document.getElementById('navAlertChip');
+                
+                if(!window.WayAlertas) return;
+
+                const alertas = await window.WayAlertas.obtenerAlertas();
+                
+                // 1. Actualizar Contadores (Badges y Home)
+                if(countBadge) countBadge.textContent = alertas.length;
+                if(topNotifBadge) topNotifBadge.textContent = alertas.length;
+                if(sidebarChip) sidebarChip.textContent = alertas.length;
+                if(trendBadge) trendBadge.textContent = alertas.length > 0 ? `\u2191 ${alertas.length} activas` : 'V\u00eda despejada';
+
+                // 2. Actualizar Lista Detallada (Vista Alertas)
+                if(container) {
+                    if(alertas.length === 0) {
+                        container.innerHTML = '<div class="text-sm text-gray text-center p-4">No hay alertas de movilidad activas hoy.</div>';
+                    } else {
+                        container.innerHTML = alertas.map(al => `
+                            <div class="alert-item alert-${al.severidad === 'alta' ? 'danger' : (al.severidad === 'baja' ? 'success' : 'warning')}">
+                                <div class="alert-icon">${al.icono}</div>
+                                <div class="alert-content">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                                        <div class="alert-title">${al.titulo}</div>
+                                        <span class="tag tag-${al.severidad === 'alta' ? 'red' : 'amber'}">
+                                            ${al.severidad === 'alta' ? 'Cr\u00edtica' : 'Activa'}
+                                        </span>
+                                    </div>
+                                    <div class="alert-desc">${al.descripcion}</div>
+                                    <div class="alert-time">
+                                        Reportado: ${new Date(al.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} \u00b7 ${al.ubicacion || 'Sector Cali'}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+
+                // 3. Actualizar Feed Rápido (Vista Inicio)
+                if(inicioList) {
+                    if(alertas.length === 0) {
+                        inicioList.innerHTML = '<div class="alert-item alert-info"><div class="alert-icon">\ud83d\ude8c</div><div class="alert-content"><div class="alert-title">Todo normal</div><div class="alert-desc">No hay reportes que afecten la movilidad en este momento.</div></div></div>';
+                    } else {
+                        // Solo las 2 más críticas/recientes en Inicio
+                        inicioList.innerHTML = alertas.slice(0, 2).map(al => `
+                            <div class="alert-item alert-${al.severidad === 'alta' ? 'danger' : 'warning'}">
+                                <div class="alert-icon">${al.icono}</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">${al.titulo}</div>
+                                    <div class="alert-desc" style="font-size:.8rem;">${al.descripcion}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            }
+
+            renderAlertasPasajero();
+            setInterval(renderAlertasPasajero, 15000); 
         })();
     </script>
 </body>

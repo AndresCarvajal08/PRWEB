@@ -23,7 +23,7 @@
             <div class="nav-spacer"></div>
             <div class="nav-actions">
                 <button class="nav-btn" onclick="showToast('Sin nuevas notificaciones')">
-                    🔔 <span class="badge">2</span>
+                    🔔 <span class="badge" id="notifCountBadge">0</span>
                 </button>
                 <div class="user-info-bar">
                     <span class="user-name-nav" id="navUserName">...</span>
@@ -49,7 +49,7 @@
                     </div>
                     <div class="nav-item" id="nav-alertas" onclick="navigate('alertas')">
                         <span class="nav-icon">🔔</span><span>Alertas</span>
-                        <span class="nav-chip">2</span>
+                        <span class="nav-chip" id="alertsCountBadge">0</span>
                     </div>
                 </div>
                 <div class="sidebar-section">
@@ -72,8 +72,8 @@
                 <!-- ====== INICIO ====== -->
                 <div class="view active" id="view-inicio">
                     <div class="page-header">
-                        <h1>¡Buenos días, Carlos! 🚌</h1>
-                        <p>Turno activo · Guala G-07 · Empresa Coopcencar</p>
+                        <h1 id="welcomeGreeting">¡Buenos días, Conductor! 🚌</h1>
+                        <p id="shiftInfo">Cargando información del turno...</p>
                     </div>
 
                     <div class="status-header">
@@ -159,36 +159,25 @@
                             </div>
                         </div>
 
-                        <!-- Alertas del turno -->
-                        <div>
-                            <div class="alert-item alert-warning">
-                                <div class="alert-icon">⚠️</div>
-                                <div class="alert-content">
-                                    <div class="alert-title">Congestión moderada adelante</div>
-                                    <div class="alert-desc">Tráfico en Parque del Perro. Tiempo adicional: +8 min.
-                                        Considera avanzar por Av.3N.</div>
-                                    <button class="btn btn-secondary btn-sm mt-2"
-                                        onclick="showToast('Mostrando ruta alternativa…')">Ver ruta alternativa</button>
-                                </div>
-                            </div>
+                        <!-- Feed de novedades en tiempo real -->
+                        <div id="inicioAlertsFeed">
                             <div class="alert-item alert-info">
-                                <div class="alert-icon">ℹ️</div>
+                                <div class="alert-icon">🔄</div>
                                 <div class="alert-content">
-                                    <div class="alert-title">Próxima vuelta en 12 min</div>
-                                    <div class="alert-desc">Regresa a Centenario a las 8:42 AM para mantener frecuencia
-                                        de servicio.</div>
+                                    <div class="alert-title">Sincronizando...</div>
+                                    <div class="alert-desc">Consiguiendo novedades de vía en Supabase.</div>
                                 </div>
                             </div>
-                            <div class="card mt-2">
-                                <div class="card-title" style="margin-bottom:12px;">🚨 Reporte rápido</div>
-                                <div style="display:flex;flex-direction:column;gap:8px;">
-                                    <button class="incident-btn block" style="padding:10px;margin-bottom:0;"
-                                        onclick="reportar('bloqueo')">🚧 Bloqueo o Desvío</button>
-                                    <button class="incident-btn mechanic" style="padding:10px;margin-bottom:0;"
-                                        onclick="reportar('falla')">🔧 Falla Mecánica</button>
-                                    <button class="incident-btn security" style="padding:10px;margin-bottom:0;"
-                                        onclick="reportar('seguridad')">🚨 Incidente de Seguridad</button>
-                                </div>
+                        </div>
+                        <div class="card mt-2">
+                            <div class="card-title" style="margin-bottom:12px;">🚨 Reporte rápido</div>
+                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                <button class="incident-btn block" style="padding:10px;margin-bottom:0;"
+                                    onclick="reportar('bloqueo')">🚧 Bloqueo o Desvío</button>
+                                <button class="incident-btn mechanic" style="padding:10px;margin-bottom:0;"
+                                    onclick="reportar('falla')">🔧 Falla Mecánica</button>
+                                <button class="incident-btn security" style="padding:10px;margin-bottom:0;"
+                                    onclick="reportar('seguridad')">🚨 Incidente de Seguridad</button>
                             </div>
                         </div>
                     </div>
@@ -381,94 +370,67 @@
                                 <div class="card-title">📝 Reporte detallado</div>
                                 <div class="form-group">
                                     <label class="form-label">Tipo de incidencia</label>
-                                    <select class="form-control">
-                                        <option>🚧 Bloqueo vial</option>
-                                        <option>🚦 Congestión inusual</option>
-                                        <option>🔧 Falla mecánica del vehículo</option>
-                                        <option>🚨 Incidente de seguridad</option>
-                                        <option>⛈️ Daño por clima</option>
-                                        <option>📢 Otro</option>
+                                    <select class="form-control" id="formTipoIncidencia">
+                                        <option value="bloqueo">🚧 Bloqueo vial</option>
+                                        <option value="congestion">🚦 Congestión inusual</option>
+                                        <option value="falla">🔧 Falla mecánica del vehículo</option>
+                                        <option value="seguridad">🚨 Incidente de seguridad</option>
+                                        <option value="clima">⛈️ Daño por clima</option>
+                                        <option value="otro">📢 Otro</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Ubicación del incidente</label>
                                     <div class="input-icon-wrap">
                                         <span class="input-icon">📍</span>
-                                        <input class="form-control" placeholder="Ej: Av. 6N con Calle 34"
+                                        <input class="form-control" id="formUbicacionIncidencia" placeholder="Ej: Av. 6N con Calle 34"
                                             value="Av. 6N con Calle 34, Cali">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" rows="3"
+                                    <textarea class="form-control" id="formDescIncidencia" rows="3"
                                         placeholder="Describe el incidente…">Semáforo dañado en la intersección. Genera congestión de aprox. 10 vehículos.</textarea>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label class="form-label">Ruta afectada</label>
-                                        <select class="form-control">
-                                            <option>G-07</option>
-                                            <option>B-22A</option>
-                                            <option>B-05</option>
-                                            <option>G-12</option>
-                                            <option>B-14</option>
+                                        <select class="form-control" id="formRutaIncidencia">
+                                            <option value="G-07">G-07</option>
+                                            <option value="B-22A">B-22A</option>
+                                            <option value="B-05">B-05</option>
+                                            <option value="G-12">G-12</option>
+                                            <option value="B-14">B-14</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Severidad</label>
-                                        <select class="form-control">
-                                            <option>🟡 Moderada</option>
-                                            <option>🔴 Alta</option>
-                                            <option>🟢 Baja</option>
+                                        <select class="form-control" id="formSeveridadIncidencia">
+                                            <option value="moderada">🟡 Moderada</option>
+                                            <option value="alta">🔴 Alta</option>
+                                            <option value="baja">🟢 Baja</option>
                                         </select>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary"
-                                    onclick="showToast('✅ Reporte enviado correctamente')">Enviar Reporte →</button>
+                                <button class="btn btn-primary" id="btnEnviarReporteDetalle"
+                                    onclick="enviarReporteForm()">Enviar Reporte a Base de Datos →</button>
                             </div>
                         </div>
                         <div class="card">
                             <div class="card-title">📊 Mis reportes recientes</div>
                             <div class="table-wrap">
-                                <table>
+                                <table id="tablaReportesRecientes">
                                     <thead>
                                         <tr>
                                             <th>Tipo</th>
                                             <th>Ubicación</th>
+                                            <th>Ruta</th>
                                             <th>Estado</th>
-                                            <th>Fecha</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="bodyReportesRecientes">
                                         <tr>
-                                            <td>🚦 Congestión</td>
-                                            <td>Av.6N cll 34</td>
-                                            <td><span class="tag tag-green">✅ Validado</span></td>
-                                            <td class="text-xs text-gray">Hoy 6:30 AM</td>
-                                        </tr>
-                                        <tr>
-                                            <td>🚧 Bloqueo</td>
-                                            <td>Calle 5 Cra 1</td>
-                                            <td><span class="tag tag-amber">⏳ En revisión</span></td>
-                                            <td class="text-xs text-gray">Ayer 2:15 PM</td>
-                                        </tr>
-                                        <tr>
-                                            <td>🔧 Falla mec.</td>
-                                            <td>Av. Colombia</td>
-                                            <td><span class="tag tag-green">✅ Validado</span></td>
-                                            <td class="text-xs text-gray">Lun 11:00 AM</td>
-                                        </tr>
-                                        <tr>
-                                            <td>🚨 Seguridad</td>
-                                            <td>Barrio Desepaz</td>
-                                            <td><span class="tag tag-red">🔴 Urgente</span></td>
-                                            <td class="text-xs text-gray">Dom 9:40 PM</td>
-                                        </tr>
-                                        <tr>
-                                            <td>⛈️ Clima</td>
-                                            <td>Cll 16 Aguablanca</td>
-                                            <td><span class="tag tag-gray">Cerrado</span></td>
-                                            <td class="text-xs text-gray">Vie 4:00 PM</td>
+                                            <td colspan="4" class="text-center p-4">Cargando reportes de hoy...</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -500,41 +462,12 @@
                         <h1>🔔 Alertas de Ruta</h1>
                         <p>Notificaciones activas para tu turno</p>
                     </div>
-                    <div style="display:flex;flex-direction:column;gap:10px;">
-                        <div class="alert-item alert-danger">
-                            <div class="alert-icon">🚨</div>
-                            <div class="alert-content">
-                                <div class="alert-title">Incidente de seguridad — Barrio Desepaz</div>
-                                <div class="alert-desc">Alerta activa. Evita el sector hasta nueva comunicación del
-                                    centro de control.</div>
-                                <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px;">Hace 5 min</div>
-                            </div>
-                        </div>
-                        <div class="alert-item alert-warning">
-                            <div class="alert-icon">⚠️</div>
-                            <div class="alert-content">
-                                <div class="alert-title">Congestión en Parque del Perro</div>
-                                <div class="alert-desc">Tráfico inusual detectado. Tiempo adicional estimado: +8
-                                    minutos.</div>
-                                <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px;">Hace 12 min</div>
-                            </div>
-                        </div>
+                    <div style="display:flex;flex-direction:column;gap:10px;" id="alertsListDisplay">
                         <div class="alert-item alert-info">
-                            <div class="alert-icon">ℹ️</div>
+                            <div class="alert-icon">⏳</div>
                             <div class="alert-content">
-                                <div class="alert-title">Cambio de frecuencia programado</div>
-                                <div class="alert-desc">A partir de las 10:00 AM la frecuencia de la ruta G-07 aumenta a
-                                    cada 20 minutos.</div>
-                                <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px;">Hace 30 min</div>
-                            </div>
-                        </div>
-                        <div class="alert-item alert-success">
-                            <div class="alert-icon">✅</div>
-                            <div class="alert-content">
-                                <div class="alert-title">Reporte validado por el administrador</div>
-                                <div class="alert-desc">Tu reporte de congestión en Av.6N fue validado y publicado como
-                                    alerta para pasajeros.</div>
-                                <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px;">Hace 1 hora</div>
+                                <div class="alert-title">Sincronizando alertas...</div>
+                                <div class="alert-desc">Obteniendo reportes del sistema en tiempo real.</div>
                             </div>
                         </div>
                     </div>
@@ -641,12 +574,12 @@
                     </div>
                     <div
                         style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);border-radius:var(--radius);padding:32px;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:24px;">
-                        <div
+                        <div id="profileAvatarLg"
                             style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;">
-                            CR</div>
+                            ...</div>
                         <div>
-                            <h2 style="font-size:1.4rem;font-weight:700;">Carlos Rodríguez</h2>
-                            <p style="opacity:.85;">Conductor · Empresa Coopcencar · Ruta G-07</p>
+                            <h2 id="profileName" style="font-size:1.4rem;font-weight:700;">Cargando...</h2>
+                            <p id="profileSub" style="opacity:.85;">Conductor · Buscando empresa...</p>
                             <div style="display:flex;gap:24px;margin-top:12px;">
                                 <div style="text-align:center;">
                                     <div style="font-size:1.2rem;font-weight:700;">68</div>
@@ -667,20 +600,20 @@
                         <div class="card">
                             <div class="card-title">📋 Información personal</div>
                             <div class="form-group"><label class="form-label">Nombre completo</label><input
-                                    class="form-control" value="Carlos Rodríguez"></div>
+                                    class="form-control" id="profileInputNombre" value="Carlos Rodríguez"></div>
                             <div class="form-group"><label class="form-label">Correo electrónico</label><input
-                                    class="form-control" value="carlos@coopcencar.com"></div>
+                                    class="form-control" id="profileInputEmail" value="carlos@coopcencar.com"></div>
                             <div class="form-group"><label class="form-label">Teléfono</label><input
-                                    class="form-control" value="+57 310 555 0192"></div>
+                                    class="form-control" id="profileInputTelefono" value="+57 310 555 0192"></div>
                             <div class="form-group"><label class="form-label">Licencia de conducción</label><input
-                                    class="form-control" value="C2 — Vence: 2026-08-15"></div>
-                            <button class="btn btn-primary" onclick="showToast('✅ Perfil actualizado')">Guardar
-                                cambios</button>
+                                    class="form-control" id="profileInputLicencia" value="C2 — Vence: 2026-08-15"></div>
+                            <button class="btn btn-primary" id="btnGuardarPerfil" onclick="guardarPerfil()">Guardar
+                                cambios en base de datos</button>
                         </div>
                         <div class="card">
                             <div class="card-title">🚌 Información vehicular</div>
                             <div class="form-group"><label class="form-label">Placa del vehículo</label><input
-                                    class="form-control" value="UVX-348"></div>
+                                    class="form-control" id="profileInputPlaca" value="UVX-348"></div>
                             <div class="form-group"><label class="form-label">Empresa operadora</label><input
                                     class="form-control" value="Coopcencar" readonly></div>
                             <div class="form-group"><label class="form-label">Ruta asignada</label><input
@@ -707,10 +640,7 @@
             if (n) n.classList.add('active');
             document.getElementById('contentArea').scrollTo(0, 0);
         }
-        function reportar(tipo) {
-            const msgs = { bloqueo: '🚧 Bloqueo reportado — Enviando al centro de control…', falla: '🔧 Falla mecánica reportada', seguridad: '🚨 Incidente de seguridad reportado — Alta prioridad' };
-            showToast(msgs[tipo]);
-        }
+
         function showToast(msg, duration = 2800) {
             const t = document.getElementById('toast');
             document.getElementById('toastMsg').textContent = msg;
@@ -718,29 +648,251 @@
             setTimeout(() => t.classList.remove('show'), duration);
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
+    <script src="../js/alertas.js"></script>
     <script>
-        // ── GUARDIA DE AUTENTICACIÓN ──
+        // ── GUARDIA DE AUTENTICACION Y DINAMISMO ──
         (function() {
             const sesion = requireAuth('conductor');
             if (!sesion) return;
+
             const usuario = getUsuarioCompleto();
-            // Rellenar navbar
+            const fistName = sesion.nombre.split(' ')[0];
+
+            // 1. Rellenar Navbar
             const navUsr = document.getElementById('navUserName');
             const navAvt = document.getElementById('navAvatar');
-            if (navUsr) navUsr.textContent = sesion.nombre.split(' ')[0];
-            if (navAvt) navAvt.textContent = sesion.avatar || sesion.nombre.slice(0,2).toUpperCase();
-            // Rellenar datos del conductor en el panel
+            if (navUsr) navUsr.textContent = fistName;
+            if (navAvt) navAvt.textContent = sesion.avatar || fistName.slice(0,2).toUpperCase();
+
+            // 2. Datos Generales (Inicio y Perfil)
             if (usuario) {
-                const nameEl = document.getElementById('driverName');
-                const rutaEl = document.getElementById('driverRuta');
-                const placaEl = document.getElementById('driverPlaca');
-                const licEl  = document.getElementById('driverLic');
-                if (nameEl) nameEl.textContent = usuario.nombre;
-                if (rutaEl) rutaEl.textContent = usuario.ruta_asignada || 'Sin asignar';
-                if (placaEl && usuario.vehiculo) placaEl.textContent = usuario.vehiculo.placa || '—';
-                if (licEl && usuario.licencia) licEl.textContent = 'Cat. ' + (usuario.licencia.categoria || '—');
+                const welcomeGreeting = document.getElementById('welcomeGreeting');
+                const shiftInfo = document.getElementById('shiftInfo');
+                const profileName = document.getElementById('profileName');
+                const profileSub = document.getElementById('profileSub');
+                const profileAvatarLg = document.getElementById('profileAvatarLg');
+
+                const empresa = usuario.empresa || 'Empresa Independiente';
+                const rutaStr = usuario.ruta_asignada || 'Ruta no asignada';
+
+                if (welcomeGreeting) welcomeGreeting.textContent = `\u00a1Buenos d\u00edas, ${fistName}! \ud83d\ude8c`;
+                if (shiftInfo) shiftInfo.textContent = `Turno activo \u00b7 ${rutaStr} \u00b7 ${empresa}`;
+                
+                if (profileName) profileName.textContent = usuario.nombre || sesion.nombre;
+                if (profileSub) profileSub.textContent = `Conductor \u00b7 ${empresa} \u00b7 ${rutaStr}`;
+                if (profileAvatarLg) profileAvatarLg.textContent = sesion.avatar || fistName.slice(0,2).toUpperCase();
+
+                // Rellenar campos de formulario
+                const inNombre = document.getElementById('profileInputNombre');
+                const inCorreo = document.getElementById('profileInputEmail');
+                const inPlaca = document.getElementById('profileInputPlaca');
+
+                if (inNombre) inNombre.value = usuario.nombre || sesion.nombre;
+                if (inCorreo) inCorreo.value = usuario.correo;
+                if (inPlaca && usuario.vehiculo) inPlaca.value = usuario.vehiculo.placa || '...';
             }
+
+            // ── NUEVO: GUARDAR PERFIL EN SUPABASE ──
+            window.guardarPerfil = async function() {
+                const btn = document.getElementById('btnGuardarPerfil');
+                const nuevoNombre = document.getElementById('profileInputNombre').value;
+                const nuevoEmail = document.getElementById('profileInputEmail').value;
+                
+                if (!window.supabaseClient) return;
+
+                btn.disabled = true;
+                btn.textContent = '⏳ Guardando...';
+
+                try {
+                    const { error } = await window.supabaseClient
+                        .from('usuarios')
+                        .update({ 
+                            nombre: nuevoNombre, 
+                            correo: nuevoEmail 
+                        })
+                        .eq('id', sesion.id);
+
+                    if (error) throw error;
+
+                    // Actualizar sesión local para reflejar cambios inmediatos
+                    sesion.nombre = nuevoNombre;
+                    sessionStorage.setItem('wayroute_sesion', JSON.stringify(sesion));
+                    
+                    // Refrescar UI (Navbar y Saludos)
+                    const navUsr = document.getElementById('navUserName');
+                    if (navUsr) navUsr.textContent = nuevoNombre.split(' ')[0];
+                    
+                    showToast('✅ Perfil actualizado en la base de datos de Supabase.');
+                } catch (err) {
+                    console.error('Error al actualizar perfil:', err);
+                    showToast('❌ Error al actualizar: ' + err.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Guardar cambios en base de datos';
+                }
+            };
+
+            // 3. Sistema de Reportes Dinámico (SUPABASE)
+            window.reportar = async function(tipo) {
+                let titulo = '';
+                let desc = '';
+                const ubicacionDefault = "Cll 5 con Cra 1, Cali";
+
+                if (tipo === 'bloqueo') {
+                    titulo = 'Bloqueo vial detectado';
+                    desc = 'El conductor reporta un bloqueo o desvío detectado en tiempo real.';
+                } else if (tipo === 'falla') {
+                    titulo = 'Falla Mecánica del Vehículo';
+                    desc = 'El conductor reporta una avería mecánica — Servicio interrumpido.';
+                } else if (tipo === 'seguridad') {
+                    titulo = 'Incidente de Seguridad';
+                    desc = 'Atención: Incidente de seguridad reportado por el conductor en la ruta.';
+                }
+
+                if (window.WayAlertas) {
+                    const ok = await window.WayAlertas.crearAlerta({
+                        tipo: tipo,
+                        titulo: titulo,
+                        descripcion: desc,
+                        ubicacion: ubicacionDefault,
+                        ruta: usuario ? usuario.codigo_ruta : 'N/A',
+                        conductorId: sesion.id,
+                        severidad: tipo === 'seguridad' ? 'alta' : 'moderada'
+                    });
+                    
+                    if (ok) {
+                        showToast('✅ Reporte guardado en la base de datos de Supabase.');
+                        setTimeout(actualizarListaAlertas, 500);
+                    } else {
+                        showToast('❌ Error al intentar guardar en la base de datos.');
+                    }
+                }
+            };
+
+            // 4. Visualización de Alertas (SUPABASE)
+            async function actualizarListaAlertas() {
+                const alertsContainer = document.getElementById('alertsListDisplay');
+                const inicioFeed = document.getElementById('inicioAlertsFeed');
+                if (!window.WayAlertas) return;
+
+                const alertas = await window.WayAlertas.obtenerAlertas();
+                
+                // Actualizar contadores (Badges)
+                const notifBadge = document.getElementById('notifCountBadge');
+                const alertsBadge = document.getElementById('alertsCountBadge');
+                if(notifBadge) notifBadge.textContent = alertas.length;
+                if(alertsBadge) alertsBadge.textContent = alertas.length;
+
+                // Si estamos en la vista de Inicio, actualizar feed rápido
+                if (inicioFeed) {
+                    if (alertas.length === 0) {
+                        inicioFeed.innerHTML = '<div class="alert-item alert-info"><div class="alert-icon">🛣️</div><div class="alert-content"><div class="alert-title">Vía despejada</div><div class="alert-desc">No se han reportado novedades en tu ruta por ahora.</div></div></div>';
+                    } else {
+                        // Mostrar solo las 2 más recientes en Inicio
+                        inicioFeed.innerHTML = alertas.slice(0, 2).map(al => `
+                            <div class="alert-item alert-${al.severidad === 'alta' ? 'danger' : 'warning'}">
+                                <div class="alert-icon">${al.icono}</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">${al.titulo}</div>
+                                    <div class="alert-desc">${al.descripcion}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+
+                if (!alertsContainer) return;
+                if (alertas.length === 0) {
+                    alertsContainer.innerHTML = '<div class="text-sm text-gray text-center p-4">No hay alertas activas en Supabase hoy.</div>';
+                    return;
+                }
+
+                alertsContainer.innerHTML = alertas.map(al => `
+                    <div class="alert-item alert-${al.severidad === 'alta' ? 'danger' : (al.severidad === 'baja' ? 'success' : 'warning')}">
+                        <div class="alert-icon">${al.icono}</div>
+                        <div class="alert-content">
+                            <div class="alert-title">${al.titulo}</div>
+                            <div class="alert-desc">${al.descripcion}</div>
+                            <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px;">
+                                ${new Date(al.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} · ${al.ubicacion || 'Ruta'}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // 5. Sistema de Formulario Detallado
+            window.enviarReporteForm = async function() {
+                const tipo = document.getElementById('formTipoIncidencia').value;
+                const titulo = document.getElementById('formTipoIncidencia').options[document.getElementById('formTipoIncidencia').selectedIndex].text;
+                const ubicacion = document.getElementById('formUbicacionIncidencia').value;
+                const descripcion = document.getElementById('formDescIncidencia').value;
+                const ruta = document.getElementById('formRutaIncidencia').value;
+                const severidad = document.getElementById('formSeveridadIncidencia').value;
+
+                if (window.WayAlertas) {
+                    const btn = document.getElementById('btnEnviarReporteDetalle');
+                    btn.disabled = true;
+                    btn.textContent = '⏳ Enviando...';
+
+                    const ok = await window.WayAlertas.crearAlerta({
+                        tipo: tipo,
+                        titulo: titulo,
+                        descripcion: descripcion,
+                        ubicacion: ubicacion,
+                        ruta: ruta,
+                        conductorId: sesion.id,
+                        severidad: severidad
+                    });
+
+                    btn.disabled = false;
+                    btn.textContent = 'Enviar Reporte a Base de Datos →';
+
+                    if (ok) {
+                        showToast('✅ Reporte detallado guardado en Supabase.');
+                        // Limpiar form
+                        document.getElementById('formDescIncidencia').value = '';
+                        setTimeout(() => {
+                            actualizarListaAlertas();
+                            actualizarTablaRecientes();
+                        }, 500);
+                    } else {
+                        showToast('❌ Error en el envío. Revisa la consola.');
+                    }
+                }
+            };
+
+            // 6. Tabla de mis reportes (Filtrada por conductor)
+            async function actualizarTablaRecientes() {
+                const body = document.getElementById('bodyReportesRecientes');
+                if (!body || !window.WayAlertas) return;
+
+                const alertas = await window.WayAlertas.obtenerAlertas();
+                // Filtrar solo los míos
+                const misReportes = alertas.filter(a => a.conductor_id === sesion.id);
+
+                if (misReportes.length === 0) {
+                    body.innerHTML = '<tr><td colspan="4" class="text-center p-4">No has enviado reportes hoy.</td></tr>';
+                    return;
+                }
+
+                body.innerHTML = misReportes.map(al => `
+                    <tr>
+                        <td>${al.icono} ${al.titulo}</td>
+                        <td class="text-xs">${al.ubicacion}</td>
+                        <td class="font-bold">${al.ruta}</td>
+                        <td><span class="tag tag-green">✅ Enviado</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            actualizarListaAlertas();
+            actualizarTablaRecientes();
+            setInterval(actualizarListaAlertas, 10000); // Sincronizar cada 10 seg
+            setInterval(actualizarTablaRecientes, 30000); // Sincronizar cada 30 seg
         })();
     </script>
 </body>

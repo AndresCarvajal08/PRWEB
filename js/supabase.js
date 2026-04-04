@@ -90,19 +90,25 @@ const SUPABASE_CONFIG = {
  */
 
 // ──────────────────────────────────────────────
-// INICIALIZACIÓN (desactivada)
+// INICIALIZACIÓN (ACTIVA)
 // ──────────────────────────────────────────────
 // Requiere: <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-const { createClient } = supabase;
-window.supabaseClient = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+(function() {
+    if (typeof supabase !== 'undefined') {
+        const { createClient } = supabase;
+        window.supabaseClient = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+        console.info('%c[MoviCali] Supabase API conectada exitosamente.', 'color: #10b981; font-weight: bold;');
+    } else {
+        console.warn('⚠️ Supabase SDK no detectado. Cargando en modo simulación...');
+    }
+})();
 
 // ──────────────────────────────────────────────
 // EXPORTACIÓN
 // ──────────────────────────────────────────────
 const SupabaseConfig = {
   activo: true,
-  config: SUPABASE_CONFIG,
-  mensaje: 'Integración con Supabase configurada y activa.'
+  config: SUPABASE_CONFIG
 };
 
 console.info('%c[MoviCali] Supabase API conectada exitosamente.', 'color: #10b981; font-weight: bold;');
