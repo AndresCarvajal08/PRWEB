@@ -7,6 +7,8 @@
     <title>WayRoute — Panel Conductor</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/panel-conductor.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
 </head>
 
@@ -16,14 +18,14 @@
         <!-- TOP NAV -->
         <nav class="topnav">
             <a class="nav-brand" href="#">
-                <div class="nav-logo">🚌</div>
+                <div class="nav-logo"><i data-lucide="bus" style="width:18px;height:18px;color:#fff;"></i></div>
                 <div class="nav-brand-text">Way<span>Route</span></div>
             </a>
-            <span class="nav-role-badge">🚌 Conductor</span>
+            <span class="nav-role-badge">Conductor</span>
             <div class="nav-spacer"></div>
             <div class="nav-actions">
                 <button class="nav-btn" onclick="showToast('Sin nuevas notificaciones')">
-                    🔔 <span class="badge" id="notifCountBadge">0</span>
+                    <i data-lucide="bell" style="width:16px;height:16px;"></i> <span class="badge" id="notifCountBadge">0</span>
                 </button>
                 <div class="user-info-bar">
                     <span class="user-name-nav" id="navUserName">...</span>
@@ -31,7 +33,7 @@
                 </div>
                 <button class="logout-btn" onclick="logoutUsuario()">
                     <span>Salir</span>
-                    <span>🚪</span>
+                    <i data-lucide="log-out" style="width:14px;height:14px;"></i>
                 </button>
             </div>
         </nav>
@@ -42,26 +44,26 @@
                 <div class="sidebar-section">
                     <div class="sidebar-section-label">Principal</div>
                     <div class="nav-item active" id="nav-inicio" onclick="navigate('inicio')">
-                        <span class="nav-icon">🏠</span><span>Inicio</span>
+                        <span class="nav-icon"><i data-lucide="home" style="width:18px;height:18px;"></i></span><span>Inicio</span>
                     </div>
                     <div class="nav-item" id="nav-miRuta" onclick="navigate('miRuta')">
-                        <span class="nav-icon">🛣️</span><span>Mi Ruta Activa</span>
+                        <span class="nav-icon"><i data-lucide="route" style="width:18px;height:18px;"></i></span><span>Mi Ruta Activa</span>
                     </div>
                     <div class="nav-item" id="nav-alertas" onclick="navigate('alertas')">
-                        <span class="nav-icon">🔔</span><span>Alertas</span>
+                        <span class="nav-icon"><i data-lucide="bell" style="width:18px;height:18px;"></i></span><span>Alertas</span>
                         <span class="nav-chip" id="alertsCountBadge">0</span>
                     </div>
                 </div>
                 <div class="sidebar-section">
                     <div class="sidebar-section-label">Gestión</div>
                     <div class="nav-item" id="nav-reportes" onclick="navigate('reportes')">
-                        <span class="nav-icon">📋</span><span>Reportar Incidencia</span>
+                        <span class="nav-icon"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i></span><span>Reportar Incidencia</span>
                     </div>
                     <div class="nav-item" id="nav-historial" onclick="navigate('historial')">
-                        <span class="nav-icon">📊</span><span>Historial de Turnos</span>
+                        <span class="nav-icon"><i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i></span><span>Historial de Turnos</span>
                     </div>
                     <div class="nav-item" id="nav-perfil" onclick="navigate('perfil')">
-                        <span class="nav-icon">👤</span><span>Mi Perfil</span>
+                        <span class="nav-icon"><i data-lucide="user" style="width:18px;height:18px;"></i></span><span>Mi Perfil</span>
                     </div>
                 </div>
             </aside>
@@ -79,7 +81,7 @@
                     <div class="status-header">
                         <div class="status-kpi">
                             <div class="kpi">
-                                <div class="kpi-value">🟢</div>
+                                <div class="kpi-value"><span class="status-dot status-online"></span></div>
                                 <div class="kpi-label">Estado</div>
                             </div>
                             <div class="kpi-divider"></div>
@@ -114,7 +116,7 @@
                                     <div style="font-size:1.2rem;font-weight:700;">Guala G-07</div>
                                     <div class="text-sm text-gray">Centenario → Unicentro · Coopcencar</div>
                                 </div>
-                                <span class="tag tag-green">🟢 En servicio</span>
+                                <span class="tag tag-green">En servicio</span>
                             </div>
                             <div class="grid-2 mb-4">
                                 <div
@@ -128,7 +130,7 @@
                                     <div class="text-xs text-gray">Chipichape</div>
                                 </div>
                             </div>
-                            <div style="font-size:.82rem;font-weight:600;color:var(--gray-500);margin-bottom:10px;">🗺️
+                            <div style="font-size:.82rem;font-weight:600;color:var(--gray-500);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i data-lucide="map" style="width:14px;height:14px;"></i>
                                 Progreso del recorrido</div>
                             <div class="route-stop-row">
                                 <div class="route-stop">
@@ -162,7 +164,7 @@
                         <!-- Feed de novedades en tiempo real -->
                         <div id="inicioAlertsFeed">
                             <div class="alert-item alert-info">
-                                <div class="alert-icon">🔄</div>
+                                <div class="alert-icon"><i data-lucide="refresh-cw" style="width:16px;height:16px;color:var(--primary);"></i></div>
                                 <div class="alert-content">
                                     <div class="alert-title">Sincronizando...</div>
                                     <div class="alert-desc">Consiguiendo novedades de vía en Supabase.</div>
@@ -170,33 +172,33 @@
                             </div>
                         </div>
                         <div class="card mt-2">
-                            <div class="card-title" style="margin-bottom:12px;">🚨 Reporte rápido</div>
+                            <div class="card-title" style="margin-bottom:12px;">Reporte rápido</div>
                             <div style="display:flex;flex-direction:column;gap:8px;">
                                 <button class="incident-btn block" style="padding:10px;margin-bottom:0;"
-                                    onclick="reportar('bloqueo')">🚧 Bloqueo o Desvío</button>
+                                    onclick="reportar('bloqueo')">Bloqueo o Desvío</button>
                                 <button class="incident-btn mechanic" style="padding:10px;margin-bottom:0;"
-                                    onclick="reportar('falla')">🔧 Falla Mecánica</button>
+                                    onclick="reportar('falla')">Falla Mecánica</button>
                                 <button class="incident-btn security" style="padding:10px;margin-bottom:0;"
-                                    onclick="reportar('seguridad')">🚨 Incidente de Seguridad</button>
+                                    onclick="reportar('seguridad')">Incidente de Seguridad</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="grid-3">
                         <div class="stat-card">
-                            <div class="icon" style="background:#eff6ff;">🔄</div>
+                            <div class="icon" style="background:#eff6ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="repeat" style="width:24px;height:24px;color:var(--primary);"></i></div>
                             <div class="value">7</div>
                             <div class="label">Vueltas completadas</div>
                             <div class="trend up">↑ Meta: 10</div>
                         </div>
                         <div class="stat-card">
-                            <div class="icon" style="background:#e6f7f1;">⏱️</div>
+                            <div class="icon" style="background:#e6f7f1;display:flex;align-items:center;justify-content:center;"><i data-lucide="clock" style="width:24px;height:24px;color:var(--green);"></i></div>
                             <div class="value">4h 20m</div>
                             <div class="label">Tiempo en servicio</div>
                             <div class="trend up">↑ En horario</div>
                         </div>
                         <div class="stat-card">
-                            <div class="icon" style="background:#fef3c7;">📋</div>
+                            <div class="icon" style="background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i data-lucide="file-text" style="width:24px;height:24px;color:var(--amber);"></i></div>
                             <div class="value">3</div>
                             <div class="label">Reportes enviados</div>
                             <div class="trend up">↑ 2 validados</div>
@@ -207,7 +209,7 @@
                 <!-- ====== MI RUTA ACTIVA ====== -->
                 <div class="view" id="view-miRuta">
                     <div class="page-header">
-                        <h1>🛣️ Mi Ruta Activa</h1>
+                        <h1>Mi Ruta Activa</h1>
                         <p>Vista del conductor — Guala G-07 · Coopcencar</p>
                     </div>
                     <div class="grid-2">
@@ -219,7 +221,7 @@
                                         <div style="font-size:1.3rem;font-weight:700;">Guala G-07</div>
                                         <div class="text-sm text-gray">Centenario → Unicentro</div>
                                     </div>
-                                    <span class="tag tag-green">🟢 En servicio</span>
+                                    <span class="tag tag-green">En servicio</span>
                                 </div>
                                 <div style="font-size:.82rem;font-weight:600;color:var(--gray-500);margin-bottom:10px;">
                                     Recorrido completo</div>
@@ -261,7 +263,7 @@
                             </div>
 
                             <div class="card">
-                                <div class="card-title">📊 Estadísticas del turno</div>
+                                <div class="card-title">Estadísticas del turno</div>
                                 <div style="display:flex;gap:12px;flex-wrap:wrap;">
                                     <div
                                         style="flex:1;text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm);">
@@ -285,7 +287,7 @@
 
                         <div style="display:flex;flex-direction:column;gap:16px;">
                             <div class="alert-item alert-warning">
-                                <div class="alert-icon">⚠️</div>
+                                <div class="alert-icon"><i data-lucide="alert-triangle" style="width:18px;height:18px;color:var(--amber);"></i></div>
                                 <div class="alert-content">
                                     <div class="alert-title">Congestión moderada adelante</div>
                                     <div class="alert-desc">Tráfico detectado en Parque del Perro. Tiempo adicional: +8
@@ -295,18 +297,18 @@
                                 </div>
                             </div>
                             <div class="card">
-                                <div class="card-title" style="margin-bottom:12px;">🚨 Reportar incidencia</div>
+                                <div class="card-title" style="margin-bottom:12px;">Reportar incidencia</div>
                                 <div style="display:flex;flex-direction:column;gap:10px;">
-                                    <button class="incident-btn block" onclick="reportar('bloqueo')">🚧 Reportar Bloqueo
+                                    <button class="incident-btn block" onclick="reportar('bloqueo')">Reportar Bloqueo
                                         o Desvío</button>
-                                    <button class="incident-btn mechanic" onclick="reportar('falla')">🔧 Reportar Falla
+                                    <button class="incident-btn mechanic" onclick="reportar('falla')">Reportar Falla
                                         Mecánica</button>
-                                    <button class="incident-btn security" onclick="reportar('seguridad')">🚨 Reportar
+                                    <button class="incident-btn security" onclick="reportar('seguridad')">Reportar
                                         Incidente de Seguridad</button>
                                 </div>
                             </div>
                             <div class="card">
-                                <div class="card-title" style="margin-bottom:12px;">🕐 Próximas salidas desde Centenario
+                                <div class="card-title" style="margin-bottom:12px;">Próximas salidas desde Centenario
                                 </div>
                                 <div class="timeline">
                                     <div class="timeline-item">
@@ -350,24 +352,24 @@
                 <!-- ====== REPORTES ====== -->
                 <div class="view" id="view-reportes">
                     <div class="page-header">
-                        <h1>📋 Reportar Incidencia</h1>
+                        <h1>Reportar Incidencia</h1>
                         <p>Reporte de novedades en ruta para conductores</p>
                     </div>
                     <div class="grid-2">
                         <div>
                             <div class="card mb-4">
-                                <div class="card-title">⚡ Reporte rápido</div>
+                                <div class="card-title">Reporte rápido</div>
                                 <div style="display:flex;flex-direction:column;gap:10px;">
-                                    <button class="incident-btn block" onclick="reportar('bloqueo')">🚧 Reportar Bloqueo
+                                    <button class="incident-btn block" onclick="reportar('bloqueo')">Reportar Bloqueo
                                         o Desvío</button>
-                                    <button class="incident-btn mechanic" onclick="reportar('falla')">🔧 Reportar Falla
+                                    <button class="incident-btn mechanic" onclick="reportar('falla')">Reportar Falla
                                         Mecánica</button>
-                                    <button class="incident-btn security" onclick="reportar('seguridad')">🚨 Reportar
+                                    <button class="incident-btn security" onclick="reportar('seguridad')">Reportar
                                         Incidente de Seguridad</button>
                                 </div>
                             </div>
                             <div class="card">
-                                <div class="card-title">📝 Reporte detallado</div>
+                                <div class="card-title">Reporte detallado</div>
                                 <div class="form-group">
                                     <label class="form-label">Tipo de incidencia</label>
                                     <select class="form-control" id="formTipoIncidencia">
@@ -382,7 +384,7 @@
                                 <div class="form-group">
                                     <label class="form-label">Ubicación del incidente</label>
                                     <div class="input-icon-wrap">
-                                        <span class="input-icon">📍</span>
+                                        <span class="input-icon"><i data-lucide="map-pin" style="width:15px;height:15px;"></i></span>
                                         <input class="form-control" id="formUbicacionIncidencia" placeholder="Ej: Av. 6N con Calle 34"
                                             value="Av. 6N con Calle 34, Cali">
                                     </div>
@@ -417,7 +419,7 @@
                             </div>
                         </div>
                         <div class="card">
-                            <div class="card-title">📊 Mis reportes recientes</div>
+                            <div class="card-title">Mis reportes recientes</div>
                             <div class="table-wrap">
                                 <table id="tablaReportesRecientes">
                                     <thead>
@@ -459,12 +461,12 @@
                 <!-- ====== ALERTAS ====== -->
                 <div class="view" id="view-alertas">
                     <div class="page-header">
-                        <h1>🔔 Alertas de Ruta</h1>
+                        <h1>Alertas de Ruta</h1>
                         <p>Notificaciones activas para tu turno</p>
                     </div>
                     <div style="display:flex;flex-direction:column;gap:10px;" id="alertsListDisplay">
                         <div class="alert-item alert-info">
-                            <div class="alert-icon">⏳</div>
+                            <div class="alert-icon"><i data-lucide="clock" style="width:16px;height:16px;color:var(--primary);"></i></div>
                             <div class="alert-content">
                                 <div class="alert-title">Sincronizando alertas...</div>
                                 <div class="alert-desc">Obteniendo reportes del sistema en tiempo real.</div>
@@ -476,24 +478,24 @@
                 <!-- ====== HISTORIAL ====== -->
                 <div class="view" id="view-historial">
                     <div class="page-header">
-                        <h1>📊 Historial de Turnos</h1>
+                        <h1>Historial de Turnos</h1>
                         <p>Registro de actividad y desempeño del conductor</p>
                     </div>
                     <div class="grid-3 mb-4">
                         <div class="stat-card">
-                            <div class="icon" style="background:#eff6ff;">📅</div>
+                            <div class="icon" style="background:#eff6ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="calendar" style="width:24px;height:24px;color:var(--primary);"></i></div>
                             <div class="value">68</div>
                             <div class="label">Turnos este mes</div>
                             <div class="trend up">↑ +3 vs mes anterior</div>
                         </div>
                         <div class="stat-card">
-                            <div class="icon" style="background:#e6f7f1;">🔄</div>
+                            <div class="icon" style="background:#e6f7f1;display:flex;align-items:center;justify-content:center;"><i data-lucide="repeat" style="width:24px;height:24px;color:var(--green);"></i></div>
                             <div class="value">476</div>
                             <div class="label">Vueltas totales</div>
                             <div class="trend up">↑ Meta cumplida</div>
                         </div>
                         <div class="stat-card">
-                            <div class="icon" style="background:#fef3c7;">📋</div>
+                            <div class="icon" style="background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i data-lucide="file-text" style="width:24px;height:24px;color:var(--amber);"></i></div>
                             <div class="value">28</div>
                             <div class="label">Reportes enviados</div>
                             <div class="trend up">↑ 24 validados</div>
@@ -522,7 +524,7 @@
                                         <td>En curso</td>
                                         <td>7</td>
                                         <td>3</td>
-                                        <td><span class="tag tag-green">🟢 Activo</span></td>
+                                        <td><span class="tag tag-green">Activo</span></td>
                                     </tr>
                                     <tr>
                                         <td>Ayer</td>
@@ -569,7 +571,7 @@
                 <!-- ====== PERFIL ====== -->
                 <div class="view" id="view-perfil">
                     <div class="page-header">
-                        <h1>👤 Mi Perfil</h1>
+                        <h1>Mi Perfil</h1>
                         <p>Información y configuración del conductor</p>
                     </div>
                     <div
@@ -598,7 +600,7 @@
                     </div>
                     <div class="grid-2">
                         <div class="card">
-                            <div class="card-title">📋 Información personal</div>
+                            <div class="card-title">Información personal</div>
                             <div class="form-group"><label class="form-label">Nombre completo</label><input
                                     class="form-control" id="profileInputNombre" value="Carlos Rodríguez"></div>
                             <div class="form-group"><label class="form-label">Correo electrónico</label><input
@@ -611,7 +613,7 @@
                                 cambios en base de datos</button>
                         </div>
                         <div class="card">
-                            <div class="card-title">🚌 Información vehicular</div>
+                            <div class="card-title">Información vehicular</div>
                             <div class="form-group"><label class="form-label">Placa del vehículo</label><input
                                     class="form-control" id="profileInputPlaca" value="UVX-348"></div>
                             <div class="form-group"><label class="form-label">Empresa operadora</label><input
@@ -630,270 +632,38 @@
 
     <div class="toast" id="toast"><span id="toastMsg">Mensaje</span></div>
 
-    <script>
-        function navigate(view) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            const v = document.getElementById('view-' + view);
-            if (v) v.classList.add('active');
-            const n = document.getElementById('nav-' + view);
-            if (n) n.classList.add('active');
-            document.getElementById('contentArea').scrollTo(0, 0);
-        }
+    <!-- ── CORE ── -->
+    <script src="../js/core/Toast.js"></script>
+    <script src="../js/core/Router.js"></script>
+    <script src="../js/core/EventBus.js"></script>
 
-        function showToast(msg, duration = 2800) {
-            const t = document.getElementById('toast');
-            document.getElementById('toastMsg').textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), duration);
-        }
-    </script>
+    <!-- ── MODELS ── -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
+    <script src="../js/models/SesionModel.js"></script>
+    <script src="../js/models/UsuarioModel.js"></script>
+    <script src="../js/models/AlertaModel.js"></script>
+
+    <!-- ── VIEWS ── -->
+    <script src="../js/views/NavView.js"></script>
+    <script src="../js/views/AlertaView.js"></script>
+
+    <!-- ── CONTROLLERS ── -->
+    <script src="../js/controllers/AuthController.js"></script>
+    <script src="../js/controllers/AlertaController.js"></script>
+    
+    <!-- Lógica de Retrocompatibilidad (se mantienen para no romper logins/mapas) -->
     <script src="../js/auth.js"></script>
     <script src="../js/alertas.js"></script>
+
+    <!-- ── INIT CONDUCTOR ── -->
+    <script src="../js/controllers/ConductorController.js"></script>
     <script>
-        // ── GUARDIA DE AUTENTICACION Y DINAMISMO ──
-        (function() {
-            const sesion = requireAuth('conductor');
-            if (!sesion) return;
-
-            const usuario = getUsuarioCompleto();
-            const fistName = sesion.nombre.split(' ')[0];
-
-            // 1. Rellenar Navbar
-            const navUsr = document.getElementById('navUserName');
-            const navAvt = document.getElementById('navAvatar');
-            if (navUsr) navUsr.textContent = fistName;
-            if (navAvt) navAvt.textContent = sesion.avatar || fistName.slice(0,2).toUpperCase();
-
-            // 2. Datos Generales (Inicio y Perfil)
-            if (usuario) {
-                const welcomeGreeting = document.getElementById('welcomeGreeting');
-                const shiftInfo = document.getElementById('shiftInfo');
-                const profileName = document.getElementById('profileName');
-                const profileSub = document.getElementById('profileSub');
-                const profileAvatarLg = document.getElementById('profileAvatarLg');
-
-                const empresa = usuario.empresa || 'Empresa Independiente';
-                const rutaStr = usuario.ruta_asignada || 'Ruta no asignada';
-
-                if (welcomeGreeting) welcomeGreeting.textContent = `\u00a1Buenos d\u00edas, ${fistName}! \ud83d\ude8c`;
-                if (shiftInfo) shiftInfo.textContent = `Turno activo \u00b7 ${rutaStr} \u00b7 ${empresa}`;
-                
-                if (profileName) profileName.textContent = usuario.nombre || sesion.nombre;
-                if (profileSub) profileSub.textContent = `Conductor \u00b7 ${empresa} \u00b7 ${rutaStr}`;
-                if (profileAvatarLg) profileAvatarLg.textContent = sesion.avatar || fistName.slice(0,2).toUpperCase();
-
-                // Rellenar campos de formulario
-                const inNombre = document.getElementById('profileInputNombre');
-                const inCorreo = document.getElementById('profileInputEmail');
-                const inPlaca = document.getElementById('profileInputPlaca');
-
-                if (inNombre) inNombre.value = usuario.nombre || sesion.nombre;
-                if (inCorreo) inCorreo.value = usuario.correo;
-                if (inPlaca && usuario.vehiculo) inPlaca.value = usuario.vehiculo.placa || '...';
-            }
-
-            // ── NUEVO: GUARDAR PERFIL EN SUPABASE ──
-            window.guardarPerfil = async function() {
-                const btn = document.getElementById('btnGuardarPerfil');
-                const nuevoNombre = document.getElementById('profileInputNombre').value;
-                const nuevoEmail = document.getElementById('profileInputEmail').value;
-                
-                if (!window.supabaseClient) return;
-
-                btn.disabled = true;
-                btn.textContent = '⏳ Guardando...';
-
-                try {
-                    const { error } = await window.supabaseClient
-                        .from('usuarios')
-                        .update({ 
-                            nombre: nuevoNombre, 
-                            correo: nuevoEmail 
-                        })
-                        .eq('id', sesion.id);
-
-                    if (error) throw error;
-
-                    // Actualizar sesión local para reflejar cambios inmediatos
-                    sesion.nombre = nuevoNombre;
-                    sessionStorage.setItem('wayroute_sesion', JSON.stringify(sesion));
-                    
-                    // Refrescar UI (Navbar y Saludos)
-                    const navUsr = document.getElementById('navUserName');
-                    if (navUsr) navUsr.textContent = nuevoNombre.split(' ')[0];
-                    
-                    showToast('✅ Perfil actualizado en la base de datos de Supabase.');
-                } catch (err) {
-                    console.error('Error al actualizar perfil:', err);
-                    showToast('❌ Error al actualizar: ' + err.message);
-                } finally {
-                    btn.disabled = false;
-                    btn.textContent = 'Guardar cambios en base de datos';
-                }
-            };
-
-            // 3. Sistema de Reportes Dinámico (SUPABASE)
-            window.reportar = async function(tipo) {
-                let titulo = '';
-                let desc = '';
-                const ubicacionDefault = "Cll 5 con Cra 1, Cali";
-
-                if (tipo === 'bloqueo') {
-                    titulo = 'Bloqueo vial detectado';
-                    desc = 'El conductor reporta un bloqueo o desvío detectado en tiempo real.';
-                } else if (tipo === 'falla') {
-                    titulo = 'Falla Mecánica del Vehículo';
-                    desc = 'El conductor reporta una avería mecánica — Servicio interrumpido.';
-                } else if (tipo === 'seguridad') {
-                    titulo = 'Incidente de Seguridad';
-                    desc = 'Atención: Incidente de seguridad reportado por el conductor en la ruta.';
-                }
-
-                if (window.WayAlertas) {
-                    const ok = await window.WayAlertas.crearAlerta({
-                        tipo: tipo,
-                        titulo: titulo,
-                        descripcion: desc,
-                        ubicacion: ubicacionDefault,
-                        ruta: usuario ? usuario.codigo_ruta : 'N/A',
-                        conductorId: sesion.id,
-                        severidad: tipo === 'seguridad' ? 'alta' : 'moderada'
-                    });
-                    
-                    if (ok) {
-                        showToast('✅ Reporte guardado en la base de datos de Supabase.');
-                        setTimeout(actualizarListaAlertas, 500);
-                    } else {
-                        showToast('❌ Error al intentar guardar en la base de datos.');
-                    }
-                }
-            };
-
-            // 4. Visualización de Alertas (SUPABASE)
-            async function actualizarListaAlertas() {
-                const alertsContainer = document.getElementById('alertsListDisplay');
-                const inicioFeed = document.getElementById('inicioAlertsFeed');
-                if (!window.WayAlertas) return;
-
-                const alertas = await window.WayAlertas.obtenerAlertas();
-                
-                // Actualizar contadores (Badges)
-                const notifBadge = document.getElementById('notifCountBadge');
-                const alertsBadge = document.getElementById('alertsCountBadge');
-                if(notifBadge) notifBadge.textContent = alertas.length;
-                if(alertsBadge) alertsBadge.textContent = alertas.length;
-
-                // Si estamos en la vista de Inicio, actualizar feed rápido
-                if (inicioFeed) {
-                    if (alertas.length === 0) {
-                        inicioFeed.innerHTML = '<div class="alert-item alert-info"><div class="alert-icon">🛣️</div><div class="alert-content"><div class="alert-title">Vía despejada</div><div class="alert-desc">No se han reportado novedades en tu ruta por ahora.</div></div></div>';
-                    } else {
-                        // Mostrar solo las 2 más recientes en Inicio
-                        inicioFeed.innerHTML = alertas.slice(0, 2).map(al => `
-                            <div class="alert-item alert-${al.severidad === 'alta' ? 'danger' : 'warning'}">
-                                <div class="alert-icon">${al.icono}</div>
-                                <div class="alert-content">
-                                    <div class="alert-title">${al.titulo}</div>
-                                    <div class="alert-desc">${al.descripcion}</div>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                }
-
-                if (!alertsContainer) return;
-                if (alertas.length === 0) {
-                    alertsContainer.innerHTML = '<div class="text-sm text-gray text-center p-4">No hay alertas activas en Supabase hoy.</div>';
-                    return;
-                }
-
-                alertsContainer.innerHTML = alertas.map(al => `
-                    <div class="alert-item alert-${al.severidad === 'alta' ? 'danger' : (al.severidad === 'baja' ? 'success' : 'warning')}">
-                        <div class="alert-icon">${al.icono}</div>
-                        <div class="alert-content">
-                            <div class="alert-title">${al.titulo}</div>
-                            <div class="alert-desc">${al.descripcion}</div>
-                            <div style="font-size:.72rem;color:var(--gray-400);margin-top:4px;">
-                                ${new Date(al.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} · ${al.ubicacion || 'Ruta'}
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // 5. Sistema de Formulario Detallado
-            window.enviarReporteForm = async function() {
-                const tipo = document.getElementById('formTipoIncidencia').value;
-                const titulo = document.getElementById('formTipoIncidencia').options[document.getElementById('formTipoIncidencia').selectedIndex].text;
-                const ubicacion = document.getElementById('formUbicacionIncidencia').value;
-                const descripcion = document.getElementById('formDescIncidencia').value;
-                const ruta = document.getElementById('formRutaIncidencia').value;
-                const severidad = document.getElementById('formSeveridadIncidencia').value;
-
-                if (window.WayAlertas) {
-                    const btn = document.getElementById('btnEnviarReporteDetalle');
-                    btn.disabled = true;
-                    btn.textContent = '⏳ Enviando...';
-
-                    const ok = await window.WayAlertas.crearAlerta({
-                        tipo: tipo,
-                        titulo: titulo,
-                        descripcion: descripcion,
-                        ubicacion: ubicacion,
-                        ruta: ruta,
-                        conductorId: sesion.id,
-                        severidad: severidad
-                    });
-
-                    btn.disabled = false;
-                    btn.textContent = 'Enviar Reporte a Base de Datos →';
-
-                    if (ok) {
-                        showToast('✅ Reporte detallado guardado en Supabase.');
-                        // Limpiar form
-                        document.getElementById('formDescIncidencia').value = '';
-                        setTimeout(() => {
-                            actualizarListaAlertas();
-                            actualizarTablaRecientes();
-                        }, 500);
-                    } else {
-                        showToast('❌ Error en el envío. Revisa la consola.');
-                    }
-                }
-            };
-
-            // 6. Tabla de mis reportes (Filtrada por conductor)
-            async function actualizarTablaRecientes() {
-                const body = document.getElementById('bodyReportesRecientes');
-                if (!body || !window.WayAlertas) return;
-
-                const alertas = await window.WayAlertas.obtenerAlertas();
-                // Filtrar solo los míos
-                const misReportes = alertas.filter(a => a.conductor_id === sesion.id);
-
-                if (misReportes.length === 0) {
-                    body.innerHTML = '<tr><td colspan="4" class="text-center p-4">No has enviado reportes hoy.</td></tr>';
-                    return;
-                }
-
-                body.innerHTML = misReportes.map(al => `
-                    <tr>
-                        <td>${al.icono} ${al.titulo}</td>
-                        <td class="text-xs">${al.ubicacion}</td>
-                        <td class="font-bold">${al.ruta}</td>
-                        <td><span class="tag tag-green">✅ Enviado</span></td>
-                    </tr>
-                `).join('');
-            }
-
-            actualizarListaAlertas();
-            actualizarTablaRecientes();
-            setInterval(actualizarListaAlertas, 10000); // Sincronizar cada 10 seg
-            setInterval(actualizarTablaRecientes, 30000); // Sincronizar cada 30 seg
-        })();
+        // Inicializar Lucide Icons
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     </script>
 </body>
 

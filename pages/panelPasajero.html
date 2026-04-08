@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="../css/panel-pasajero.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <!-- Leaflet.js - Mapa interactivo -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -49,38 +51,38 @@
 
         <!-- TOP NAV -->
         <nav class="topnav">
-            <button class="btn-icon" onclick="toggleSidebar()" style="display:flex;align-items:center;">☰</button>
+            <button class="btn-icon" onclick="toggleSidebar()" style="display:flex;align-items:center;"><i data-lucide="menu" style="width:18px;height:18px;"></i></button>
             <a href="#" class="nav-brand" onclick="return false;">
-                <div class="nav-logo">🚌</div>
+                <div class="nav-logo"><i data-lucide="bus" style="width:18px;height:18px;color:#fff;"></i></div>
                 <span class="nav-brand-text">Way<span>Route</span></span>
             </a>
             <div class="nav-spacer"></div>
             <div class="nav-search">
-                <span>🔍</span>
+                <i data-lucide="search" style="width:15px;height:15px;color:var(--gray-400);flex-shrink:0;"></i>
                 <input type="text" placeholder="Buscar rutas, paradas, zonas…" id="globalSearch"
                     oninput="handleGlobalSearch(this.value)">
             </div>
             <div class="nav-actions">
                 <button class="nav-btn" onclick="toggleNotif()" title="Notificaciones">
-                    🔔
+                    <i data-lucide="bell" style="width:16px;height:16px;"></i>
                     <span class="badge" id="notifBadge">0</span>
                 </button>
-                <span class="nav-role-badge" id="roleLabel">🧍 Pasajero</span>
+                <span class="nav-role-badge" id="roleLabel">Pasajero</span>
                 <span class="user-name-nav" id="navUserName"
                     style="font-size:.82rem;font-weight:600;color:#374151;"></span>
                 <div class="nav-avatar" onclick="navigate('perfil')" title="Mi perfil" id="userAvatarNav">LR</div>
-                <button class="logout-btn" id="logoutBtn" onclick="logoutUsuario()">🚪 Salir</button>
+                <button class="logout-btn" id="logoutBtn" onclick="logoutUsuario()"><i data-lucide="log-out" style="width:14px;height:14px;"></i> Salir</button>
             </div>
         </nav>
 
         <!-- NOTIFICATION PANEL -->
         <div class="notif-panel" id="notifPanel">
             <div class="notif-header">
-                <h4>🔔 Notificaciones</h4>
+                <h4><i data-lucide="bell" style="width:16px;height:16px;display:inline;margin-right:6px;vertical-align:middle;"></i>Notificaciones</h4>
                 <button class="btn btn-secondary btn-sm" onclick="markAllRead()">Marcar leídas</button>
             </div>
             <div class="notif-item unread" onclick="toggleNotif()">
-                <div class="notif-icon">⚠️</div>
+                <div class="notif-icon"><i data-lucide="alert-triangle" style="width:18px;height:18px;color:var(--amber);"></i></div>
                 <div class="notif-body">
                     <div class="notif-title">Alerta de congestión — Ruta 22A</div>
                     <div class="notif-desc">La Av. 6N presenta tráfico pesado. Tiempo adicional estimado: 18 min.</div>
@@ -88,7 +90,7 @@
                 </div>
             </div>
             <div class="notif-item unread" onclick="toggleNotif()">
-                <div class="notif-icon">🚌</div>
+                <div class="notif-icon"><i data-lucide="bus" style="width:18px;height:18px;color:var(--primary);"></i></div>
                 <div class="notif-body">
                     <div class="notif-title">Tu guala habitual — Ruta G-07 llega en 3 min</div>
                     <div class="notif-desc">Parada: Av. 6N con Calle 34. Tu horario habitual.</div>
@@ -96,7 +98,7 @@
                 </div>
             </div>
             <div class="notif-item unread" onclick="toggleNotif()">
-                <div class="notif-icon">🔐</div>
+                <div class="notif-icon"><i data-lucide="shield-alert" style="width:18px;height:18px;color:var(--red);"></i></div>
                 <div class="notif-body">
                     <div class="notif-title">Zona de precaución nocturna</div>
                     <div class="notif-desc">Para viajes después de las 9pm, se recomienda Ruta B-14 por Mayor Seguridad.
@@ -105,7 +107,7 @@
                 </div>
             </div>
             <div class="notif-item">
-                <div class="notif-icon">✅</div>
+                <div class="notif-icon"><i data-lucide="check-circle" style="width:18px;height:18px;color:var(--green);"></i></div>
                 <div class="notif-body">
                     <div class="notif-title">Ruta B-05 restablecida</div>
                     <div class="notif-desc">El bloqueo en la Calle 5 fue despejado. Servicio normal.</div>
@@ -126,16 +128,16 @@
                 <div class="sidebar-section">
                     <div class="sidebar-section-label">Principal</div>
                     <div class="nav-item active" id="nav-inicio" onclick="navigate('inicio')">
-                        <span class="nav-icon">🏠</span><span class="nav-label">Inicio</span>
+                        <span class="nav-icon"><i data-lucide="home" style="width:18px;height:18px;"></i></span><span class="nav-label">Inicio</span>
                     </div>
                     <div class="nav-item" id="nav-mapa" onclick="navigate('mapa')">
-                        <span class="nav-icon">🗺️</span><span class="nav-label">Mapa & Rutas</span>
+                        <span class="nav-icon"><i data-lucide="map" style="width:18px;height:18px;"></i></span><span class="nav-label">Mapa & Rutas</span>
                     </div>
                     <div class="nav-item" id="nav-asistente" onclick="navigate('asistente')">
-                        <span class="nav-icon">🤖</span><span class="nav-label">Asistente IA</span>
+                        <span class="nav-icon"><i data-lucide="bot" style="width:18px;height:18px;"></i></span><span class="nav-label">Asistente IA</span>
                     </div>
                     <div class="nav-item" id="nav-alertas" onclick="navigate('alertas')">
-                        <span class="nav-icon">🔔</span><span class="nav-label">Alertas en Tiempo Real</span>
+                        <span class="nav-icon"><i data-lucide="bell" style="width:18px;height:18px;"></i></span><span class="nav-label">Alertas en Tiempo Real</span>
                         <span class="nav-chip" id="navAlertChip">0</span>
                     </div>
                 </div>
@@ -143,36 +145,36 @@
                 <div class="sidebar-section" id="nav-section-pasajero">
                     <div class="sidebar-section-label">Pasajero</div>
                     <div class="nav-item" id="nav-seguridad" onclick="navigate('seguridad')">
-                        <span class="nav-icon">🛡️</span><span class="nav-label">Seguridad</span>
+                        <span class="nav-icon"><i data-lucide="shield" style="width:18px;height:18px;"></i></span><span class="nav-label">Seguridad</span>
                     </div>
                     <div class="nav-item" id="nav-historial" onclick="navigate('historial')">
-                        <span class="nav-icon">📊</span><span class="nav-label">Mi Historial</span>
+                        <span class="nav-icon"><i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i></span><span class="nav-label">Mi Historial</span>
                     </div>
                     <div class="nav-item" id="nav-perfil" onclick="navigate('perfil')">
-                        <span class="nav-icon">👤</span><span class="nav-label">Mi Perfil</span>
+                        <span class="nav-icon"><i data-lucide="user" style="width:18px;height:18px;"></i></span><span class="nav-label">Mi Perfil</span>
                     </div>
                 </div>
 
                 <div class="sidebar-section hidden" id="nav-section-conductor">
                     <div class="sidebar-section-label">Conductor</div>
                     <div class="nav-item" id="nav-reportes" onclick="navigate('reportes')">
-                        <span class="nav-icon">📋</span><span class="nav-label">Reportar Incidencia</span>
+                        <span class="nav-icon"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i></span><span class="nav-label">Reportar Incidencia</span>
                     </div>
                     <div class="nav-item" id="nav-miRuta" onclick="navigate('miRuta')">
-                        <span class="nav-icon">🛣️</span><span class="nav-label">Mi Ruta Activa</span>
+                        <span class="nav-icon"><i data-lucide="route" style="width:18px;height:18px;"></i></span><span class="nav-label">Mi Ruta Activa</span>
                     </div>
                 </div>
 
                 <div class="sidebar-section hidden" id="nav-section-admin">
                     <div class="sidebar-section-label">Administración</div>
                     <div class="nav-item" id="nav-admin" onclick="navigate('admin')">
-                        <span class="nav-icon">⚙️</span><span class="nav-label">Panel Admin</span>
+                        <span class="nav-icon"><i data-lucide="settings" style="width:18px;height:18px;"></i></span><span class="nav-label">Panel Admin</span>
                     </div>
                     <div class="nav-item" id="nav-gestionRutas" onclick="navigate('gestionRutas')">
-                        <span class="nav-icon">🛤️</span><span class="nav-label">Gestión de Rutas</span>
+                        <span class="nav-icon"><i data-lucide="git-branch" style="width:18px;height:18px;"></i></span><span class="nav-label">Gestión de Rutas</span>
                     </div>
                     <div class="nav-item" id="nav-usuarios" onclick="navigate('usuarios')">
-                        <span class="nav-icon">👥</span><span class="nav-label">Usuarios</span>
+                        <span class="nav-icon"><i data-lucide="users" style="width:18px;height:18px;"></i></span><span class="nav-label">Usuarios</span>
                     </div>
                 </div>
             </aside>
@@ -184,10 +186,10 @@
                 <div class="view active" id="view-inicio">
                     <div class="page-header-row">
                         <div class="page-header">
-                            <h1>¡Bienvenido, <span id="welcomeName">Pasajero</span>! 👋</h1>
+                            <h1>Bienvenido, <span id="welcomeName">Pasajero</span></h1>
                             <p id="currentDateTime">Cali, Valle del Cauca • Cargando fecha...</p>
                         </div>
-                        <button class="btn btn-primary" onclick="navigate('asistente')">🤖 Consultar IA</button>
+                        <button class="btn btn-primary" onclick="navigate('asistente')"><i data-lucide="bot" style="width:15px;height:15px;"></i> Consultar IA</button>
                     </div>
 
                     <!-- Quick Stats -->
@@ -199,7 +201,7 @@
                             <div class="trend up">Actualizado en vivo</div>
                         </div>
                         <div class="stat-card">
-                            <div class="icon" style="background:#fef3c7;">⏱️</div>
+                            <div class="icon" style="background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i data-lucide="clock" style="width:24px;height:24px;color:var(--amber);"></i></div>
                             <div class="value" id="statTiempoGuala">--<span
                                     style="font-size:1rem;font-weight:400;color:var(--gray-400)">
                                     min</span></div>
@@ -207,13 +209,13 @@
                             <div class="trend up" id="statProximaGuala">Calculando...</div>
                         </div>
                         <div class="stat-card">
-                            <div class="icon" style="background:#fee2e2;">⚠️</div>
+                            <div class="icon" style="background:#fee2e2;display:flex;align-items:center;justify-content:center;"><i data-lucide="alert-triangle" style="width:24px;height:24px;color:var(--red);"></i></div>
                             <div class="value" id="inicioAlertCount">0</div>
                             <div class="label">Alertas activas en Cali</div>
                             <div class="trend down" id="inicioAlertTrend">Conectado</div>
                         </div>
                         <div class="stat-card">
-                            <div class="icon" style="background:#eff6ff;">📍</div>
+                            <div class="icon" style="background:#eff6ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="map-pin" style="width:24px;height:24px;color:var(--primary);"></i></div>
                             <div class="value">5</div>
                             <div class="label">Rutas frecuentes guardadas</div>
                             <div class="trend up">2 favoritas</div>
@@ -222,42 +224,41 @@
 
                     <!-- Quick Search -->
                     <div class="card mb-4">
-                        <div class="card-title">🔍 ¿A dónde vas?</div>
+                        <div class="card-title">¿A dónde vas?</div>
                         <div class="form-row mb-3">
                             <div class="form-group" style="margin-bottom:0;">
                                 <label class="form-label">Origen (Ubicación actual)</label>
                                 <div class="input-icon-wrap" style="display:flex;gap:6px;">
-                                    <span class="input-icon">📍</span>
+                                    <span class="input-icon"><i data-lucide="map-pin" style="width:15px;height:15px;"></i></span>
                                     <input class="form-control" placeholder="Toca el radar para detectarte..." value=""
                                         id="quickOrigin">
                                     <button class="btn btn-primary btn-sm" id="btnDetectGPS"
                                         onclick="detectarUbicacion()" title="Detectar tu radar GPS"
-                                        style="padding: 0 14px; border-radius: 6px; font-size:1.1rem;">🎯</button>
+                                        style="padding: 0 14px; border-radius: 6px;"><i data-lucide="crosshair" style="width:16px;height:16px;"></i></button>
                                 </div>
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
                                 <label class="form-label">Destino</label>
                                 <div class="input-icon-wrap">
-                                    <span class="input-icon">🏁</span>
+                                    <span class="input-icon"><i data-lucide="flag" style="width:15px;height:15px;"></i></span>
                                     <input class="form-control" placeholder="¿A dónde vas?" id="quickDest"
                                         placeholder="Ej: Centro Comercial Unicentro">
                                 </div>
                             </div>
                         </div>
                         <div class="chip-scroll mb-3">
-                            <div class="chip active" onclick="setDest(this,'Centro Comercial Unicentro')">🛍️ Unicentro
+                            <div class="chip active" onclick="setDest(this,'Centro Comercial Unicentro')">Unicentro
                             </div>
-                            <div class="chip" onclick="setDest(this,'Universidad del Valle')">🎓 Univalle</div>
-                            <div class="chip" onclick="setDest(this,'Hospital Universitario')">🏥 Hospital U.</div>
-                            <div class="chip" onclick="setDest(this,'Terminal de Transportes')">🚉 Terminal</div>
-                            <div class="chip" onclick="setDest(this,'Plaza de Caicedo')">🏛️ Plaza Caicedo</div>
-                            <div class="chip" onclick="setDest(this,'Parque del Perro')">🌿 Parque Perro</div>
-                            <div class="chip" onclick="setDest(this,'Av. Las Americas')">🛣️ Las Américas</div>
+                            <div class="chip" onclick="setDest(this,'Universidad del Valle')">Univalle</div>
+                            <div class="chip" onclick="setDest(this,'Hospital Universitario')">Hospital U.</div>
+                            <div class="chip" onclick="setDest(this,'Terminal de Transportes')">Terminal</div>
+                            <div class="chip" onclick="setDest(this,'Plaza de Caicedo')">Plaza Caicedo</div>
+                            <div class="chip" onclick="setDest(this,'Parque del Perro')">Parque Perro</div>
+                            <div class="chip" onclick="setDest(this,'Av. Las Americas')">Las Américas</div>
                         </div>
                         <div style="display:flex;gap:10px;">
-                            <button class="btn btn-primary" onclick="buscarRutas()">Buscar Rutas →</button>
-                            <button class="btn btn-secondary" onclick="navigate('asistente')">🤖 Pedir recomendación
-                                IA</button>
+                            <button class="btn btn-primary" onclick="buscarRutas()">Buscar Rutas &#8594;</button>
+                            <button class="btn btn-secondary" onclick="navigate('asistente')"><i data-lucide="bot" style="width:14px;height:14px;"></i> Recomendación IA</button>
                         </div>
                     </div>
 
@@ -265,10 +266,10 @@
                     <div class="grid-2">
                         <!-- Alertas -->
                         <div class="card">
-                            <div class="card-title">⚠️ Alertas en el sistema</div>
+                            <div class="card-title">Alertas en el sistema</div>
                             <div id="inicioAlertsList">
                                 <div class="alert-item alert-info">
-                                    <div class="alert-icon">🔄</div>
+                                    <div class="alert-icon"><i data-lucide="refresh-cw" style="width:16px;height:16px;color:var(--primary);"></i></div>
                                     <div class="alert-content">
                                         <div class="alert-title">Sincronizando...</div>
                                         <div class="alert-desc">Obteniendo reportes viales en tiempo real.</div>
@@ -281,7 +282,7 @@
 
                         <!-- Rutas Frecuentes -->
                         <div class="card">
-                            <div class="card-title">⭐ Tus Rutas Frecuentes</div>
+                            <div class="card-title">Tus Rutas Frecuentes</div>
                             <div style="display:flex;flex-direction:column;gap:10px;">
                                 <div class="route-card selected" onclick="verRuta('G-07')">
                                     <div class="route-header">
@@ -289,15 +290,15 @@
                                             <div class="route-dot" style="background:#10b981;"></div>
                                             Guala G-07
                                         </div>
-                                        <div style="display:flex;gap:6px;">
-                                            <span class="tag tag-green">🟢 Activa</span>
-                                            <span class="tag tag-gray">⭐ Fav</span>
+                                        <div>
+                                            <span class="tag tag-green">Activa</span>
+                                            <span class="tag tag-gray">Favorita</span>
                                         </div>
                                     </div>
                                     <div class="route-meta">
-                                        <span>📍 Centenario → Unicentro</span>
-                                        <span>⏱️ 28 min</span>
-                                        <span>💰 $3.500</span>
+                                        <span><i data-lucide="map-pin" style="width:12px;height:12px;"></i> Centenario → Unicentro</span>
+                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 28 min</span>
+                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> $3.500</span>
                                     </div>
                                 </div>
                                 <div class="route-card" onclick="verRuta('B-22A')">
@@ -306,12 +307,12 @@
                                             <div class="route-dot" style="background:#3b82f6;"></div>
                                             Bus B-22A
                                         </div>
-                                        <span class="tag tag-amber">🟡 Demorado</span>
+                                        <span class="tag tag-amber">Demorado</span>
                                     </div>
                                     <div class="route-meta">
-                                        <span>📍 Centenario → Centro</span>
-                                        <span>⏱️ +18 min</span>
-                                        <span>💰 $3.500</span>
+                                        <span><i data-lucide="map-pin" style="width:12px;height:12px;"></i> Centenario → Centro</span>
+                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> +18 min</span>
+                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> $3.500</span>
                                     </div>
                                 </div>
                                 <div class="route-card" onclick="verRuta('G-12')">
@@ -323,9 +324,9 @@
                                         <span class="tag tag-green">🟢 A tiempo</span>
                                     </div>
                                     <div class="route-meta">
-                                        <span>📍 Centenario → Univalle</span>
-                                        <span>⏱️ 35 min</span>
-                                        <span>💰 $3.500</span>
+                                        <span><i data-lucide="map-pin" style="width:12px;height:12px;"></i> Centenario → Univalle</span>
+                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 35 min</span>
+                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> $3.500</span>
                                     </div>
                                 </div>
                             </div>
@@ -338,7 +339,7 @@
                     <div class="card mt-4"
                         style="background:linear-gradient(135deg,#064e3b,#065f46);color:#fff;border:none;">
                         <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-                            <div style="font-size:48px;">🤖</div>
+                            <div style="font-size:48px;display:flex;align-items:center;justify-content:center;"><i data-lucide="bot" style="width:48px;height:48px;color:rgba(255,255,255,0.9);"></i></div>
                             <div style="flex:1;">
                                 <div style="font-size:1.1rem;font-weight:700;margin-bottom:6px;">Recomendación IA para
                                     tu viaje</div>
@@ -363,12 +364,12 @@
                 <div class="view" id="view-mapa">
                     <div class="page-header-row">
                         <div class="page-header">
-                            <h1>🗺️ Mapa & Consulta de Rutas</h1>
+                            <h1>Mapa & Consulta de Rutas</h1>
                             <p>Buses y gualas del transporte informal de Cali</p>
                         </div>
                         <div style="display:flex;gap:8px;">
-                            <button class="btn btn-secondary" onclick="filtrarRutas('bus')">🚌 Solo Buses</button>
-                            <button class="btn btn-secondary" onclick="filtrarRutas('guala')">🚐 Solo Gualas</button>
+                            <button class="btn btn-secondary" onclick="filtrarRutas('bus')">Solo Buses</button>
+                            <button class="btn btn-secondary" onclick="filtrarRutas('guala')">Solo Gualas</button>
                             <button class="btn btn-primary" onclick="filtrarRutas('all')">Todo</button>
                         </div>
                     </div>
@@ -379,25 +380,25 @@
                             <div class="form-group" style="margin-bottom:0;">
                                 <label class="form-label">Origen</label>
                                 <div class="input-icon-wrap">
-                                    <span class="input-icon">📍</span>
+                                    <span class="input-icon"><i data-lucide="map-pin" style="width:15px;height:15px;"></i></span>
                                     <input class="form-control" value="Barrio Centenario" id="mapaOrigen">
                                 </div>
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
                                 <label class="form-label">Destino</label>
                                 <div class="input-icon-wrap">
-                                    <span class="input-icon">🏁</span>
+                                    <span class="input-icon"><i data-lucide="flag" style="width:15px;height:15px;"></i></span>
                                     <input class="form-control" value="Centro Comercial Unicentro" id="mapaDest">
                                 </div>
                             </div>
                         </div>
                         <div style="display:flex;gap:10px;margin-top:12px;">
-                            <button class="btn btn-primary" onclick="buscarRutasMapa()">🔍 Buscar</button>
+                            <button class="btn btn-primary" onclick="buscarRutasMapa()"><i data-lucide="search" style="width:14px;height:14px;"></i> Buscar</button>
                             <div style="display:flex;gap:6px;align-items:center;">
                                 <span class="text-sm text-gray">Filtrar:</span>
-                                <div class="chip active" onclick="chipFilter(this,'Ahora')">⏰ Ahora</div>
-                                <div class="chip" onclick="chipFilter(this,'Mañana')">🌅 Mañana</div>
-                                <div class="chip" onclick="chipFilter(this,'Noche')">🌙 Noche</div>
+                                <div class="chip active" onclick="chipFilter(this,'Ahora')">Ahora</div>
+                                <div class="chip" onclick="chipFilter(this,'Mañana')">Mañana</div>
+                                <div class="chip" onclick="chipFilter(this,'Noche')">Noche</div>
                             </div>
                         </div>
                     </div>
@@ -410,14 +411,14 @@
                             </div>
                             <!-- Stop info below map (dinámico) -->
                             <div class="card mt-3" id="stopPanel">
-                                <div class="card-title" style="margin-bottom:10px;">📍 Cargando paradas...</div>
+                                <div class="card-title" style="margin-bottom:10px;">Cargando paradas...</div>
                                 <div class="route-stop-row"></div>
                             </div>
                         </div>
 
                         <!-- Resultados de rutas -->
                         <div>
-                            <div class="card-title mb-3">📋 Rutas encontradas (4)</div>
+                            <div class="card-title mb-3">Rutas encontradas (4)</div>
                             <div style="display:flex;flex-direction:column;gap:12px;" id="routeResults">
                                 <div class="route-card selected" onclick="selectRoute(this)">
                                     <div class="route-header">
@@ -428,8 +429,8 @@
                                         <span class="tag tag-green">⭐ Recomendada</span>
                                     </div>
                                     <div class="route-meta mb-3">
-                                        <span>⏱️ 28 min</span>
-                                        <span>💰 $3.500</span>
+                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 28 min</span>
+                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> $3.500</span>
                                         <span>🚐 Guala</span>
                                     </div>
                                     <div class="text-sm text-gray mb-3">Empresa: Coopcencar · Centenario → Unicentro · 5
@@ -449,8 +450,8 @@
                                         <span class="tag tag-amber">🕐 Demorado</span>
                                     </div>
                                     <div class="route-meta mb-3">
-                                        <span>⏱️ +18 min</span>
-                                        <span>💰 $3.500</span>
+                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> +18 min</span>
+                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> $3.500</span>
                                         <span>🚌 Bus</span>
                                     </div>
                                     <div class="text-sm text-gray mb-3">Empresa: Transurbano · Centenario → Unicentro ·
@@ -469,8 +470,8 @@
                                         <span class="tag tag-blue">🔄 Alternativa</span>
                                     </div>
                                     <div class="route-meta mb-3">
-                                        <span>⏱️ 32 min</span>
-                                        <span>💰 $3.500</span>
+                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 32 min</span>
+                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> $3.500</span>
                                         <span>🚐 Guala</span>
                                     </div>
                                     <div class="text-sm text-gray mb-3">Empresa: Coopcencar · Ruta alternativa por Av.3N
@@ -489,8 +490,8 @@
                                         <span class="tag tag-gray">Económico</span>
                                     </div>
                                     <div class="route-meta mb-3">
-                                        <span>⏱️ 42 min</span>
-                                        <span>💰 $3.500</span>
+                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 42 min</span>
+                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> $3.500</span>
                                         <span>🚌 Bus</span>
                                     </div>
                                     <div class="text-sm text-gray mb-3">Empresa: Unitransco · Centenario → Unicentro ·
@@ -507,7 +508,7 @@
                 <!-- ====== VIEW: ASISTENTE IA ====== -->
                 <div class="view" id="view-asistente">
                     <div class="page-header">
-                        <h1>🤖 Asistente Inteligente de Movilidad</h1>
+                        <h1>Asistente Inteligente de Movilidad</h1>
                         <p>IA contextual para Cali — RF-03 & RF-04. Recomendaciones basadas en hora, tráfico e
                             historial.</p>
                     </div>
@@ -516,7 +517,7 @@
                         <!-- Chat IA -->
                         <div class="ai-chat">
                             <div class="ai-chat-header">
-                                <div class="ai-avatar">🤖</div>
+                                <div class="ai-avatar"><i data-lucide="bot" style="width:22px;height:22px;color:#fff;"></i></div>
                                 <div class="info">
                                     <h3>WayAI — Asistente WayRoute</h3>
                                     <p><span class="ai-status-dot"></span>En línea • Contexto: Cali, 7:42 AM</p>
@@ -553,7 +554,7 @@
                         <!-- Panel de Contexto IA -->
                         <div style="display:flex;flex-direction:column;gap:16px;">
                             <div class="card">
-                                <div class="card-title">📊 Contexto detectado</div>
+                                <div class="card-title">Contexto detectado</div>
                                 <div style="display:flex;flex-direction:column;gap:10px;">
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
                                         <span class="text-sm text-gray">📍 Ubicación</span>
@@ -633,7 +634,7 @@
                 <div class="view" id="view-alertas">
                     <div class="page-header-row">
                         <div class="page-header">
-                            <h1>🔔 Alertas en Tiempo Real</h1>
+                            <h1>Alertas en Tiempo Real</h1>
                             <p>RF-04 & RF-05 — Eventos activos que afectan la movilidad en Cali</p>
                         </div>
                         <div style="display:flex;gap:8px;">
@@ -788,14 +789,14 @@
                 <!-- ====== VIEW: SEGURIDAD ====== -->
                 <div class="view" id="view-seguridad">
                     <div class="page-header">
-                        <h1>🛡️ Seguridad Asistida</h1>
+                        <h1>Seguridad Asistida</h1>
                         <p>RF-06 — Herramientas de seguridad con apoyo inteligente para tu viaje</p>
                     </div>
 
                     <div class="grid-3" style="margin-bottom:20px;">
                         <!-- SOS -->
                         <div class="card" style="grid-column:span 1;text-align:center;">
-                            <div class="card-title" style="justify-content:center;">🆘 Botón de Emergencia</div>
+                            <div class="card-title" style="justify-content:center;">Botón de Emergencia</div>
                             <p class="text-sm text-gray mb-4">Presiona en caso de emergencia. Notificará a tus contactos
                                 y servicios de seguridad.</p>
                             <button class="sos-btn" onclick="activarSOS()">
@@ -807,7 +808,7 @@
 
                         <!-- Compartir Ubicación -->
                         <div class="card">
-                            <div class="card-title">📍 Compartir Ubicación</div>
+                            <div class="card-title"><i data-lucide="map-pin" style="width:16px;height:16px;"></i> Compartir Ubicación</div>
                             <p class="text-sm text-gray mb-3">Comparte tu trayecto en tiempo real con contactos de
                                 confianza.</p>
                             <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
@@ -841,7 +842,7 @@
 
                         <!-- Contactos de Confianza -->
                         <div class="card">
-                            <div class="card-title">👥 Contactos de Confianza</div>
+                            <div class="card-title"><i data-lucide="users" style="width:16px;height:16px;"></i> Contactos de Confianza</div>
                             <div class="text-sm text-gray mb-3">IA recomienda notificar a estos contactos en viajes
                                 nocturnos.</div>
                             <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
@@ -903,7 +904,7 @@
                 <!-- ====== VIEW: HISTORIAL ====== -->
                 <div class="view" id="view-historial">
                     <div class="page-header">
-                        <h1>📊 Mi Historial & Aprendizaje</h1>
+                        <h1>Mi Historial & Aprendizaje</h1>
                         <p>RF-08 — Análisis de tus patrones de movilidad para mejorar las recomendaciones de IA</p>
                     </div>
 
@@ -1090,7 +1091,7 @@
                 <!-- ====== VIEW: PERFIL ====== -->
                 <div class="view" id="view-perfil">
                     <div class="page-header">
-                        <h1>👤 Mi Perfil</h1>
+                        <h1>Mi Perfil</h1>
                         <p>RF-01 — Gestión de datos personales y preferencias de movilidad</p>
                     </div>
 
@@ -1240,7 +1241,7 @@
                 <!-- ====== VIEW: REPORTES (CONDUCTOR) ====== -->
                 <div class="view" id="view-reportes">
                     <div class="page-header">
-                        <h1>📋 Reportar Incidencia</h1>
+                        <h1>Reportar Incidencia</h1>
                         <p>RF-07 — Portal de reporte para conductores del transporte informal de Cali</p>
                     </div>
 
@@ -1267,14 +1268,17 @@
                                 <div class="card-title">📝 Reporte detallado</div>
                                 <div class="form-group">
                                     <label class="form-label">Tipo de incidencia</label>
-                                    <select class="form-control" id="tipoReporte">
-                                        <option>🚧 Bloqueo vial</option>
-                                        <option>🚦 Congestión inusual</option>
-                                        <option>🔧 Falla mecánica del vehículo</option>
-                                        <option>🚨 Incidente de seguridad</option>
-                                        <option>⛈️ Daño por clima</option>
-                                        <option>📢 Otro</option>
-                                    </select>
+                                    <div class="input-icon-wrap">
+                                        <span class="input-icon"><i data-lucide="flag" style="width:15px;height:15px;"></i></span>
+                                        <select class="form-control" id="tipoReporte">
+                                            <option>🚧 Bloqueo vial</option>
+                                            <option>🚦 Congestión inusual</option>
+                                            <option>🔧 Falla mecánica del vehículo</option>
+                                            <option>🚨 Incidente de seguridad</option>
+                                            <option>⛈️ Daño por clima</option>
+                                            <option>📢 Otro</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Ubicación del incidente</label>
@@ -1385,7 +1389,7 @@
                 <!-- ====== VIEW: MI RUTA ACTIVA (CONDUCTOR) ====== -->
                 <div class="view" id="view-miRuta">
                     <div class="page-header">
-                        <h1>🛣️ Mi Ruta Activa</h1>
+                        <h1>Mi Ruta Activa</h1>
                         <p>Vista del conductor — Guala G-07 · Coopcencar</p>
                     </div>
 
@@ -1493,7 +1497,7 @@
                 <!-- ====== VIEW: ADMIN ====== -->
                 <div class="view" id="view-admin">
                     <div class="page-header">
-                        <h1>⚙️ Panel Administrativo</h1>
+                        <h1>Panel Administrativo</h1>
                         <p>RF-09 — Gestión del sistema de transporte informal de Cali</p>
                     </div>
 
@@ -1665,7 +1669,7 @@
                 <div class="view" id="view-gestionRutas">
                     <div class="page-header-row">
                         <div class="page-header">
-                            <h1>🛤️ Gestión de Rutas</h1>
+                            <h1>Gestión de Rutas</h1>
                             <p>RF-09 — Administración de rutas y paradas del transporte informal</p>
                         </div>
                         <button class="btn btn-primary" onclick="showToast('Formulario de nueva ruta abierto')">+ Nueva
@@ -1814,7 +1818,7 @@
                 <div class="view" id="view-usuarios">
                     <div class="page-header-row">
                         <div class="page-header">
-                            <h1>👥 Gestión de Usuarios</h1>
+                            <h1>Gestión de Usuarios</h1>
                             <p>RF-01 & RF-09 — Usuarios registrados en el sistema</p>
                         </div>
                         <button class="btn btn-primary" onclick="showToast('Formulario de nuevo usuario')">+ Nuevo
@@ -2019,23 +2023,23 @@
         <!-- BOTTOM NAV (Mobile) -->
         <nav class="bottom-nav" id="bottomNav">
             <button class="bottom-nav-item active" id="bnav-inicio" onclick="navigate('inicio')">
-                <div class="icon">🏠</div>
+                <div class="icon"><i data-lucide="home" style="width:20px;height:20px;"></i></div>
                 <div class="label">Inicio</div>
             </button>
             <button class="bottom-nav-item" id="bnav-mapa" onclick="navigate('mapa')">
-                <div class="icon">🗺️</div>
+                <div class="icon"><i data-lucide="map" style="width:20px;height:20px;"></i></div>
                 <div class="label">Mapa</div>
             </button>
             <button class="bottom-nav-item" id="bnav-asistente" onclick="navigate('asistente')">
-                <div class="icon">🤖</div>
+                <div class="icon"><i data-lucide="bot" style="width:20px;height:20px;"></i></div>
                 <div class="label">IA</div>
             </button>
             <button class="bottom-nav-item" id="bnav-alertas" onclick="navigate('alertas')">
-                <div class="icon">🔔</div>
+                <div class="icon"><i data-lucide="bell" style="width:20px;height:20px;"></i></div>
                 <div class="label">Alertas</div>
             </button>
             <button class="bottom-nav-item" id="bnav-perfil" onclick="navigate('perfil')">
-                <div class="icon">👤</div>
+                <div class="icon"><i data-lucide="user" style="width:20px;height:20px;"></i></div>
                 <div class="label">Perfil</div>
             </button>
         </nav>
@@ -2277,254 +2281,38 @@
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
     <script src="../js/mapa-rutas.js"></script>
     <script src="../js/ia.js"></script>
-    <script>
-        (function () {
-            const user = requireAuth('pasajero');
-            if (!user) return;
+    <!-- ── CORE ── -->
+    <script src="../js/core/Toast.js"></script>
+    <script src="../js/core/Router.js"></script>
+    <script src="../js/core/EventBus.js"></script>
 
-            // Navbar e Inicio
-            const avatarEl = document.getElementById('userAvatarNav');
-            const nameEl = document.getElementById('navUserName');
-            const welcomeEl = document.querySelector('#view-inicio .page-header h1');
-            const userFirstName = user.nombre ? user.nombre.split(' ')[0] : 'Pasajero';
-
-            if (avatarEl) avatarEl.textContent = user.avatar || userFirstName.slice(0, 2).toUpperCase();
-            if (nameEl) nameEl.textContent = userFirstName;
-            const welcomeNameEl = document.getElementById('welcomeName');
-            if (welcomeNameEl) welcomeNameEl.textContent = userFirstName;
-
-            // Actualizar Fecha y Hora en tiempo real
-            function actualizarReloj() {
-                const now = new Date();
-                const opciones = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                const str = now.toLocaleDateString('es-ES', opciones);
-                const capitalizada = str.charAt(0).toUpperCase() + str.slice(1);
-                const dtEl = document.getElementById('currentDateTime');
-                if (dtEl) dtEl.textContent = `Cali, Valle del Cauca • ${capitalizada}`;
-            }
-            actualizarReloj();
-            setInterval(actualizarReloj, 60000);
-
-            // Actualizar Stats Reales
-            function actualizarStatsBuses() {
-                if (window.WayRoute && typeof window.WayRoute.tiempoLlegadaProximo === 'function') {
-                    const tiempos = window.WayRoute.tiempoLlegadaProximo();
-                    if (tiempos && tiempos.length > 0) {
-                        // Buscamos la parada más cercana para el usuario (simulamos "La Ermita" como base)
-                        const proximo = tiempos[0]; // La Ermita
-                        const tGuala = document.getElementById('statTiempoGuala');
-                        const pGuala = document.getElementById('statProximaGuala');
-                        const rActivas = document.getElementById('statRutasActivas');
-
-                        if (tGuala) tGuala.innerHTML = `${proximo.minutos}<span style="font-size:1rem;font-weight:400;color:var(--gray-400)"> min</span>`;
-                        if (pGuala) pGuala.textContent = `Bus ${proximo.busProximo} llegando a ${proximo.parada}`;
-                        if (rActivas) rActivas.textContent = '4'; // Hardcoded por NUM_BUSES en mapa-rutas.js
-                    }
-                }
-            }
-
-            // Iniciar actualización periódica de buses
-            setTimeout(actualizarStatsBuses, 1000);
-            setInterval(actualizarStatsBuses, 5000);
-
-            // Personalizar Banner IA
-            const iaHora = document.getElementById('iaRecomendacionHora');
-            if (iaHora) {
-                const dias = ['domingos', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábados'];
-                const hoy = dias[new Date().getDay()];
-                iaHora.textContent = `los ${hoy} a esta hora`;
-            }
-
-            // Chat IA Contextual
-            const aiMessages = document.getElementById('aiMessages');
-            if (aiMessages) {
-                const userBarrio = user.barrio || 'Cali';
-                const firstMsg = aiMessages.querySelector('.msg-bubble');
-                if (firstMsg) {
-                    firstMsg.innerHTML = `¡Hola ${userFirstName}! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
-                        `Veo que estás en el barrio <strong>${userBarrio}</strong>. ` +
-                        `¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura y económica según el tráfico actual.`;
-                }
-            }
-
-            // Mi Perfil
-            const fullProfile = typeof getUsuarioCompleto === 'function' ? getUsuarioCompleto() : user;
-            if (fullProfile) {
-                const nombreCompleto = fullProfile.nombres ? (fullProfile.nombres + ' ' + (fullProfile.apellidos || '')) : fullProfile.nombre;
-                const correo = fullProfile.correo || '';
-                const celular = fullProfile.celular || 'No registrado';
-                const barrio = fullProfile.barrio || 'Cali';
-                const avatar = user.avatar || userFirstName.slice(0, 2).toUpperCase();
-
-                // Cabecera perfil
-                const pAvatar = document.getElementById('perfilAvatarLg');
-                const pNombre = document.getElementById('perfilNombreHeader');
-                const pContacto = document.getElementById('perfilContactoHeader');
-                const pUbicacion = document.getElementById('perfilUbicacionHeader');
-
-                if (pAvatar) pAvatar.textContent = avatar;
-                if (pNombre) pNombre.textContent = nombreCompleto;
-                if (pContacto) pContacto.textContent = '📧 ' + correo + ' · 📱 ' + celular;
-                if (pUbicacion) pUbicacion.textContent = '📍 ' + barrio + ', Cali · Pasajero activo';
-
-                // Formulario
-                const inNombre = document.getElementById('inputPerfilNombre');
-                const inCorreo = document.getElementById('inputPerfilCorreo');
-                const inCelular = document.getElementById('inputPerfilCelular');
-                const inBarrio = document.getElementById('inputPerfilBarrio');
-
-                if (inNombre) inNombre.value = nombreCompleto;
-                if (inCorreo) inCorreo.value = correo;
-                if (inCelular) inCelular.value = celular;
-                if (inBarrio) inBarrio.value = barrio;
-
-                // Actualizar contexto en otras vistas (Mapa Origen y Contexto IA)
-                const mapaOrigen = document.getElementById('mapaOrigen');
-                if (mapaOrigen && barrio) mapaOrigen.value = `Barrio ${barrio}`;
-
-                const quickOrigin = document.getElementById('quickOrigin');
-                if (quickOrigin && barrio) quickOrigin.value = `Barrio ${barrio}`;
-
-                const ctxUbicacion = document.getElementById('ctxUbicacion');
-                if (ctxUbicacion && barrio) ctxUbicacion.textContent = `${barrio}, Cali`;
-
-                function updateCtxTime() {
-                    const now = new Date();
-                    const ctxHora = document.getElementById('ctxHora');
-                    const ctxDia = document.getElementById('ctxDia');
-                    if (ctxHora) {
-                        const timeStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
-                        const isPico = (now.getHours() >= 6 && now.getHours() <= 9) || (now.getHours() >= 17 && now.getHours() <= 20);
-                        ctxHora.textContent = `${timeStr} ${isPico ? '(hora pico)' : '(hora valle)'}`;
-                    }
-                    if (ctxDia) {
-                        const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-                        ctxDia.textContent = `${dias[now.getDay()]} ${now.getDay() === 0 || now.getDay() === 6 ? 'festivo' : 'laboral'}`;
-                    }
-                }
-                updateCtxTime();
-                setInterval(updateCtxTime, 60000);
-            }
-
-            // --- Lógica de Guardado ---
-            window.guardarPerfil = async function () {
-                const nombre = document.getElementById('inputPerfilNombre').value;
-                const celular = document.getElementById('inputPerfilCelular').value;
-                const barrio = document.getElementById('inputPerfilBarrio').value;
-
-                const partes = nombre.split(' ');
-                const nombres = partes[0];
-                const apellidos = partes.length > 1 ? partes.slice(1).join(' ') : '';
-
-                showToast('⏳ Guardando cambios...');
-
-                const resultado = await actualizarUsuario({
-                    nombres,
-                    apellidos,
-                    celular,
-                    barrio
-                });
-
-                if (resultado.ok) {
-                    showToast('✅ Datos actualizados correctamente');
-                    document.getElementById('perfilNombreHeader').textContent = nombre;
-                    document.getElementById('perfilContactoHeader').textContent = '📧 ' + resultado.usuario.correo + ' · 📱 ' + celular;
-                    document.getElementById('perfilUbicacionHeader').textContent = '📍 ' + barrio + ', Cali · Pasajero activo';
-
-                    const firstName = nombres;
-                    const navName = document.getElementById('navUserName');
-                    if (navName) navName.textContent = firstName;
-                    const welcomeNameEl = document.getElementById('welcomeName');
-                    if (welcomeNameEl) welcomeNameEl.textContent = firstName;
-
-                    // Actualizar saludo IA si cambia el barrio
-                    const aiMessages = document.getElementById('aiMessages');
-                    if (aiMessages) {
-                        const firstMsg = aiMessages.querySelector('.msg-bubble');
-                        if (firstMsg) {
-                            firstMsg.innerHTML = `¡Hola ${firstName}! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
-                                `Veo que estás en el barrio <strong>${barrio}</strong>. ` +
-                                `¿A dónde necesitas ir hoy?`;
-                        }
-                    }
-                } else {
-                    showToast('❌ Error: ' + resultado.error);
-                }
-            };
-        })();
-    </script>
+    <!-- ── MODELS ── -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/alertas.js"></script>
+    <script src="../js/models/SesionModel.js"></script>
+    <script src="../js/models/UsuarioModel.js"></script>
+    <script src="../js/models/AlertaModel.js"></script>
+
+    <!-- ── VIEWS ── -->
+    <script src="../js/views/NavView.js"></script>
+    <script src="../js/views/AlertaView.js"></script>
+
+    <!-- ── CONTROLLERS ── -->
+    <script src="../js/controllers/AuthController.js"></script>
+    <script src="../js/controllers/AlertaController.js"></script>
+
+    <!-- Lógica de Retrocompatibilidad (se mantienen para logins/mapas) -->
+    <!-- auth.js y alertas.js ya se cargan desde el head/arriba, así que omitimos redudancia y nos aseguramos de que corran bien -->
+
+    <!-- ── INIT PASAJERO ── -->
+    <script src="../js/controllers/PasajeroController.js"></script>
     <script>
-        // Sincronizar alertas globales para pasajeros (SUPABASE REAL-TIME)
-        (function() {
-            async function renderAlertasPasajero() {
-                const container = document.getElementById('globalAlertsContainer');
-                const inicioList = document.getElementById('inicioAlertsList');
-                const countBadge = document.getElementById('inicioAlertCount');
-                const trendBadge = document.getElementById('inicioAlertTrend');
-                const topNotifBadge = document.getElementById('notifBadge');
-                const sidebarChip = document.getElementById('navAlertChip');
-                
-                if(!window.WayAlertas) return;
-
-                const alertas = await window.WayAlertas.obtenerAlertas();
-                
-                // 1. Actualizar Contadores (Badges y Home)
-                if(countBadge) countBadge.textContent = alertas.length;
-                if(topNotifBadge) topNotifBadge.textContent = alertas.length;
-                if(sidebarChip) sidebarChip.textContent = alertas.length;
-                if(trendBadge) trendBadge.textContent = alertas.length > 0 ? `\u2191 ${alertas.length} activas` : 'V\u00eda despejada';
-
-                // 2. Actualizar Lista Detallada (Vista Alertas)
-                if(container) {
-                    if(alertas.length === 0) {
-                        container.innerHTML = '<div class="text-sm text-gray text-center p-4">No hay alertas de movilidad activas hoy.</div>';
-                    } else {
-                        container.innerHTML = alertas.map(al => `
-                            <div class="alert-item alert-${al.severidad === 'alta' ? 'danger' : (al.severidad === 'baja' ? 'success' : 'warning')}">
-                                <div class="alert-icon">${al.icono}</div>
-                                <div class="alert-content">
-                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                                        <div class="alert-title">${al.titulo}</div>
-                                        <span class="tag tag-${al.severidad === 'alta' ? 'red' : 'amber'}">
-                                            ${al.severidad === 'alta' ? 'Cr\u00edtica' : 'Activa'}
-                                        </span>
-                                    </div>
-                                    <div class="alert-desc">${al.descripcion}</div>
-                                    <div class="alert-time">
-                                        Reportado: ${new Date(al.fecha).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} \u00b7 ${al.ubicacion || 'Sector Cali'}
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                }
-
-                // 3. Actualizar Feed Rápido (Vista Inicio)
-                if(inicioList) {
-                    if(alertas.length === 0) {
-                        inicioList.innerHTML = '<div class="alert-item alert-info"><div class="alert-icon">\ud83d\ude8c</div><div class="alert-content"><div class="alert-title">Todo normal</div><div class="alert-desc">No hay reportes que afecten la movilidad en este momento.</div></div></div>';
-                    } else {
-                        // Solo las 2 más críticas/recientes en Inicio
-                        inicioList.innerHTML = alertas.slice(0, 2).map(al => `
-                            <div class="alert-item alert-${al.severidad === 'alta' ? 'danger' : 'warning'}">
-                                <div class="alert-icon">${al.icono}</div>
-                                <div class="alert-content">
-                                    <div class="alert-title">${al.titulo}</div>
-                                    <div class="alert-desc" style="font-size:.8rem;">${al.descripcion}</div>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                }
-            }
-
-            renderAlertasPasajero();
-            setInterval(renderAlertasPasajero, 15000); 
-        })();
+        // Inicializar Lucide Icons (después de cargar todo el DOM y scripts)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+        // También ejecutar de inmediato en caso de que el DOM ya esté listo
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     </script>
 </body>
 
