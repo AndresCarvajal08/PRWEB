@@ -1,15 +1,15 @@
 /**
  * ============================================================
- * CONTROLLER — ConductorController
- * js/controllers/ConductorController.js
+ * VIEWMODEL — ConductorViewModel
+ * js/viewmodels/ConductorViewModel.js
  * Centraliza la lógica de inicialización y eventos de conductor.
  * ============================================================
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Verificar autenticación
-    if (!window.AuthController) return;
-    const sesion = window.AuthController.requireAuth('conductor');
+    if (!window.AuthViewModel) return;
+    const sesion = window.AuthViewModel.requireAuth('conductor');
     if (!sesion) return;
 
     // 2. Inicializar Vistas con datos de sesión
@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Inicializar Módulos de datos (Sincroniza y hace polling)
-    if (window.AlertaController) {
-        window.AlertaController.init(true); // true = conductor
+    if (window.AlertaViewModel) {
+        window.AlertaViewModel.init(true); // true = conductor
     }
 
     // 4. Exponer guardado de perfil unificado

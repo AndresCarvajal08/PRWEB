@@ -208,8 +208,8 @@ async function simulateAIResponse(mensaje) {
 
     // 0b. ⏱️ TIEMPO DE LLEGADA A CADA PARADA
     if (msg.includes("falta") || msg.includes("llega") || msg.includes("tiempo") ||
-        msg.includes("minutos") || msg.includes("cuánto") || msg.includes("cuanto") ||
-        msg.includes("cuando") || msg.includes("cuándo") ||
+        msg.includes("minutos") || msg.includes("cuánto falta") || msg.includes("cuanto falta") ||
+        msg.includes("cuando llega") || msg.includes("cuándo llega") ||
         msg === "si" || msg === "sí" || msg === "sí!" || msg === "si!" || msg.includes("claro") || msg.includes("sí, por favor") || msg.includes("si, por favor")) {
 
         const tiempos = (typeof window.WayRoute !== 'undefined' && typeof window.WayRoute.tiempoLlegadaProximo === 'function')
@@ -232,7 +232,10 @@ async function simulateAIResponse(mensaje) {
     }
 
     // 2. Detección de precios y costos
-    if (msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") || msg.includes("valor") || msg.includes("cuanto")) {
+    if (msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") ||
+        msg.includes("valor") || msg.includes("cuanto cuesta") || msg.includes("cuánto cuesta") ||
+        msg.includes("cuanto vale") || msg.includes("cuánto vale") ||
+        msg.includes("tarifa") || msg.includes("plata") || msg.includes("cobran") || msg.includes("cobr")) {
         return "¡A la orden! 💸 El pasaje en WayRoute (buses y gualas) cuesta **$3.500 pesos**. El pago se hace en efectivo directamente al conductor. ¡Buen viaje!";
     }
 
