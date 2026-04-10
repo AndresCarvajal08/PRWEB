@@ -1,12 +1,12 @@
 /**
  * ============================================================
- * CONTROLLER — AuthController
- * js/controllers/AuthController.js
+ * VIEWMODEL — AuthViewModel
+ * js/viewmodels/AuthViewModel.js
  * Orquestador central para la lógica de inicio de sesión y registro.
  * ============================================================
  */
 
-const AuthController = {
+const AuthViewModel = {
     /**
      * Verifica la sesión actual y redirige si no es válida.
      * @param {string} rolRequerido
@@ -33,7 +33,8 @@ const AuthController = {
     }
 };
 
-window.AuthController = AuthController;
-// Alias por retrocompatibilidad
-window.logoutUsuario = () => AuthController.logout();
-window.requireAuth = (rol) => AuthController.requireAuth(rol);
+window.AuthViewModel = AuthViewModel;
+window.AuthController = AuthViewModel; // Alias por retrocompatibilidad
+// Alias por retrocompatibilidad para onclick en HTML
+window.logoutUsuario = () => AuthViewModel.logout();
+window.requireAuth = (rol) => AuthViewModel.requireAuth(rol);

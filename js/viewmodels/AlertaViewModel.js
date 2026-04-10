@@ -1,12 +1,12 @@
 /**
  * ============================================================
- * CONTROLLER — AlertaController
- * js/controllers/AlertaController.js
+ * VIEWMODEL — AlertaViewModel
+ * js/viewmodels/AlertaViewModel.js
  * Orquesta la sincronización y renderizado de alertas.
  * ============================================================
  */
 
-const AlertaController = {
+const AlertaViewModel = {
     _interval: null,
 
     /**
@@ -102,7 +102,8 @@ const AlertaController = {
     }
 };
 
-window.AlertaController = AlertaController;
+window.AlertaViewModel = AlertaViewModel;
+window.AlertaController = AlertaViewModel; // Alias retrocompatibilidad
 // Alias retrocompatibilidad para onclick en HTML
-window.reportar = (tipo) => AlertaController.reportar(tipo);
-window.enviarReporteForm = () => AlertaController.reportar(null);
+window.reportar = (tipo) => AlertaViewModel.reportar(tipo);
+window.enviarReporteForm = () => AlertaViewModel.reportar(null);

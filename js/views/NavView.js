@@ -48,21 +48,37 @@ const NavView = {
     },
 
     _llenarInputsFormulario(datos) {
-        const inNombre = document.getElementById('profileInputNombre');
-        const inCorreo = document.getElementById('profileInputEmail');
+        if (!datos) return;
+
+        const inNombre = document.getElementById('profileInputNombre') || document.getElementById('inputPerfilNombre');
+        const inCorreo = document.getElementById('profileInputEmail') || document.getElementById('inputPerfilCorreo');
+        const inCelular = document.getElementById('profileInputTelefono') || document.getElementById('inputPerfilCelular');
         
         if (inNombre) inNombre.value = datos.nombre || datos.nombres || '';
         if (inCorreo) inCorreo.value = datos.correo || '';
+        if (inCelular) inCelular.value = datos.celular || datos.telefono || '';
 
-        // Específico pasajero
-        const inCelular = document.getElementById('profileInputTelefono');
-        const inBarrio = document.getElementById('profileInputBarrio');
-        if (inCelular) inCelular.value = datos.celular || '';
+        // Pasajero (Barrio)
+        const inBarrio = document.getElementById('profileInputBarrio') || document.getElementById('inputPerfilBarrio');
         if (inBarrio) inBarrio.value = datos.barrio || '';
         
-        // Específico conductor
+        // Conductor (Placa, Licencia, Empresa, Ruta)
         const inPlaca = document.getElementById('profileInputPlaca');
-        if (inPlaca && datos.vehiculo) inPlaca.value = datos.vehiculo.placa || '...';
+        const inLicencia = document.getElementById('profileInputLicencia');
+        const inEmpresa = document.getElementById('profileInputEmpresa'); // Si existiera en HTML futuro
+        const inRuta = document.getElementById('profileInputRuta');      // Si existiera en HTML futuro
+
+        // Manejo de Placa (Anidado o Plano)
+        if (inPlaca) {
+            inPlaca.value = datos.vehiculo?.placa || datos.vehiculo_placa || '';
+        }
+
+        // Manejo de Licencia
+        if (inLicencia) {
+            const lic = datos.licencia?.numero || datos.licencia_numero || '';
+            const cat = datos.licencia?.categoria || datos.licencia_categoria || '';
+            inLicencia.value = lic ? `${cat} — ${lic}` : '';
+        }
     }
 };
 
