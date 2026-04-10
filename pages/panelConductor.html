@@ -639,7 +639,7 @@
 
     <!-- ── MODELS ── -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../js/supabase.js"></script>
+    <script src="../js/services/supabase.js"></script>
     <script src="../js/models/SesionModel.js"></script>
     <script src="../js/models/UsuarioModel.js"></script>
     <script src="../js/models/AlertaModel.js"></script>
@@ -649,15 +649,15 @@
     <script src="../js/views/AlertaView.js"></script>
 
     <!-- ── CONTROLLERS ── -->
-    <script src="../js/controllers/AuthController.js"></script>
-    <script src="../js/controllers/AlertaController.js"></script>
+    <script src="../js/viewmodels/AuthViewModel.js"></script>
+    <script src="../js/viewmodels/AlertaViewModel.js"></script>
     
     <!-- Lógica de Retrocompatibilidad (se mantienen para no romper logins/mapas) -->
-    <script src="../js/auth.js"></script>
-    <script src="../js/alertas.js"></script>
+    <script src="../js/services/AuthService.js"></script>
+    <script src="../js/services/AlertaService.js"></script>
 
     <!-- ── INIT CONDUCTOR ── -->
-    <script src="../js/controllers/ConductorController.js"></script>
+    <script src="../js/viewmodels/ConductorViewModel.js"></script>
     <script>
         // Inicializar Lucide Icons
         document.addEventListener('DOMContentLoaded', function() {

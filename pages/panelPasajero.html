@@ -2213,7 +2213,7 @@
             showToast(`⏰ Filtrado por: ${label}`);
         }
 
-        // AI Chat gestionado por js/ia.js
+        // AI Chat gestionado por js/services/IAService.js
 
         // ===== SEGURIDAD =====
         function activarSOS() {
@@ -2273,14 +2273,14 @@
         // ===== INIT =====
         // Start with login screen
 
-        // El mapa y sus rutas se gestionan desde js/mapa-rutas.js
+        // El mapa y sus rutas se gestionan desde js/services/MapaService.js
     </script>
     <!-- Scripts de la Aplicación -->
-    <script src="../js/auth.js"></script>
+    <script src="../js/services/AuthService.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
-    <script src="../js/mapa-rutas.js"></script>
-    <script src="../js/ia.js"></script>
+    <script src="../js/services/MapaService.js"></script>
+    <script src="../js/services/IAService.js"></script>
     <!-- ── CORE ── -->
     <script src="../js/core/Toast.js"></script>
     <script src="../js/core/Router.js"></script>
@@ -2288,7 +2288,7 @@
 
     <!-- ── MODELS ── -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../js/supabase.js"></script>
+    <script src="../js/services/supabase.js"></script>
     <script src="../js/models/SesionModel.js"></script>
     <script src="../js/models/UsuarioModel.js"></script>
     <script src="../js/models/AlertaModel.js"></script>
@@ -2298,14 +2298,14 @@
     <script src="../js/views/AlertaView.js"></script>
 
     <!-- ── CONTROLLERS ── -->
-    <script src="../js/controllers/AuthController.js"></script>
-    <script src="../js/controllers/AlertaController.js"></script>
+    <script src="../js/viewmodels/AuthViewModel.js"></script>
+    <script src="../js/viewmodels/AlertaViewModel.js"></script>
 
     <!-- Lógica de Retrocompatibilidad (se mantienen para logins/mapas) -->
-    <!-- auth.js y alertas.js ya se cargan desde el head/arriba, así que omitimos redudancia y nos aseguramos de que corran bien -->
+    <!-- AuthService.js y AlertaService.js ya se cargan desde el head/arriba, así que omitimos redudancia y nos aseguramos de que corran bien -->
 
     <!-- ── INIT PASAJERO ── -->
-    <script src="../js/controllers/PasajeroController.js"></script>
+    <script src="../js/viewmodels/PasajeroViewModel.js"></script>
     <script>
         // Inicializar Lucide Icons (después de cargar todo el DOM y scripts)
         document.addEventListener('DOMContentLoaded', function() {
