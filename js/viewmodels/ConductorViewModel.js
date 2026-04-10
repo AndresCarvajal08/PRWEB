@@ -8,8 +8,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Verificar autenticación
-    if (!window.AuthViewModel) return;
-    const sesion = window.AuthViewModel.requireAuth('conductor');
+    if (!window.AuthViewModel && !window.AuthController) return;
+    const _auth = window.AuthViewModel || window.AuthController;
+    const sesion = _auth.requireAuth('conductor');
     if (!sesion) return;
 
     // 2. Inicializar Vistas con datos de sesión
@@ -32,8 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Inicializar Módulos de datos (Sincroniza y hace polling)
-    if (window.AlertaViewModel) {
-        window.AlertaViewModel.init(true); // true = conductor
+    const _alertas = window.AlertaViewModel || window.AlertaController;
+    if (_alertas) {
+        _alertas.init(true); // true = conductor
     }
 
     // 4. Exponer guardado de perfil unificado

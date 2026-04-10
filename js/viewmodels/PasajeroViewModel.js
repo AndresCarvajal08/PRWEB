@@ -1,7 +1,7 @@
 /**
  * ============================================================
- * CONTROLLER — PasajeroController
- * js/controllers/PasajeroController.js
+ * VIEWMODEL — PasajeroViewModel
+ * js/viewmodels/PasajeroViewModel.js
  * Centraliza la lógica de inicialización y eventos de pasajero.
  * Mantiene intacta la lógica original (Reloj, IA, Stats).
  * ============================================================
@@ -9,8 +9,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Verificar autenticación
-    if (!window.AuthController) return;
-    const sesion = window.AuthController.requireAuth('pasajero');
+    if (!window.AuthViewModel && !window.AuthController) return;
+    const _auth = window.AuthViewModel || window.AuthController;
+    const sesion = _auth.requireAuth('pasajero');
     if (!sesion) return;
 
     // 2. Inicializar Vistas Básicas
@@ -21,8 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Iniciar Módulo de Alertas (polling cada 15s)
-    if (window.AlertaController) {
-        window.AlertaController.init(false); 
+    const _alertas = window.AlertaViewModel || window.AlertaController;
+    if (_alertas) {
+        _alertas.init(false);
     }
 
     // 3. ── LÓGICA ESPECÍFICA DE PASAJERO (Migrada del HTML) ──
@@ -104,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCtxTime();
     setInterval(updateCtxTime, 60000);
 
-    // E. Lógica de Guardado (Modificada a MVC)
+    // E. Lógica de Guardado (MVVM — ViewModel expone guardarPerfil a la Vista)
     window.guardarPerfil = async function () {
         const btn = document.getElementById('btnGuardarPerfil');
         if (!btn || !window.UsuarioModel) return;
