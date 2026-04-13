@@ -16,27 +16,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Inicializar Vistas con datos de sesión
     let usuarioFull = window.SesionModel ? window.SesionModel.getUsuarioCompleto() : null;
     
+    // Si no hay datos completos localmente, intentar traerlos de la base de datos
+    if (!usuarioFull && sesion.id && window.UsuarioModel) {
+        window.UsuarioModel.buscarPorAuthUid(sesion.id).then(u => {
+            if (u) {
+                usuarioFull = u;
+                if (window.SesionModel) {
+                    sessionStorage.setItem('movicali_usuario_full', JSON.stringify(u));
+                }
+                if (window.NavView) {
+                    window.NavView.actualizarPerfilPantalla(u, sesion);
+                }
+                // Si cargó el usuario, verificar ahora si faltan detalles técnicos
+                cargarDetallesTecnicos(u);
+            }
+        });
+    }
+
     if (window.NavView) {
         window.NavView.actualizarUsuarioNav(sesion);
         window.NavView.actualizarPerfilPantalla(usuarioFull, sesion);
     }
 
     // 2b. Si es conductor y faltan datos técnicos, intentar cargarlos de Supabase
-    if (sesion.rol === 'conductor' && usuarioFull && !usuarioFull.vehiculo_placa && window.ConductorModel) {
-        window.ConductorModel.obtenerDetalles(sesion.id).then(detalles => {
-            if (detalles) {
-                const updatedUser = { ...usuarioFull, ...detalles };
-                // Guardar localmente para no repetir query
-                if (window.SesionModel) {
-                    sessionStorage.setItem('movicali_usuario_full', JSON.stringify(updatedUser));
+    function cargarDetallesTecnicos(u) {
+        if (sesion.rol === 'conductor' && u && !u.vehiculo_placa && window.ConductorModel) {
+            window.ConductorModel.obtenerDetalles(sesion.id).then(detalles => {
+                if (detalles) {
+                    const updatedUser = { ...u, ...detalles };
+                    if (window.SesionModel) {
+                        sessionStorage.setItem('movicali_usuario_full', JSON.stringify(updatedUser));
+                    }
+                    if (window.NavView) {
+                        window.NavView.actualizarPerfilPantalla(updatedUser, sesion);
+                    }
                 }
-                // Refrescar vista
-                if (window.NavView) {
-                    window.NavView.actualizarPerfilPantalla(updatedUser, sesion);
-                }
-            }
-        });
+            });
+        }
     }
+    
+    if (usuarioFull) cargarDetallesTecnicos(usuarioFull);
     
     // Updates específicos de conductor
     if (usuarioFull) {

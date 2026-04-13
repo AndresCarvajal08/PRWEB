@@ -14,7 +14,8 @@ const NavView = {
     actualizarUsuarioNav(sesion) {
         if (!sesion) return;
         
-        const firstName = sesion.nombre ? sesion.nombre.split(' ')[0] : 'Usuario';
+        const rawName = sesion.nombre || 'Usuario';
+        const firstName = rawName.split(' ')[0];
         const avatarStr = sesion.avatar || firstName.substring(0, 2).toUpperCase();
 
         const navUsr = document.getElementById('navUserName');
@@ -29,22 +30,42 @@ const NavView = {
      * @param {object} usuarioFull
      */
     actualizarPerfilPantalla(usuarioFull, sesionFallback) {
-        if (!usuarioFull && !sesionFallback) return;
+        // Asegurar que tenemos algo de donde sacar el nombre
+        const datos = usuarioFull || sesionFallback;
+        if (!datos) return;
 
-        const nombreStr = usuarioFull?.nombre || sesionFallback?.nombre || 'Usuario';
-        const firstName = nombreStr.split(' ')[0];
-        const avatarStr = sesionFallback?.avatar || firstName.substring(0, 2).toUpperCase();
+        // Intentar reconstruir nombre completo si solo están nombres/apellidos
+        let nombreStr = datos.nombre || datos.nombres || 'Usuario';
+        if (!datos.nombre && datos.nombres) {
+            nombreStr = datos.nombres + (datos.apellidos ? ' ' + datos.apellidos : '');
+        }
+
+        const firstName = nombreStr.split(' ')[0] || 'Usuario';
+        const avatarStr = datos.avatar || firstName.substring(0, 2).toUpperCase();
 
         const welcomeGreeting = document.getElementById('welcomeGreeting');
-        const profileName = document.getElementById('profileName');
-        const profileAvatarLg = document.getElementById('profileAvatarLg');
+        const profileName = document.getElementById('profileName') || document.getElementById('perfilNombreHeader');
+        const profileAvatarLg = document.getElementById('profileAvatarLg') || document.getElementById('perfilAvatarLg');
 
         if (welcomeGreeting) welcomeGreeting.textContent = `¡Buenos días, ${firstName}!`;
         if (profileName) profileName.textContent = nombreStr;
         if (profileAvatarLg) profileAvatarLg.textContent = avatarStr;
+
+        // Específicos de Pasajero (Cabecera banner)
+        const perfilContacto = document.getElementById('perfilContactoHeader');
+        const perfilUbicacion = document.getElementById('perfilUbicacionHeader');
+        
+        if (perfilContacto) {
+            const correoStr = datos.correo || datos.email || '...';
+            const telStr = datos.celular || datos.telefono || '...';
+            perfilContacto.textContent = `📧 ${correoStr} · 📱 ${telStr}`;
+        }
+        if (perfilUbicacion) {
+            perfilUbicacion.textContent = `📍 ${datos.barrio || 'Cali, CO'}`;
+        }
         
         // Render inputs if they exist
-        this._llenarInputsFormulario(usuarioFull || sesionFallback);
+        this._llenarInputsFormulario(datos);
     },
 
     _llenarInputsFormulario(datos) {
@@ -54,8 +75,14 @@ const NavView = {
         const inCorreo = document.getElementById('profileInputEmail') || document.getElementById('inputPerfilCorreo');
         const inCelular = document.getElementById('profileInputTelefono') || document.getElementById('inputPerfilCelular');
         
-        if (inNombre) inNombre.value = datos.nombre || datos.nombres || '';
-        if (inCorreo) inCorreo.value = datos.correo || '';
+        if (inNombre) {
+            inNombre.value = datos.nombre || datos.nombres || '';
+            // Si solo hay nombres en Supabase, intentar concatenar apellidos en el input de nombre completo
+            if (!datos.nombre && datos.nombres && inNombre.id === 'profileInputNombre') {
+                inNombre.value = datos.nombres + (datos.apellidos ? ' ' + datos.apellidos : '');
+            }
+        }
+        if (inCorreo) inCorreo.value = datos.correo || datos.email || '';
         if (inCelular) inCelular.value = datos.celular || datos.telefono || '';
 
         // Pasajero (Barrio)

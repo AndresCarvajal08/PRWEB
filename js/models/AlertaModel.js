@@ -12,12 +12,12 @@
 const AlertaModel = {
 
     /**
-     * Obtiene el inicio del día actual en formato ISO (para filtrar "hoy").
+     * Obtiene el tiempo de hace 24 horas en formato ISO.
      * @returns {string}
      */
-    _getHoyISO() {
+    _get24hAgoISO() {
         const d = new Date();
-        d.setHours(0, 0, 0, 0);
+        d.setHours(d.getHours() - 24);
         return d.toISOString();
     },
 
@@ -50,7 +50,7 @@ const AlertaModel = {
             const { data, error } = await window.supabaseClient
                 .from('reportes')
                 .select('*')
-                .gte('fecha', this._getHoyISO())
+                .gte('fecha', this._get24hAgoISO())
                 .order('fecha', { ascending: false });
 
             if (error) {
@@ -86,13 +86,27 @@ const AlertaModel = {
                 fecha:        new Date().toISOString()
             };
 
-            const { error } = await window.supabaseClient
-                .from('reportes')
-                .insert([nuevoReporte])
-                .select();
+            // Solo agregar lat/lng si tienen valor REAL (no null)
+            if (datos.lat && datos.lng) {
+                nuevoReporte.lat = datos.lat;
+                nuevoReporte.lng = datos.lng;
+            }
 
-            if (error) {
-                console.error('[AlertaModel] Error al insertar reporte:', error.message);
+            let response = await window.supabaseClient.from('reportes').insert([nuevoReporte]);
+
+            // Si hay error, verificar si es por columnas faltantes (en caso de que el usuario no haya actualizado Supabase)
+            if (response.error) {
+                const msg = response.error.message.toLowerCase();
+                if (msg.includes('column') && (msg.includes('lat') || msg.includes('lng'))) {
+                    console.warn('[AlertaModel] Tabla reportes no tiene columnas lat/lng. Reintentando sin ellas...');
+                    delete nuevoReporte.lat;
+                    delete nuevoReporte.lng;
+                    response = await window.supabaseClient.from('reportes').insert([nuevoReporte]);
+                }
+            }
+
+            if (response.error) {
+                console.error('[AlertaModel] Error al insertar reporte:', response.error.message);
                 return false;
             }
             return true;

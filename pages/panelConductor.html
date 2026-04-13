@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="../css/panel-conductor.css">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 </head>
 
@@ -464,13 +468,20 @@
                         <h1>Alertas de Ruta</h1>
                         <p>Notificaciones activas para tu turno</p>
                     </div>
-                    <div style="display:flex;flex-direction:column;gap:10px;" id="alertsListDisplay">
-                        <div class="alert-item alert-info">
-                            <div class="alert-icon"><i data-lucide="clock" style="width:16px;height:16px;color:var(--primary);"></i></div>
-                            <div class="alert-content">
-                                <div class="alert-title">Sincronizando alertas...</div>
-                                <div class="alert-desc">Obteniendo reportes del sistema en tiempo real.</div>
+                    <div class="grid-2">
+                        <div style="display:flex;flex-direction:column;gap:10px;" id="alertsListDisplay">
+                            <div class="alert-item alert-info">
+                                <div class="alert-icon"><i data-lucide="clock" style="width:16px;height:16px;color:var(--primary);"></i></div>
+                                <div class="alert-content">
+                                    <div class="alert-title">Sincronizando alertas...</div>
+                                    <div class="alert-desc">Obteniendo reportes del sistema en tiempo real.</div>
+                                </div>
                             </div>
+                        </div>
+                        
+                        <!-- Mapa de alertas Real -->
+                        <div class="card p-0" style="overflow:hidden;">
+                            <div id="alertsMap" style="height:480px; width:100%; z-index:1;"></div>
                         </div>
                     </div>
                 </div>

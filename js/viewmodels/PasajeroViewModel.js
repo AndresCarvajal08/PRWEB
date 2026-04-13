@@ -15,7 +15,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!sesion) return;
 
     // 2. Inicializar Vistas Básicas
-    const usuarioFull = window.SesionModel ? window.SesionModel.getUsuarioCompleto() : null;
+    let usuarioFull = window.SesionModel ? window.SesionModel.getUsuarioCompleto() : null;
+    
+    // Si no hay datos completos localmente, intentar traerlos de la base de datos
+    if (!usuarioFull && sesion.id && window.UsuarioModel) {
+        window.UsuarioModel.buscarPorAuthUid(sesion.id).then(u => {
+            if (u) {
+                usuarioFull = u;
+                if (window.SesionModel) sessionStorage.setItem('movicali_usuario_full', JSON.stringify(u));
+                if (window.NavView) window.NavView.actualizarPerfilPantalla(u, sesion);
+                // Actualizar barrio en el contexto si cargó
+                if (u.barrio) actualizarBarrioContexto(u.barrio);
+            }
+        });
+    }
+
     if (window.NavView) {
         window.NavView.actualizarUsuarioNav(sesion);
         window.NavView.actualizarPerfilPantalla(usuarioFull, sesion);
@@ -70,24 +84,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const aiMessages = document.getElementById('aiMessages');
-    const userBarrio = usuarioFull?.barrio || 'Cali';
-    if (aiMessages) {
-        const firstMsg = aiMessages.querySelector('.msg-bubble');
-        if (firstMsg) {
-            firstMsg.innerHTML = `¡Hola ${userFirstName}! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
-                `Veo que estás en el barrio <strong>${userBarrio}</strong>. ` +
-                `¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura y económica según el tráfico actual.`;
+    function actualizarBarrioContexto(barrio) {
+        if (!barrio) return;
+        const mapaOrigen = document.getElementById('mapaOrigen');
+        if (mapaOrigen) mapaOrigen.value = `Barrio ${barrio}`;
+        const quickOrigin = document.getElementById('quickOrigin');
+        if (quickOrigin) quickOrigin.value = `Barrio ${barrio}`;
+        
+        const ctxUbicacion = document.getElementById('ctxUbicacion');
+        if (ctxUbicacion) ctxUbicacion.textContent = `${barrio}, Cali`;
+        
+        // Actualizar mensaje de IA si existe
+        if (aiMessages) {
+            const firstMsg = aiMessages.querySelector('.msg-bubble');
+            if (firstMsg) {
+                firstMsg.innerHTML = `¡Hola ${userFirstName}! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
+                    `Veo que estás en el barrio <strong>${barrio}</strong>. ` +
+                    `¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura y económica según el tráfico actual.`;
+            }
         }
     }
-
-    // D. Actualizar Contexto IA en tiempo real
-    const mapaOrigen = document.getElementById('mapaOrigen');
-    if (mapaOrigen && userBarrio) mapaOrigen.value = `Barrio ${userBarrio}`;
-    const quickOrigin = document.getElementById('quickOrigin');
-    if (quickOrigin && userBarrio) quickOrigin.value = `Barrio ${userBarrio}`;
     
-    const ctxUbicacion = document.getElementById('ctxUbicacion');
-    if (ctxUbicacion && userBarrio) ctxUbicacion.textContent = `${userBarrio}, Cali`;
+    if (usuarioFull?.barrio) actualizarBarrioContexto(usuarioFull.barrio);
 
     function updateCtxTime() {
         const now = new Date();
