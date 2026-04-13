@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WayRoute — Iniciar Sesión</title>
-  <meta name="description" content="Accede a WayRoute, la plataforma de consulta de transporte público tradicional de Santiago de Cali.">
+  <meta name="description"
+    content="Accede a WayRoute, la plataforma de consulta de transporte público tradicional de Santiago de Cali.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="css/login.css">
 </head>
+
 <body>
 
   <!-- Fondo -->
@@ -24,8 +28,10 @@
     <!-- ── PANEL IZQUIERDO ── -->
     <div class="panel-hero">
       <div class="hero-particles">
-        <div class="particle p1"></div><div class="particle p2"></div>
-        <div class="particle p3"></div><div class="particle p4"></div>
+        <div class="particle p1"></div>
+        <div class="particle p2"></div>
+        <div class="particle p3"></div>
+        <div class="particle p4"></div>
         <div class="particle p5"></div>
       </div>
       <div class="hero-map"></div>
@@ -45,20 +51,7 @@
           transporte público tradicional. Información en tiempo real,
           sin complicaciones.
         </p>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-val">120+</div>
-            <div class="hero-stat-lbl">Rutas activas</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-val">8</div>
-            <div class="hero-stat-lbl">Empresas</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-val">2.4M</div>
-            <div class="hero-stat-lbl">Ciudadanos</div>
-          </div>
-        </div>
+
       </div>
 
       <div class="hero-footer">
@@ -97,15 +90,6 @@
         </button>
       </div>
 
-      <!-- Credenciales demo -->
-      <div class="creds-hint show" id="credsHint">
-        <strong>🔑 Credenciales de demostración:</strong>
-        <div class="creds-row" id="credsContent">
-          📧 lauraruiz@gmail.com<br>
-          🔒 Pasajero1*
-        </div>
-      </div>
-
       <!-- Alerta de error -->
       <div class="alert-error" id="alertError">
         <span>⚠️</span>
@@ -128,7 +112,8 @@
           <label for="inputPass">Contraseña</label>
           <div class="input-wrap">
             <span class="icon-left">🔒</span>
-            <input type="password" id="inputPass" placeholder="Tu contraseña" class="has-right" autocomplete="current-password" required>
+            <input type="password" id="inputPass" placeholder="Tu contraseña" class="has-right"
+              autocomplete="current-password" required>
             <span class="icon-right" id="togglePass" onclick="togglePassword()" title="Mostrar/ocultar">👁️</span>
           </div>
           <div class="field-error" id="errPass">La contraseña es requerida.</div>
@@ -149,19 +134,7 @@
 
       </form>
 
-      <div class="divider">Acceso rápido de demostración</div>
 
-      <div class="quick-btns">
-        <button class="quick-btn" onclick="quickLogin('pasajero')" type="button">
-          <span class="qb-icon">🧍</span>Pasajero
-        </button>
-        <button class="quick-btn" onclick="quickLogin('conductor')" type="button">
-          <span class="qb-icon">🚌</span>Conductor
-        </button>
-        <button class="quick-btn" onclick="quickLogin('administrador')" type="button">
-          <span class="qb-icon">⚙️</span>Admin
-        </button>
-      </div>
 
       <div class="register-link">
         ¿No tienes cuenta?
@@ -178,13 +151,13 @@
     // ── ESTADO ──
     let currentRole = 'pasajero';
     const DEMO_CREDS = {
-      pasajero:      { email: 'lauraruiz@gmail.com',        pass: 'Pasajero1*',   hint: '📧 lauraruiz@gmail.com<br>🔒 Pasajero1*' },
-      conductor:     { email: 'jcaicedo@laermita.com.co',   pass: 'Conductor1*',  hint: '📧 jcaicedo@laermita.com.co<br>🔒 Conductor1*' },
-      administrador: { email: 'admin@wayroute.gov.co',      pass: 'Admin2025*',   hint: '📧 admin@wayroute.gov.co<br>🔒 Admin2025*' }
+      pasajero: { email: 'lauraruiz@gmail.com', pass: 'Pasajero1*', hint: '📧 lauraruiz@gmail.com<br>🔒 Pasajero1*' },
+      conductor: { email: 'jcaicedo@laermita.com.co', pass: 'Conductor1*', hint: '📧 jcaicedo@laermita.com.co<br>🔒 Conductor1*' },
+      administrador: { email: 'admin@wayroute.gov.co', pass: 'Admin2025*', hint: '📧 admin@wayroute.gov.co<br>🔒 Admin2025*' }
     };
 
     // Verificar si ya hay sesión
-    (function() {
+    (function () {
       const s = sessionStorage.getItem('wayroute_sesion');
       if (s) {
         const sesion = JSON.parse(s);
@@ -226,7 +199,7 @@
       clearErrors();
 
       const email = document.getElementById('inputEmail').value.trim();
-      const pass  = document.getElementById('inputPass').value;
+      const pass = document.getElementById('inputPass').value;
       let valid = true;
 
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -265,7 +238,7 @@
       selectRole(rol, document.getElementById('role-' + rol));
       const creds = DEMO_CREDS[rol];
       document.getElementById('inputEmail').value = creds.email;
-      document.getElementById('inputPass').value  = creds.pass;
+      document.getElementById('inputPass').value = creds.pass;
       // Auto-login
       const btn = document.getElementById('btnLogin');
       btn.classList.add('loading');
@@ -298,4 +271,5 @@
   </script>
 
 </body>
+
 </html>

@@ -78,19 +78,19 @@ body {
   z-index: 1;
   display: flex;
   width: 100%;
-  max-width: 1040px;
-  min-height: 600px;
+  max-width: 1200px;
+  min-height: 800px;
   border-radius: var(--r-xl);
   overflow: hidden;
-  box-shadow: 0 24px 80px rgba(30,160,216,0.22);
-  margin: 24px;
+  box-shadow: 0 40px 120px rgba(30,160,216,0.3);
+  margin: 40px;
 }
 
 /* ── PANEL IZQUIERDO (hero) ── */
 .panel-hero {
   flex: 1;
   background: linear-gradient(145deg, #0D2136 0%, #0D4A7A 50%, var(--primary) 100%);
-  padding: 48px 40px;
+  padding: 80px 64px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -172,17 +172,17 @@ body {
 .hero-name span { color: var(--accent); }
 .hero-tagline { color: rgba(255,255,255,0.65); font-size: 0.8rem; font-weight: 500; }
 
-.hero-content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 24px 0; }
+.hero-content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 48px 0; }
 .hero-title {
-  font-size: 2rem;
+  font-size: 3.5rem;
   font-weight: 800;
   color: #fff;
-  line-height: 1.2;
-  margin-bottom: 16px;
-  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 28px;
+  letter-spacing: -0.04em;
 }
 .hero-title em { color: var(--accent); font-style: normal; }
-.hero-desc { color: rgba(255,255,255,0.72); font-size: 0.9rem; line-height: 1.7; margin-bottom: 28px; }
+.hero-desc { color: rgba(255,255,255,0.72); font-size: 1.15rem; line-height: 1.8; margin-bottom: 40px; }
 
 .hero-stats { display: flex; gap: 24px; }
 .hero-stat { text-align: center; }
@@ -210,10 +210,10 @@ body {
 
 /* ── PANEL DERECHO (formulario) ── */
 .panel-form {
-  width: 440px;
-  min-width: 440px;
+  width: 580px;
+  min-width: 580px;
   background: var(--surface);
-  padding: 48px 44px;
+  padding: 92px 84px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -230,14 +230,14 @@ body {
   margin-bottom: 6px;
 }
 .form-title {
-  font-size: 1.75rem;
+  font-size: 2.25rem;
   font-weight: 800;
   color: var(--text-h);
   line-height: 1.2;
   letter-spacing: -0.02em;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
-.form-sub { font-size: 0.875rem; color: var(--text-m); }
+.form-sub { font-size: 1rem; color: var(--text-m); }
 
 /* ── SELECTOR DE ROL ── */
 .role-selector { display: flex; gap: 8px; margin-bottom: 28px; }
@@ -334,11 +334,11 @@ body {
 .input-wrap .icon-right:hover { color: var(--primary); }
 .input-wrap input {
   width: 100%;
-  padding: 12px 14px 12px 40px;
+  padding: 16px 16px 16px 48px;
   border: 1.5px solid var(--border);
   border-radius: var(--r-md);
   font-family: var(--font);
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--text-h);
   background: #F8FBFE;
   outline: none;
@@ -387,13 +387,13 @@ body {
 /* ── BOTÓN LOGIN ── */
 .btn-login {
   width: 100%;
-  padding: 14px;
+  padding: 18px;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   border: none;
   border-radius: var(--r-md);
   font-family: var(--font);
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s var(--ease);
