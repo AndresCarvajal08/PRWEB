@@ -269,13 +269,48 @@
         <div class="sec-title"><div class="sec-icon green">✅</div> Resumen de la ficha</div>
         <div id="summaryBox"></div>
 
-        <div class="terms-box">
-          <input type="checkbox" id="terminos">
-          <div class="terms-text">
-            Declaro que la información consignada es verídica y completa. Autorizo el tratamiento de mis datos personales conforme a la <strong>Ley 1581 de 2012</strong> y el <strong>Decreto 1377 de 2013</strong> (Habeas Data — Colombia). Acepto los <a href="#">Términos de uso de WayRoute</a> y el <a href="#">Reglamento interno del conductor</a>. Entiendo que datos falsos conllevan sanciones conforme al <strong>Código Nacional de Tránsito (Ley 769/2002)</strong>.
+        <!-- ── Checklist de aceptaciones legales ── -->
+        <div style="margin-bottom:20px;margin-top:16px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">
+            ✅ Confirmaciones requeridas
           </div>
+
+          <!-- 1. Habeas Data -->
+          <label id="f-habeas" style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;cursor:pointer;margin-bottom:10px;transition:border-color .2s;">
+            <input type="checkbox" id="chkHabeas" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#0DCCA0;">
+            <div>
+              <div style="font-size:.83rem;font-weight:600;color:#166534;margin-bottom:3px;">
+                🛡️ Autorización de Tratamiento de Datos Personales
+              </div>
+              <div style="font-size:.77rem;color:#374151;line-height:1.55;">
+                Autorizo expresamente el tratamiento de mis datos personales conforme a la
+                <strong>Ley 1581 de 2012</strong> y el <strong>Decreto 1377 de 2013</strong>.
+                <a href="#" id="linkReabrirHD" style="color:#0DCCA0;font-weight:600;text-decoration:underline;white-space:nowrap;">
+                  Ver autorización completa →
+                </a>
+              </div>
+            </div>
+          </label>
+          <div id="errHabeas" style="display:none;color:var(--danger,#EF4444);font-size:.78rem;margin:0 0 8px 4px;"></div>
+
+          <!-- 2. Términos de Uso -->
+          <label id="f-terminos-label" style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#EFF8FF;border:1.5px solid #BAE3FF;border-radius:12px;cursor:pointer;transition:border-color .2s;">
+            <input type="checkbox" id="terminos" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#1EA0D8;">
+            <div>
+              <div style="font-size:.83rem;font-weight:600;color:#0369A1;margin-bottom:3px;">
+                📄 Declaración de veracidad y Reglamento
+              </div>
+              <div style="font-size:.77rem;color:#374151;line-height:1.55;">
+                Declaro que la información consignada es verídica y completa. Acepto los
+                <a href="#" style="color:#1EA0D8;font-weight:600;">Términos de uso de WayRoute</a> y el
+                <a href="#" style="color:#1EA0D8;font-weight:600;">Reglamento interno del conductor</a>.
+                Entiendo que datos falsos conllevan sanciones conforme al
+                <strong>Código Nacional de Tránsito (Ley 769/2002)</strong>.
+              </div>
+            </div>
+          </label>
+          <div class="err" id="errTerminos" style="margin-top:6px;"></div>
         </div>
-        <div class="err" id="errTerminos" style="margin-top:6px;"></div>
       </div>
 
       <!-- ÉXITO -->
@@ -302,7 +337,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/services/supabase.js"></script>
   <script src="../js/services/AuthService.js"></script>
+
+  <!-- Habeas Data — Ley 1581/2012 -->
+  <script src="../js/core/habeasData.js"></script>
+
   <script>
+    // ── HABEAS DATA — mostrar modal antes de permitir el registro ──
+    document.addEventListener('DOMContentLoaded', () => {
+      HabeasData.init({ rol: 'conductor', onReject: '../login.html' });
+    });
+
     let cur = 1;
     let licCatSel = 'C3';
     const TOTAL = 5;
@@ -345,8 +389,7 @@
       }
     }
 
-    // Ejecutar al cargar la página
-    document.addEventListener('DOMContentLoaded', cargarEmpresas);
+    // Ejecutar al cargar la página — movido al listener de DOMContentLoaded de abajo
 
     function selLic(btn) {
       document.querySelectorAll('.lic-btn').forEach(b => b.classList.remove('selected'));
@@ -428,11 +471,18 @@
         if (!document.getElementById('rutaAsig').value) { errField('f-ruta'); ok=false; }
       }
       if (s === 5) {
+        let ok = true;
+        if (!document.getElementById('chkHabeas').checked) {
+          const eh = document.getElementById('errHabeas');
+          eh.textContent = 'Debes autorizar el tratamiento de tus datos personales (Habeas Data).';
+          eh.style.display = 'block'; ok = false;
+        }
         if (!document.getElementById('terminos').checked) {
           const et = document.getElementById('errTerminos');
           et.textContent = 'Debes aceptar los términos para continuar.';
           et.style.display = 'block'; ok = false;
         }
+        return ok;
       }
       return ok;
     }
@@ -443,11 +493,26 @@
     }
     function clearErr() {
       document.querySelectorAll('.field.has-error').forEach(f => f.classList.remove('has-error'));
+      const eh = document.getElementById('errHabeas');
+      if (eh) { eh.style.display='none'; eh.textContent=''; }
       const et = document.getElementById('errTerminos');
       if (et) { et.style.display='none'; et.textContent=''; }
       const elc = document.getElementById('errLicCat');
       if (elc) elc.style.display = 'none';
     }
+
+    // ── LINK: reabrir modal Habeas Data ──
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarEmpresas();
+      const link = document.getElementById('linkReabrirHD');
+      if (link) {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          HabeasData.reabrir();
+        });
+      }
+    });
     const isPassOk = p => p.length>=8 && /[A-Z]/.test(p) && /[0-9]/.test(p) && /[^a-zA-Z0-9]/.test(p);
 
     function checkStrength(p) {
@@ -504,6 +569,9 @@
       if (!validate(TOTAL)) return;
       const btn = document.getElementById('btnNext'); btn.classList.add('loading');
       const rutaRaw = g('rutaAsig'); const [cr, nr] = rutaRaw.split('|');
+      // Recoger datos de aceptación Habeas Data
+      const hdDatos = (typeof HabeasData !== 'undefined') ? HabeasData.getDatos() : null;
+
       const datos = {
         nombres: g('nombres'), apellidos: g('apellidos'),
         cedula: g('cedula'), celular: g('celular'),
@@ -517,7 +585,11 @@
         licencia_numero: g('licNum'), licencia_categoria: licCatSel,
         licencia_expedicion: g('licExp'), licencia_vencimiento: g('licVence'),
         restricciones: g('restricciones'),
-        ruta_asignada: nr||cr, codigo_ruta: cr
+        ruta_asignada: nr||cr, codigo_ruta: cr,
+        // ── Habeas Data — Ley 1581/2012 ──
+        habeas_data_aceptado: true,
+        habeas_data_fecha:    hdDatos ? hdDatos.fecha : new Date().toISOString(),
+        habeas_data_ley:      'Ley 1581 de 2012 / Decreto 1377 de 2013'
       };
 
       // Llamada real a la base de datos

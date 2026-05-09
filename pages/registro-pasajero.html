@@ -204,16 +204,47 @@
 
         <div id="summaryBox" style="margin-bottom:24px;"></div>
 
-        <div class="terms-wrap">
-          <input type="checkbox" id="terminos">
-          <div class="terms-text">
-            He leído y acepto los <a href="#">Términos de Uso</a> y la
-            <a href="#">Política de Privacidad de WayRoute</a>, conforme a la
-            <strong>Ley 1581 de 2012</strong> (Habeas Data — Protección de Datos Personales) y
-            el <strong>Decreto 1377 de 2013</strong> de Colombia.
+        <!-- ── Checklist de aceptaciones legales ── -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">
+            ✅ Confirmaciones requeridas
           </div>
+
+          <!-- 1. Habeas Data -->
+          <label id="f-habeas" style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;cursor:pointer;margin-bottom:10px;transition:border-color .2s;">
+            <input type="checkbox" id="chkHabeas" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#0DCCA0;">
+            <div>
+              <div style="font-size:.83rem;font-weight:600;color:#166534;margin-bottom:3px;">
+                🛡️ Autorización de Tratamiento de Datos Personales
+              </div>
+              <div style="font-size:.77rem;color:#374151;line-height:1.55;">
+                Autorizo expresamente el tratamiento de mis datos personales conforme a la
+                <strong>Ley 1581 de 2012</strong> y el <strong>Decreto 1377 de 2013</strong>.
+                <a href="#" id="linkReabrirHD" style="color:#0DCCA0;font-weight:600;text-decoration:underline;white-space:nowrap;">
+                  Ver autorización completa →
+                </a>
+              </div>
+            </div>
+          </label>
+          <div class="err" id="errHabeas" style="margin:0 0 8px 4px;"></div>
+
+          <!-- 2. Términos de Uso -->
+          <label id="f-terminos" style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#EFF8FF;border:1.5px solid #BAE3FF;border-radius:12px;cursor:pointer;transition:border-color .2s;">
+            <input type="checkbox" id="terminos" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#1EA0D8;">
+            <div>
+              <div style="font-size:.83rem;font-weight:600;color:#0369A1;margin-bottom:3px;">
+                📄 Términos de Uso y Política de Privacidad
+              </div>
+              <div style="font-size:.77rem;color:#374151;line-height:1.55;">
+                He leído y acepto los
+                <a href="#" style="color:#1EA0D8;font-weight:600;">Términos de Uso</a> y la
+                <a href="#" style="color:#1EA0D8;font-weight:600;">Política de Privacidad</a>
+                de WayRoute.
+              </div>
+            </div>
+          </label>
+          <div class="err" id="errTerminos" style="margin-top:6px;"></div>
         </div>
-        <div class="err" id="errTerminos" style="margin-top:6px;"></div>
       </div>
 
       <!-- Pantalla éxito -->
@@ -243,7 +274,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/services/supabase.js"></script>
   <script src="../js/services/AuthService.js"></script>
+
+  <!-- Habeas Data — Ley 1581/2012 -->
+  <script src="../js/core/habeasData.js"></script>
+
   <script>
+    // ── HABEAS DATA — mostrar modal antes de permitir el registro ──
+    document.addEventListener('DOMContentLoaded', () => {
+      HabeasData.init({ rol: 'pasajero', onReject: '../login.html' });
+    });
+
     let currentStep = 1;
     const TOTAL = 3;
 
@@ -308,11 +348,20 @@
         return ok;
       }
       if (s === 3) {
-        if (!document.getElementById('terminos').checked) {
-          document.getElementById('errTerminos').textContent = 'Debes aceptar los términos para continuar.';
-          document.getElementById('errTerminos').style.display = 'block';
-          return false;
+        let ok = true;
+        if (!document.getElementById('chkHabeas').checked) {
+          const eh = document.getElementById('errHabeas');
+          eh.textContent = 'Debes autorizar el tratamiento de tus datos personales (Habeas Data).';
+          eh.style.display = 'block';
+          ok = false;
         }
+        if (!document.getElementById('terminos').checked) {
+          const et = document.getElementById('errTerminos');
+          et.textContent = 'Debes aceptar los Términos de Uso para continuar.';
+          et.style.display = 'block';
+          ok = false;
+        }
+        return ok;
       }
       return true;
     }
@@ -320,9 +369,23 @@
     const err = id => document.getElementById(id).classList.add('has-error');
     function clearErrors() {
       document.querySelectorAll('.field.has-error').forEach(f => f.classList.remove('has-error'));
+      const eh = document.getElementById('errHabeas');
+      if (eh) { eh.style.display = 'none'; eh.textContent = ''; }
       const et = document.getElementById('errTerminos');
       if (et) { et.style.display = 'none'; et.textContent = ''; }
     }
+
+    // ── LINK: reabrir modal Habeas Data ──
+    document.addEventListener('DOMContentLoaded', () => {
+      const link = document.getElementById('linkReabrirHD');
+      if (link) {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          HabeasData.reabrir();
+        });
+      }
+    });
     function isPassValid(p) {
       return p.length >= 8 && /[A-Z]/.test(p) && /[0-9]/.test(p) && /[^a-zA-Z0-9]/.test(p);
     }
@@ -379,10 +442,17 @@
       const btn = document.getElementById('btnNext');
       btn.classList.add('loading');
 
+      // Recoger datos de aceptación Habeas Data
+      const hdDatos = (typeof HabeasData !== 'undefined') ? HabeasData.getDatos() : null;
+
       const datos = {
         nombres: g('nombres'), apellidos: g('apellidos'),
         cedula: g('cedula'), celular: g('celular'),
-        correo: g('correo'), password: g('pass'), barrio: g('barrio')
+        correo: g('correo'), password: g('pass'), barrio: g('barrio'),
+        // ── Habeas Data — Ley 1581/2012 ──
+        habeas_data_aceptado: true,
+        habeas_data_fecha:    hdDatos ? hdDatos.fecha : new Date().toISOString(),
+        habeas_data_ley:      'Ley 1581 de 2012 / Decreto 1377 de 2013'
       };
 
       setTimeout(async () => {
