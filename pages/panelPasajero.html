@@ -765,10 +765,8 @@
                             <div class="ai-messages" id="aiMessages">
                                 <div class="msg msg-bot">
                                     <div class="msg-bubble">
-                                        ¡Hola María! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>
-                                        Veo que estás en el barrio <strong>Centenario</strong>.
-                                        ¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura, los precios
-                                        (Buses convencionales y Gualas) según cómo esté el tráfico actual de Cali.
+                                        ¡Hola! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>
+                                        ¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura y económica según el tráfico actual.
                                     </div>
                                     <div class="msg-meta">WayAI • Ahora</div>
                                 </div>
@@ -877,16 +875,16 @@
                             <p>RF-04 & RF-05 — Eventos activos que afectan la movilidad en Cali</p>
                         </div>
                         <div style="display:flex;gap:8px;">
-                            <span class="tag tag-red" style="font-size:.82rem;padding:6px 12px;">● 2 Críticas</span>
-                            <span class="tag tag-amber" style="font-size:.82rem;padding:6px 12px;">● 3 Moderadas</span>
+                            <span class="tag tag-red" style="font-size:.82rem;padding:6px 12px;" id="alertHeaderCriticas">● 0 Críticas</span>
+                            <span class="tag tag-amber" style="font-size:.82rem;padding:6px 12px;" id="alertHeaderModeradas">● 0 Moderadas</span>
                         </div>
                     </div>
 
                     <div class="tabs">
-                        <button class="tab-btn active" onclick="switchTab(this,'tab-todas')">Todas (5)</button>
-                        <button class="tab-btn" onclick="switchTab(this,'tab-congestion')">Congestión (2)</button>
-                        <button class="tab-btn" onclick="switchTab(this,'tab-bloqueo')">Bloqueos (1)</button>
-                        <button class="tab-btn" onclick="switchTab(this,'tab-seguridad')">Seguridad (2)</button>
+                        <button class="tab-btn active" id="tabBtn-todas" onclick="switchTab(this,'tab-todas')">Todas (0)</button>
+                        <button class="tab-btn" id="tabBtn-congestion" onclick="switchTab(this,'tab-congestion')">Congestión (0)</button>
+                        <button class="tab-btn" id="tabBtn-bloqueo" onclick="switchTab(this,'tab-bloqueo')">Bloqueos (0)</button>
+                        <button class="tab-btn" id="tabBtn-seguridad" onclick="switchTab(this,'tab-seguridad')">Seguridad (0)</button>
                     </div>
 
                     <div id="tab-todas" class="tab-content active">
@@ -908,40 +906,36 @@
                                             <span class="text-sm">🚧 Bloqueos</span>
                                             <div style="display:flex;align-items:center;gap:8px;">
                                                 <div class="progress-bar" style="width:80px;">
-                                                    <div class="progress-fill" style="width:33%;background:var(--red);">
-                                                    </div>
+                                                    <div class="progress-fill" id="resumenBloqueosFill" style="width:0%;background:var(--red);"></div>
                                                 </div>
-                                                <span class="text-xs font-bold">1</span>
+                                                <span class="text-xs font-bold" id="resumenBloqueos">0</span>
                                             </div>
                                         </div>
                                         <div style="display:flex;justify-content:space-between;align-items:center;">
                                             <span class="text-sm">🚦 Congestión</span>
                                             <div style="display:flex;align-items:center;gap:8px;">
                                                 <div class="progress-bar" style="width:80px;">
-                                                    <div class="progress-fill"
-                                                        style="width:66%;background:var(--amber);"></div>
+                                                    <div class="progress-fill" id="resumenCongestionFill" style="width:0%;background:var(--amber);"></div>
                                                 </div>
-                                                <span class="text-xs font-bold">2</span>
+                                                <span class="text-xs font-bold" id="resumenCongestion">0</span>
                                             </div>
                                         </div>
                                         <div style="display:flex;justify-content:space-between;align-items:center;">
                                             <span class="text-sm">🔐 Seguridad</span>
                                             <div style="display:flex;align-items:center;gap:8px;">
                                                 <div class="progress-bar" style="width:80px;">
-                                                    <div class="progress-fill"
-                                                        style="width:33%;background:var(--purple);"></div>
+                                                    <div class="progress-fill" id="resumenSeguridadFill" style="width:0%;background:var(--purple);"></div>
                                                 </div>
-                                                <span class="text-xs font-bold">1</span>
+                                                <span class="text-xs font-bold" id="resumenSeguridad">0</span>
                                             </div>
                                         </div>
                                         <div style="display:flex;justify-content:space-between;align-items:center;">
                                             <span class="text-sm">⛈️ Clima</span>
                                             <div style="display:flex;align-items:center;gap:8px;">
                                                 <div class="progress-bar" style="width:80px;">
-                                                    <div class="progress-fill"
-                                                        style="width:33%;background:var(--blue);"></div>
+                                                    <div class="progress-fill" id="resumenClimaFill" style="width:0%;background:var(--blue);"></div>
                                                 </div>
-                                                <span class="text-xs font-bold">1</span>
+                                                <span class="text-xs font-bold" id="resumenClima">0</span>
                                             </div>
                                         </div>
                                     </div>
@@ -951,56 +945,15 @@
                     </div>
 
                     <div id="tab-congestion" class="tab-content">
-                        <div class="alert-item alert-warning">
-                            <div class="alert-icon">🚦</div>
-                            <div class="alert-content">
-                                <div class="alert-title">Congestión — Av. 6 Norte (Cll 34-44)</div>
-                                <div class="alert-desc">+18 min adicionales. Rutas B-22A y G-07 afectadas.</div>
-                                <div class="alert-time">Hace 8 min</div>
-                            </div>
-                        </div>
-                        <div class="alert-item alert-warning">
-                            <div class="alert-icon">🚦</div>
-                            <div class="alert-content">
-                                <div class="alert-title">Congestión moderada — Av. Roosevelt (Cll 5-9)</div>
-                                <div class="alert-desc">+8 min adicionales. Ruta B-03 levemente afectada.</div>
-                                <div class="alert-time">Hace 15 min</div>
-                            </div>
-                        </div>
+                        <div class="text-sm text-gray text-center p-4">Cargando alertas de congestión...</div>
                     </div>
 
                     <div id="tab-bloqueo" class="tab-content">
-                        <div class="alert-item alert-danger">
-                            <div class="alert-icon">🚧</div>
-                            <div class="alert-content">
-                                <div class="alert-title">Bloqueo — Calle 5 con Carrera 1</div>
-                                <div class="alert-desc">Manifestación. Rutas B-05 y B-08 desviadas por Av. Colombia.
-                                </div>
-                                <div class="alert-time">Hace 25 min · Duración: indefinida</div>
-                            </div>
-                        </div>
+                        <div class="text-sm text-gray text-center p-4">Cargando alertas de bloqueo...</div>
                     </div>
 
                     <div id="tab-seguridad" class="tab-content">
-                        <div class="alert-item" style="border-left:4px solid var(--purple);background:#f5f3ff;">
-                            <div class="alert-icon">🔐</div>
-                            <div class="alert-content">
-                                <div class="alert-title">Precaución nocturna — Barrio Desepaz</div>
-                                <div class="alert-desc">3 incidentes menores reportados. Evitar rutas G-18 después de 8
-                                    PM.</div>
-                                <div class="alert-time">Vigente: 8 PM – 5 AM</div>
-                            </div>
-                        </div>
-                        <div class="alert-item"
-                            style="border-left:4px solid var(--purple);background:#f5f3ff;margin-top:8px;">
-                            <div class="alert-icon">🔐</div>
-                            <div class="alert-content">
-                                <div class="alert-title">Zona de precaución — Barrio Petecuy (Nocturno)</div>
-                                <div class="alert-desc">Historial de incidentes. Se recomienda compartir ubicación al
-                                    transitar por este sector.</div>
-                                <div class="alert-time">Alerta permanente nocturna</div>
-                            </div>
-                        </div>
+                        <div class="text-sm text-gray text-center p-4">Cargando alertas de seguridad...</div>
                     </div>
                 </div>
 
@@ -2273,81 +2226,112 @@
 
     <script>
         // ===== STATE =====
-        let currentRole = 'pasajero';
         let currentView = 'inicio';
         let notifOpen = false;
 
-        const roleUsers = {
-            pasajero: { name: 'María García', initials: 'MG', label: 'Pasajera', avatar: 'linear-gradient(135deg,#10b981,#047857)' },
-            conductor: { name: 'Carlos Rodríguez', initials: 'CR', label: 'Conductor', avatar: 'linear-gradient(135deg,#3b82f6,#1d4ed8)' },
-            admin: { name: 'Admin Sistema', initials: 'AS', label: 'Administrador', avatar: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }
-        };
-
-        const greetings = {
-            pasajero: '¡Buenos días, María! 👋',
-            conductor: '¡Buenos días, Carlos! 🚌',
-            admin: '¡Buenos días, Administrador! ⚙️'
-        };
-
-        // ===== LOGIN =====
-        function selectRole(el, role) {
-            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('sel'));
-            el.classList.add('sel');
-            currentRole = role;
-        }
-
-        function quickLogin(role) {
-            document.querySelectorAll('.role-btn').forEach((b, i) => {
-                b.classList.remove('sel');
-                if (['pasajero', 'conductor', 'admin'][i] === role) { b.classList.add('sel'); }
-            });
-            currentRole = role;
-            doLogin();
-        }
-
-        function doLogin() {
-            const loginScr = document.getElementById('loginScreen');
-            if (loginScr) loginScr.classList.add('hidden');
-
-            // Sincronizar con SesionModel para que los viewmodels detecten la sesión
-            if (window.SesionModel) {
-                const u = roleUsers[currentRole];
-                window.SesionModel.guardarSesion({
-                    id: 'mock-id-' + currentRole,
-                    nombre: u.name,
-                    rol: currentRole,
-                    avatar: u.initials,
-                    timestamp: new Date().toISOString()
-                }, {
-                    nombres: u.name,
-                    correo: currentRole + '@example.com',
-                    barrio: 'Centenario'
-                });
+        // ===== SESIÓN / PERFIL — conectado con AuthService.js =====
+        async function initSession() {
+            const sesion = typeof getSesion === 'function' ? getSesion() : null;
+            if (!sesion || sesion.rol !== 'pasajero') {
+                window.location.href = '../login.html';
+                return;
             }
 
-            document.getElementById('mainApp').classList.remove('hidden');
-            applyRole(currentRole);
-            navigate('inicio');
-            showToast(`✅ Bienvenido como ${roleUsers[currentRole].label}`);
+            let usuarioFull = typeof getUsuarioCompleto === 'function' ? getUsuarioCompleto() : null;
+
+            if (!usuarioFull && window.supabaseClient && sesion.id) {
+                try {
+                    const { data } = await window.supabaseClient
+                        .from('usuarios')
+                        .select('id, nombres, apellidos, correo, celular, barrio, habeas_data_aceptado')
+                        .eq('auth_uid', sesion.id)
+                        .single();
+                    if (data) {
+                        usuarioFull = data;
+                        sessionStorage.setItem('movicali_usuario_full', JSON.stringify(data));
+                    }
+                } catch (e) {
+                    console.warn('[initSession] No se pudo refrescar perfil desde Supabase:', e.message);
+                }
+            }
+
+            _aplicarSesion(sesion, usuarioFull);
         }
 
-        // ===== ROLE APPLY =====
-        function applyRole(role) {
-            const u = roleUsers[role];
-            document.getElementById('roleLabel').textContent = u.label;
-            const av = document.getElementById('userAvatarNav');
-            av.textContent = u.initials;
-            av.style.background = u.avatar;
+        function _aplicarSesion(sesion, usuarioFull) {
+            const datos = usuarioFull || {};
 
-            // Show/hide sidebar sections
-            document.getElementById('nav-section-pasajero').classList.toggle('hidden', role !== 'pasajero');
-            document.getElementById('nav-section-conductor').classList.toggle('hidden', role !== 'conductor');
-            document.getElementById('nav-section-admin').classList.toggle('hidden', role !== 'admin');
-            // Update greeting
-            const h1 = document.querySelector('#view-inicio .page-header h1');
-            const welcomeSpan = document.getElementById('welcomeName');
-            if (h1) h1.textContent = greetings[role];
-            if (welcomeSpan) welcomeSpan.textContent = u.name.split(' ')[0];
+            let nombre = datos.nombre || sesion.nombre || 'Pasajero';
+            if (!datos.nombre && datos.nombres) {
+                nombre = datos.nombres + (datos.apellidos ? ' ' + datos.apellidos : '');
+            }
+            const primerNombre = nombre.split(' ')[0];
+            const avatar = sesion.avatar || primerNombre.substring(0, 2).toUpperCase();
+
+            const navUserNameEl = document.getElementById('navUserName');
+            if (navUserNameEl) navUserNameEl.textContent = primerNombre;
+
+            const userAvatarNavEl = document.getElementById('userAvatarNav');
+            if (userAvatarNavEl) userAvatarNavEl.textContent = avatar;
+
+            const roleLabelEl = document.getElementById('roleLabel');
+            if (roleLabelEl) roleLabelEl.textContent = 'Pasajero';
+
+            const welcomeNameEl = document.getElementById('welcomeName');
+            if (welcomeNameEl) welcomeNameEl.textContent = primerNombre;
+
+            document.getElementById('nav-section-pasajero')?.classList.remove('hidden');
+            document.getElementById('nav-section-conductor')?.classList.add('hidden');
+            document.getElementById('nav-section-admin')?.classList.add('hidden');
+
+            const correoStr = datos.correo || sesion.correo || '';
+            const telStr = datos.celular || '';
+            const barrioStr = datos.barrio || '';
+
+            const perfilNombreHeader = document.getElementById('perfilNombreHeader');
+            if (perfilNombreHeader) perfilNombreHeader.textContent = nombre;
+
+            const perfilAvatarLg = document.getElementById('perfilAvatarLg');
+            if (perfilAvatarLg) perfilAvatarLg.textContent = avatar;
+
+            const perfilContacto = document.getElementById('perfilContactoHeader');
+            if (perfilContacto) perfilContacto.textContent = `📧 ${correoStr || '...'} · 📱 ${telStr || '...'}`;
+
+            const perfilUbicacion = document.getElementById('perfilUbicacionHeader');
+            if (perfilUbicacion) perfilUbicacion.textContent = `📍 ${barrioStr || 'Cali, CO'} · Pasajero activo`;
+
+            const inputNombre = document.getElementById('inputPerfilNombre');
+            if (inputNombre) inputNombre.value = nombre;
+
+            const inputCorreo = document.getElementById('inputPerfilCorreo');
+            if (inputCorreo) inputCorreo.value = correoStr;
+
+            const inputCelular = document.getElementById('inputPerfilCelular');
+            if (inputCelular) inputCelular.value = telStr;
+
+            const inputBarrio = document.getElementById('inputPerfilBarrio');
+            if (inputBarrio) inputBarrio.value = barrioStr;
+
+            if (barrioStr) {
+                const ctxUbicacion = document.getElementById('ctxUbicacion');
+                if (ctxUbicacion) ctxUbicacion.textContent = `${barrioStr}, Cali`;
+
+                const mapaOrigen = document.getElementById('mapaOrigen');
+                if (mapaOrigen) mapaOrigen.value = `Barrio ${barrioStr}`;
+
+                const quickOrigin = document.getElementById('quickOrigin');
+                if (quickOrigin) quickOrigin.value = `Barrio ${barrioStr}`;
+
+                const aiMessages = document.getElementById('aiMessages');
+                if (aiMessages) {
+                    const firstMsg = aiMessages.querySelector('.msg-bubble');
+                    if (firstMsg) {
+                        firstMsg.innerHTML = `¡Hola ${primerNombre}! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
+                            `Veo que estás en el barrio <strong>${barrioStr}</strong>. ` +
+                            `¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura y económica según el tráfico actual.`;
+                    }
+                }
+            }
         }
 
         // ===== NAVIGATION =====
@@ -2376,6 +2360,11 @@
 
             // Scroll to top
             document.getElementById('contentArea').scrollTo(0, 0);
+
+            // Fix grey map on alertas view (Leaflet needs invalidateSize after container becomes visible)
+            if (view === 'alertas' && window.AlertaView) {
+                window.AlertaView.refreshMapa();
+            }
         }
 
         // ===== SIDEBAR TOGGLE =====
@@ -2643,55 +2632,11 @@
     <!-- ── INIT PASAJERO ── -->
     <script src="../js/viewmodels/PasajeroViewModel.js"></script>
     <script>
-        // Inicializar Lucide Icons (después de cargar todo el DOM y scripts)
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof lucide !== 'undefined') lucide.createIcons();
             mostrarConsejosPorHorario();
-
-            // ← AGREGA ESTO:
-            document.getElementById('statRutasActivas').textContent = '4';
-
-            // Mostrar rutas disponibles en inicio automáticamente
-            const contenedor = document.createElement('div');
-            contenedor.id = 'resultadosBusqueda';
-            contenedor.style.cssText = 'margin-top:16px;';
-            const cardBuscador = document.querySelector('#view-inicio .card');
-            if (cardBuscador && !document.getElementById('resultadosBusqueda')) {
-                cardBuscador.appendChild(contenedor);
-                // Llamar buscarRutas sin navegar al mapa
-                setTimeout(() => {
-                    const RUTAS = [
-                        { color: '#ef4444', icono: '🚌', nombre: 'Ruta Especial Sur', origen: 'La Ermita', destino: 'Circuito Sur', buses: 4, duracion: '~35 min', tipo: 'bus' },
-                        { color: '#3b82f6', icono: '🚌', nombre: 'Ruta Norte', origen: 'Granada', destino: 'Santa Mónica', buses: 3, duracion: '~45 min', tipo: 'bus' },
-                        { color: '#16a34a', icono: '🚐', nombre: 'Gualas Oriente', origen: 'Carrera 22', destino: 'Calle 92', buses: 3, duracion: '~30 min', tipo: 'guala' },
-                        { color: '#f97316', icono: '🚌', nombre: 'Ruta Sur — Pryca / U. Nariño', origen: 'Pryca', destino: 'U. Antonio Nariño', buses: 3, duracion: '~40 min', tipo: 'bus' },
-                    ];
-                    contenedor.innerHTML = `
-                        <div style="font-size:.875rem;font-weight:600;color:var(--gray-600);margin-bottom:10px;">4 rutas disponibles ahora</div>
-                        <div style="display:flex;flex-direction:column;gap:8px;">
-                            ${RUTAS.map(r => `
-                                <div onclick="navigate('mapa')" class="route-card" style="cursor:pointer;">
-                                    <div class="route-header">
-                                        <div class="route-number">
-                                            <div class="route-dot" style="background:${r.color};"></div>
-                                            ${r.icono} ${r.nombre}
-                                        </div>
-                                        <span class="tag tag-green">🟢 Activa</span>
-                                    </div>
-                                    <div class="route-meta" style="margin:6px 0;">
-                                        <span>📍 ${r.origen} → ${r.destino}</span>
-                                        <span>⏱️ ${r.duracion}</span>
-                                        <span>💰 $3.500</span>
-                                        <span>${r.icono} ${r.buses} unidades</span>
-                                    </div>
-                                    ${r.tipo === 'guala' ? `<div style="margin-top:6px;background:#16a34a15;border:1px solid #16a34a30;border-radius:6px;padding:4px 8px;font-size:.72rem;color:#166534;font-weight:600;">🚐 Guala/Campero 4x4 — Sector Oriente</div>` : ''}
-                                </div>
-                            `).join('')}
-                        </div>`;
-                }, 200);
-            }
+            initSession();
         });
-        // También ejecutar de inmediato en caso de que el DOM ya esté listo
         if (typeof lucide !== 'undefined') lucide.createIcons();
     </script>
 </body>
