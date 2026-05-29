@@ -14,7 +14,7 @@
  */
 
 const HabeasData = (() => {
-  const SESSION_KEY = 'hd_accepted_v1';
+  const SESSION_KEY = (rol) => `hd_accepted_v1_${rol}`;
 
   // ─── Inyectar estilos ───────────────────────────────────────────────────────
   function injectStyles() {
@@ -333,7 +333,7 @@ const HabeasData = (() => {
     const redirect = options.onReject || '../login.html';
 
     // Si ya fue aceptado en esta sesión, no mostrar
-    const stored = sessionStorage.getItem(SESSION_KEY);
+    const stored = sessionStorage.getItem(SESSION_KEY(rol));
     if (stored) {
       try {
         const { accepted, ts } = JSON.parse(stored);
@@ -376,7 +376,7 @@ const HabeasData = (() => {
     // ACEPTAR
     btnAccept.addEventListener('click', () => {
       if (!checkbox.checked) return;
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+      sessionStorage.setItem(SESSION_KEY(rol), JSON.stringify({
         accepted: true,
         rol,
         ts: Date.now()
@@ -402,8 +402,11 @@ const HabeasData = (() => {
     // Detectar si el rol está guardado en sessionStorage
     let rol = 'usuario';
     try {
-      const stored = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
-      if (stored.rol) rol = stored.rol;
+      const roles = ['pasajero', 'conductor', 'administrador'];
+      for (const r of roles) {
+        const raw = sessionStorage.getItem(SESSION_KEY(r));
+        if (raw) { rol = JSON.parse(raw).rol || r; break; }
+      }
     } catch (_) { /* ignorar */ }
 
     document.body.insertAdjacentHTML('afterbegin', buildHTML(rol));
@@ -441,7 +444,12 @@ const HabeasData = (() => {
   // ─── Obtener datos para guardar en BD ──────────────────────────────────────
   function getDatos() {
     try {
-      const stored = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+      const roles = ['pasajero', 'conductor', 'administrador'];
+      let stored = null;
+      for (const r of roles) {
+        const raw = sessionStorage.getItem(SESSION_KEY(r));
+        if (raw) { stored = JSON.parse(raw); break; }
+      }
       if (!stored || !stored.accepted) return null;
       return {
         aceptado:     true,
