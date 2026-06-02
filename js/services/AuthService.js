@@ -365,6 +365,7 @@ async function registrarPasajero(datos) {
     }
 
     // 2. Crear el perfil en la tabla "usuarios" pública
+    const hdDatos = (typeof HabeasData !== 'undefined') ? HabeasData.getDatos() : null;
     const { data: userData, error: userError } = await window.supabaseClient
       .from('usuarios')
       .insert([{
@@ -376,7 +377,11 @@ async function registrarPasajero(datos) {
         cedula: datos.cedula,
         celular: datos.celular,
         barrio: datos.barrio || '',
-        activo: true
+        activo: true,
+        // ── Habeas Data — Ley 1581 de 2012 ──
+        habeas_data_aceptado: hdDatos ? hdDatos.aceptado : datos.habeas_data_aceptado || false,
+        habeas_data_fecha:    hdDatos ? hdDatos.fecha    : datos.habeas_data_fecha || new Date().toISOString(),
+        habeas_data_ley:      'Ley 1581 de 2012 / Decreto 1377 de 2013'
       }])
       .select()
       .single();
@@ -460,6 +465,7 @@ async function registrarConductor(datos) {
       }
 
       // B. Insertar en tabla base "usuarios"
+      const hdDatos = (typeof HabeasData !== 'undefined') ? HabeasData.getDatos() : null;
       const { data: userData, error: userError } = await window.supabaseClient
         .from('usuarios')
         .insert([{
@@ -470,7 +476,11 @@ async function registrarConductor(datos) {
           rol: 'conductor',
           cedula: datos.cedula,
           celular: datos.celular,
-          activo: true
+          activo: true,
+          // ── Habeas Data — Ley 1581 de 2012 ──
+          habeas_data_aceptado: hdDatos ? hdDatos.aceptado : datos.habeas_data_aceptado || false,
+          habeas_data_fecha:    hdDatos ? hdDatos.fecha    : datos.habeas_data_fecha || new Date().toISOString(),
+          habeas_data_ley:      'Ley 1581 de 2012 / Decreto 1377 de 2013'
         }])
         .select()
         .single();

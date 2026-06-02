@@ -34,13 +34,16 @@ const AlertaViewModel = {
         if (listContainer) {
             window.AlertaView.renderLista(alertas, listContainer.id);
         }
-        
-        // 2. Feed de inicio y Contadores
+
+        // 2. Tabs filtradas (congestion, bloqueo, seguridad) + contadores + resumen
+        window.AlertaView.renderTabsFiltradas(alertas);
+
+        // 3. Feed de inicio y Contadores
         const feedContainer = document.getElementById('inicioAlertsList') || document.getElementById('inicioAlertsFeed');
         if (feedContainer) {
             window.AlertaView.renderFeedInicio(alertas, feedContainer.id);
         }
-        
+
         window.AlertaView.actualizarContadores(alertas.length);
 
         // 3. Tabla de Conductor (mis reportes)
