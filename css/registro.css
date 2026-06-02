@@ -297,4 +297,15 @@ body {
   .span-2, .span-3 { grid-column: span 1; }
   .lic-grid { grid-template-columns: 1fr 1fr; }
   .step-line { width: 36px; }
+  .container { padding: 24px 14px; }
+  .section-title { font-size: 1.6rem; }
+  .sum-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 400px) {
+  .stepper { gap: 0; }
+  .step-label { display: none; }
+  .step-line { width: 24px; }
+  .form-card { padding: 20px 14px; }
+  .btn-next { padding: 11px 18px; font-size: .85rem; }
 }

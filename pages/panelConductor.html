@@ -21,6 +21,9 @@
 
         <!-- TOP NAV -->
         <nav class="topnav">
+            <button class="hamburger" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Menú">
+                <i data-lucide="menu" style="width:20px;height:20px;"></i>
+            </button>
             <a class="nav-brand" href="#">
                 <div class="nav-logo"><i data-lucide="bus" style="width:18px;height:18px;color:#fff;"></i></div>
                 <div class="nav-brand-text">Way<span>Route</span></div>
@@ -41,6 +44,8 @@
                 </button>
             </div>
         </nav>
+
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
         <div class="main-wrapper">
             <!-- SIDEBAR -->
@@ -78,7 +83,7 @@
                 <!-- ====== INICIO ====== -->
                 <div class="view active" id="view-inicio">
                     <div class="page-header">
-                        <h1 id="welcomeGreeting">¡Buenos días, Conductor! 🚌</h1>
+                        <h1 id="welcomeGreeting">¡Buenos días, Conductor! <i data-lucide="bus" style="width:22px;height:22px;vertical-align:middle;"></i></h1>
                         <p id="shiftInfo">Cargando información del turno...</p>
                     </div>
 
@@ -377,12 +382,12 @@
                                 <div class="form-group">
                                     <label class="form-label">Tipo de incidencia</label>
                                     <select class="form-control" id="formTipoIncidencia">
-                                        <option value="bloqueo">🚧 Bloqueo vial</option>
-                                        <option value="congestion">🚦 Congestión inusual</option>
-                                        <option value="falla">🔧 Falla mecánica del vehículo</option>
-                                        <option value="seguridad">🚨 Incidente de seguridad</option>
-                                        <option value="clima">⛈️ Daño por clima</option>
-                                        <option value="otro">📢 Otro</option>
+                                        <option value="bloqueo">Bloqueo vial</option>
+                                        <option value="congestion">Congestión inusual</option>
+                                        <option value="falla">Falla mecánica del vehículo</option>
+                                        <option value="seguridad">Incidente de seguridad</option>
+                                        <option value="clima">Daño por clima</option>
+                                        <option value="otro">Otro</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -412,9 +417,9 @@
                                     <div class="form-group">
                                         <label class="form-label">Severidad</label>
                                         <select class="form-control" id="formSeveridadIncidencia">
-                                            <option value="moderada">🟡 Moderada</option>
-                                            <option value="alta">🔴 Alta</option>
-                                            <option value="baja">🟢 Baja</option>
+                                            <option value="moderada">Moderada</option>
+                                            <option value="alta">Alta</option>
+                                            <option value="baja">Baja</option>
                                         </select>
                                     </div>
                                 </div>
@@ -676,6 +681,48 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
         if (typeof lucide !== 'undefined') lucide.createIcons();
+    </script>
+
+    <!-- BOTTOM NAV (móvil) -->
+    <nav class="bottom-nav" id="bottomNav">
+        <button class="bottom-nav-item active" id="bn-inicio" onclick="navigate('inicio');setBottomNav('bn-inicio')">
+            <i data-lucide="home" style="width:20px;height:20px;"></i>
+            <span class="bn-label">Inicio</span>
+        </button>
+        <button class="bottom-nav-item" id="bn-miRuta" onclick="navigate('miRuta');setBottomNav('bn-miRuta')">
+            <i data-lucide="route" style="width:20px;height:20px;"></i>
+            <span class="bn-label">Mi Ruta</span>
+        </button>
+        <button class="bottom-nav-item" id="bn-alertas" onclick="navigate('alertas');setBottomNav('bn-alertas')">
+            <i data-lucide="bell" style="width:20px;height:20px;"></i>
+            <span class="bn-label">Alertas</span>
+        </button>
+        <button class="bottom-nav-item" id="bn-reportes" onclick="navigate('reportes');setBottomNav('bn-reportes')">
+            <i data-lucide="clipboard-list" style="width:20px;height:20px;"></i>
+            <span class="bn-label">Reportar</span>
+        </button>
+        <button class="bottom-nav-item" id="bn-perfil" onclick="navigate('perfil');setBottomNav('bn-perfil')">
+            <i data-lucide="user" style="width:20px;height:20px;"></i>
+            <span class="bn-label">Perfil</span>
+        </button>
+    </nav>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+        function setBottomNav(id) {
+            document.querySelectorAll('#bottomNav .bottom-nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (window.innerWidth <= 768) {
+                document.querySelector('.sidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            }
+        }
+        lucide.createIcons();
     </script>
 </body>
 

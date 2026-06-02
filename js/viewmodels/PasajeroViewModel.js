@@ -17,15 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Inicializar Vistas Básicas
     let usuarioFull = window.SesionModel ? window.SesionModel.getUsuarioCompleto() : null;
     
-    // Si no hay datos completos localmente, intentar traerlos de la base de datos
+    // Si no hay datos completos localmente, traerlos de la base de datos
     if (!usuarioFull && sesion.id && window.UsuarioModel) {
         window.UsuarioModel.buscarPorAuthUid(sesion.id).then(u => {
             if (u) {
                 usuarioFull = u;
                 if (window.SesionModel) sessionStorage.setItem('movicali_usuario_full', JSON.stringify(u));
                 if (window.NavView) window.NavView.actualizarPerfilPantalla(u, sesion);
-                // Actualizar barrio en el contexto si cargó
                 if (u.barrio) actualizarBarrioContexto(u.barrio);
+                cargarDatosPerfil(u);
             }
         });
     }
@@ -124,7 +124,117 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCtxTime();
     setInterval(updateCtxTime, 60000);
 
-    // E. Lógica de Guardado (MVVM — ViewModel expone guardarPerfil a la Vista)
+    // E. Cargar foto y estadísticas reales de perfil
+    async function cargarDatosPerfil(usuario) {
+        if (!usuario) return;
+
+        // Mostrar foto si existe
+        if (usuario.avatar_url && window.NavView) {
+            window.NavView.mostrarFoto(usuario.avatar_url);
+        }
+
+        // Meses activo desde fecha_registro
+        if (usuario.fecha_registro) {
+            const meses = Math.floor((new Date() - new Date(usuario.fecha_registro)) / (1000 * 60 * 60 * 24 * 30));
+            const desde = new Date(usuario.fecha_registro).toLocaleDateString('es-CO', { month: 'short', year: 'numeric' });
+            const elMeses = document.getElementById('statMesesActivo');
+            const elDesde = document.getElementById('statMiembroDesde');
+            if (elMeses) elMeses.textContent = meses > 0 ? meses : '< 1';
+            if (elDesde) elDesde.textContent = desde;
+        }
+
+        // Contar reportes enviados por este usuario
+        if (window.supabaseClient && usuario.id) {
+            try {
+                const { count } = await window.supabaseClient
+                    .from('reportes')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('conductor_id', usuario.id);
+                const elRep = document.getElementById('statReportesPerfil');
+                if (elRep) elRep.textContent = count ?? 0;
+            } catch (_) {}
+        }
+    }
+
+    // Llamar cuando el usuario esté disponible
+    if (usuarioFull) {
+        cargarDatosPerfil(usuarioFull);
+    } else if (sesion.id && window.UsuarioModel) {
+        window.UsuarioModel.buscarPorAuthUid(sesion.id).then(u => {
+            if (u) cargarDatosPerfil(u);
+        });
+    }
+
+    // F. Subir foto de perfil
+    window.triggerFotoUpload = function () {
+        document.getElementById('inputFotoPerfil')?.click();
+    };
+
+    window.subirFotoPerfil = async function (input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        if (file.size > 3 * 1024 * 1024) {
+            window.Toast?.show('La imagen no puede superar 3MB');
+            return;
+        }
+
+        const usuario = window.SesionModel?.getUsuarioCompleto();
+        if (!usuario || !window.supabaseClient) return;
+
+        // Mostrar spinner
+        const spinner = document.getElementById('avatarSpinner');
+        const overlay = document.querySelector('.avatar-edit-overlay');
+        if (spinner) spinner.style.display = 'flex';
+        if (overlay) overlay.style.display = 'none';
+
+        try {
+            const ext = file.name.split('.').pop();
+            const fileName = `${usuario.id}.${ext}`;
+
+            const { error: upError } = await window.supabaseClient.storage
+                .from('avatares')
+                .upload(fileName, file, { upsert: true, contentType: file.type });
+
+            if (upError) throw upError;
+
+            const { data: { publicUrl } } = window.supabaseClient.storage
+                .from('avatares')
+                .getPublicUrl(fileName);
+
+            // Cachebust para forzar recarga
+            const urlConCache = publicUrl + '?t=' + Date.now();
+
+            const { error: updError } = await window.supabaseClient
+                .from('usuarios')
+                .update({ avatar_url: urlConCache })
+                .eq('id', usuario.id);
+
+            if (updError) throw updError;
+
+            // Actualizar sesión local
+            usuario.avatar_url = urlConCache;
+            sessionStorage.setItem('movicali_usuario_full', JSON.stringify(usuario));
+
+            // Mostrar en UI
+            if (window.NavView) window.NavView.mostrarFoto(urlConCache);
+            window.Toast?.show('Foto de perfil actualizada');
+
+        } catch (e) {
+            window.Toast?.show('Error al subir foto: ' + e.message);
+            // Restaurar iniciales
+            const perfilAvt = document.getElementById('perfilAvatarLg');
+            if (perfilAvt && !perfilAvt.querySelector('img')) {
+                perfilAvt.textContent = sesion.avatar || sesion.nombre?.slice(0, 2).toUpperCase() || '?';
+            }
+        } finally {
+            if (spinner) spinner.style.display = 'none';
+            if (overlay) overlay.style.display = '';
+            input.value = '';
+        }
+    };
+
+    // G. Lógica de Guardado (MVVM — ViewModel expone guardarPerfil a la Vista)
     window.guardarPerfil = async function () {
         const btn = document.getElementById('btnGuardarPerfil');
         if (!btn || !window.UsuarioModel) return;

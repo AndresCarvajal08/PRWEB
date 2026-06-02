@@ -13,16 +13,34 @@ const NavView = {
      */
     actualizarUsuarioNav(sesion) {
         if (!sesion) return;
-        
+
         const rawName = sesion.nombre || 'Usuario';
         const firstName = rawName.split(' ')[0];
         const avatarStr = sesion.avatar || firstName.substring(0, 2).toUpperCase();
 
         const navUsr = document.getElementById('navUserName');
         const navAvt = document.getElementById('navAvatar');
-        
+
         if (navUsr) navUsr.textContent = firstName;
         if (navAvt) navAvt.textContent = avatarStr;
+
+        // Mostrar foto si existe en sesión
+        const usuarioFull = window.SesionModel ? window.SesionModel.getUsuarioCompleto() : null;
+        if (usuarioFull?.avatar_url) this.mostrarFoto(usuarioFull.avatar_url);
+    },
+
+    mostrarFoto(url) {
+        if (!url) return;
+        // Nav avatar
+        const navAvt = document.getElementById('navAvatar');
+        if (navAvt) {
+            navAvt.innerHTML = `<img src="${url}" alt="Foto perfil" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        }
+        // Perfil avatar grande
+        const perfilAvt = document.getElementById('perfilAvatarLg');
+        if (perfilAvt) {
+            perfilAvt.innerHTML = `<img src="${url}" alt="Foto perfil" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        }
     },
 
     /**

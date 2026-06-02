@@ -526,6 +526,16 @@ body {
 /* RESPONSIVE */
 @media (max-width: 820px) {
   .panel-hero { display: none; }
-  .panel-form { width: 100%; min-width: unset; }
+  .panel-form { width: 100%; min-width: unset; padding: 60px 32px; }
   .page-wrap { margin: 0; border-radius: 0; min-height: 100vh; }
+}
+
+@media (max-width: 480px) {
+  .panel-form { padding: 40px 20px; }
+  .form-title { font-size: 1.75rem; }
+  .role-selector { gap: 6px; }
+  .role-btn { padding: 10px 4px; }
+  .role-label { font-size: .68rem; }
+  .btn-login { font-size: 1rem; padding: 16px; }
+  .form-options { flex-direction: column; align-items: flex-start; gap: 10px; }
 }

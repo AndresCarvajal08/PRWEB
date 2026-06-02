@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="css/login.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 
 <body>
@@ -37,7 +38,7 @@
       <div class="hero-map"></div>
 
       <div class="hero-brand">
-        <div class="hero-logo">🚌</div>
+        <div class="hero-logo"><i data-lucide="bus"></i></div>
         <div>
           <div class="hero-name">Way<span>Route</span></div>
           <div class="hero-tagline">Transporte Público Tradicional</div>
@@ -55,7 +56,7 @@
       </div>
 
       <div class="hero-footer">
-        <div class="hero-footer-icon">🏛️</div>
+        <div class="hero-footer-icon"><i data-lucide="landmark"></i></div>
         <div class="hero-footer-text">
           <strong>Secretaría de Movilidad de Cali</strong><br>
           Proyecto de grado — Ingeniería de Sistemas
@@ -75,24 +76,24 @@
       <div class="role-selector" id="roleSelector">
         <button class="role-btn active" id="role-pasajero" onclick="selectRole('pasajero', this)" type="button">
           <div class="role-check">✓</div>
-          <span class="role-icon">🧍</span>
+          <span class="role-icon"><i data-lucide="user"></i></span>
           <span class="role-label">Pasajero</span>
         </button>
         <button class="role-btn" id="role-conductor" onclick="selectRole('conductor', this)" type="button">
           <div class="role-check">✓</div>
-          <span class="role-icon">🚌</span>
+          <span class="role-icon"><i data-lucide="bus"></i></span>
           <span class="role-label">Conductor</span>
         </button>
         <button class="role-btn" id="role-administrador" onclick="selectRole('administrador', this)" type="button">
           <div class="role-check">✓</div>
-          <span class="role-icon">⚙️</span>
+          <span class="role-icon"><i data-lucide="settings"></i></span>
           <span class="role-label">Admin</span>
         </button>
       </div>
 
       <!-- Alerta de error -->
       <div class="alert-error" id="alertError">
-        <span>⚠️</span>
+        <span><i data-lucide="alert-triangle"></i></span>
         <span id="alertMsg">Correo o contraseña incorrectos.</span>
       </div>
 
@@ -102,7 +103,7 @@
         <div class="field" id="fieldEmail">
           <label for="inputEmail">Correo electrónico</label>
           <div class="input-wrap">
-            <span class="icon-left">📧</span>
+            <span class="icon-left"><i data-lucide="mail"></i></span>
             <input type="email" id="inputEmail" placeholder="tu@correo.com" autocomplete="email" required>
           </div>
           <div class="field-error" id="errEmail">Ingresa un correo válido.</div>
@@ -111,10 +112,10 @@
         <div class="field" id="fieldPass">
           <label for="inputPass">Contraseña</label>
           <div class="input-wrap">
-            <span class="icon-left">🔒</span>
+            <span class="icon-left"><i data-lucide="lock"></i></span>
             <input type="password" id="inputPass" placeholder="Tu contraseña" class="has-right"
               autocomplete="current-password" required>
-            <span class="icon-right" id="togglePass" onclick="togglePassword()" title="Mostrar/ocultar">👁️</span>
+            <span class="icon-right" id="togglePass" onclick="togglePassword()" title="Mostrar/ocultar"><i data-lucide="eye"></i></span>
           </div>
           <div class="field-error" id="errPass">La contraseña es requerida.</div>
         </div>
@@ -151,9 +152,9 @@
     // ── ESTADO ──
     let currentRole = 'pasajero';
     const DEMO_CREDS = {
-      pasajero: { email: 'lauraruiz@gmail.com', pass: 'Pasajero1*', hint: '📧 lauraruiz@gmail.com<br>🔒 Pasajero1*' },
-      conductor: { email: 'jcaicedo@laermita.com.co', pass: 'Conductor1*', hint: '📧 jcaicedo@laermita.com.co<br>🔒 Conductor1*' },
-      administrador: { email: 'admin@wayroute.gov.co', pass: 'Admin2025*', hint: '📧 admin@wayroute.gov.co<br>🔒 Admin2025*' }
+      pasajero: { email: 'lauraruiz@gmail.com', pass: 'Pasajero1*', hint: 'Correo: lauraruiz@gmail.com<br>Clave: Pasajero1*' },
+      conductor: { email: 'jcaicedo@laermita.com.co', pass: 'Conductor1*', hint: 'Correo: jcaicedo@laermita.com.co<br>Clave: Conductor1*' },
+      administrador: { email: 'admin@wayroute.gov.co', pass: 'Admin2025*', hint: 'Correo: admin@wayroute.gov.co<br>Clave: Admin2025*' }
     };
 
     // Verificar si ya hay sesión
@@ -224,8 +225,11 @@
         }
 
         // Verificar que el rol coincida con el seleccionado
-        if (resultado.usuario.rol !== currentRole) {
-          showError(`Este correo pertenece al rol "${resultado.usuario.rol}". Selecciona el rol correcto.`);
+        const rolUsuario = resultado.usuario.rol;
+        const rolesEquivalentes = { 'admin': 'administrador', 'administrador': 'admin' };
+        const rolCoincide = rolUsuario === currentRole || rolesEquivalentes[rolUsuario] === currentRole;
+        if (!rolCoincide) {
+          showError(`Este correo pertenece al rol "${rolUsuario}". Selecciona el rol correcto.`);
           return;
         }
 
@@ -252,7 +256,7 @@
 
     // ── OLVIDÓ CONTRASEÑA ──
     function showForgot() {
-      alert('📬 En la versión de producción, recibirías un correo para restablecer tu contraseña.\n\nPor ahora usa las credenciales de demostración.');
+      alert('En la versión de producción, recibirías un correo para restablecer tu contraseña.\n\nPor ahora usa las credenciales de demostración.');
     }
 
     // ── HELPERS ──
@@ -268,6 +272,11 @@
       document.getElementById('alertMsg').textContent = msg;
       el.classList.add('show');
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   </script>
 
 </body>

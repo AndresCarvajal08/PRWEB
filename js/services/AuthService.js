@@ -317,10 +317,13 @@ function requireAuth(rolRequerido) {
     window.location.href = '../login.html';
     return null;
   }
-  if (rolRequerido && sesion.rol !== rolRequerido) {
-    alert('No tienes permisos para acceder a esta sección.');
-    window.location.href = '../login.html';
-    return null;
+  if (rolRequerido) {
+    const rolesPermitidos = Array.isArray(rolRequerido) ? rolRequerido : [rolRequerido];
+    if (!rolesPermitidos.includes(sesion.rol)) {
+      alert('No tienes permisos para acceder a esta sección.');
+      window.location.href = '../login.html';
+      return null;
+    }
   }
   return sesion;
 }
@@ -331,6 +334,7 @@ function requireAuth(rolRequerido) {
  */
 function redirigirPorRol(rol) {
   const rutas = {
+    admin: 'pages/panelAdministrador.html',
     administrador: 'pages/panelAdministrador.html',
     conductor: 'pages/panelConductor.html',
     pasajero: 'pages/panelPasajero.html'

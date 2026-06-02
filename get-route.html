@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>WayRoute — Generador de Rutas OSRM</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; padding: 32px; }
+    h1 { font-size: 1.4rem; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+    p  { font-size: .875rem; color: #64748b; margin-bottom: 24px; }
+
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .card h2 { font-size: 1rem; font-weight: 600; color: #334155; margin-bottom: 16px; }
+
+    label  { display: block; font-size: .8rem; font-weight: 600; color: #475569; margin-bottom: 4px; }
+    input  { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: .875rem; margin-bottom: 12px; }
+    button { padding: 12px 28px; background: #6d28d9; color: #fff; border: none; border-radius: 8px; font-size: .9rem; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    button:hover { background: #5b21b6; }
+    button:disabled { background: #a78bfa; cursor: not-allowed; }
+
+    .waypoints { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .wp-row { display: flex; gap: 8px; align-items: center; }
+    .wp-row input { margin-bottom: 0; flex: 1; }
+    .wp-row .wp-label { font-size: .75rem; font-weight: 700; color: #6d28d9; min-width: 24px; }
+    .btn-add { padding: 8px 16px; background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; border-radius: 8px; font-size: .8rem; font-weight: 600; cursor: pointer; margin-top: 0; }
+    .btn-add:hover { background: #ddd6fe; }
+
+    #status { font-size: .85rem; color: #6d28d9; font-weight: 600; margin-top: 12px; min-height: 20px; }
+    #status.error { color: #dc2626; }
+
+    #resultado {
+      background: #0f172a; color: #a5f3fc; padding: 20px;
+      border-radius: 10px; font-family: 'Courier New', monospace;
+      font-size: .78rem; line-height: 1.6; white-space: pre-wrap;
+      word-break: break-all; max-height: 420px; overflow-y: auto;
+      display: none;
+    }
+
+    .resumen {
+      display: none;
+      background: #f0fdf4; border: 1px solid #86efac;
+      border-radius: 8px; padding: 14px 18px;
+      font-size: .85rem; color: #166534; margin-bottom: 12px;
+    }
+    .resumen strong { font-size: 1rem; }
+
+    .btn-copy {
+      padding: 8px 20px; background: #0ea5e9; color: #fff;
+      border: none; border-radius: 8px; font-size: .8rem; font-weight: 600;
+      cursor: pointer; margin-right: 8px; margin-top: 10px;
+    }
+    .btn-copy:hover { background: #0284c7; }
+  </style>
+</head>
+<body>
+
+  <h1>Generador de Rutas OSRM — WayRoute</h1>
+  <p>Ingresa los puntos de la ruta (inicio, paradas intermedias, fin). El sistema calculará el recorrido real por calles y generará el código listo para pegar en <strong>MapaService.js</strong>.</p>
+
+  <div class="card">
+    <h2>Puntos de la ruta</h2>
+
+    <div class="waypoints" id="waypoints">
+      <div class="wp-row">
+        <span class="wp-label">1</span>
+        <input type="text" placeholder="lat, lng — Ej: 3.3763, -76.5357" value="3.3763, -76.5357">
+      </div>
+      <div class="wp-row">
+        <span class="wp-label">2</span>
+        <input type="text" placeholder="lat, lng — Ej: 3.3600, -76.5400" value="">
+      </div>
+      <div class="wp-row">
+        <span class="wp-label">3</span>
+        <input type="text" placeholder="lat, lng — Destino final" value="3.3510, -76.5458">
+      </div>
+    </div>
+
+    <button class="btn-add" onclick="agregarPunto()">+ Agregar punto intermedio</button>
+
+    <br><br>
+
+    <label>Nombre de la ruta (para el código generado)</label>
+    <input type="text" id="nombreRuta" placeholder="Ej: RUTA5" value="RUTA5">
+
+    <label>Nombre para mostrar en el mapa</label>
+    <input type="text" id="labelRuta" placeholder="Ej: Univalle → El Ingenio" value="Univalle → El Ingenio">
+
+    <button onclick="generarRuta()" id="btnGenerar">Calcular ruta por calles reales</button>
+    <div id="status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Resultado — código listo para MapaService.js</h2>
+    <div class="resumen" id="resumen"></div>
+    <button class="btn-copy" id="btnCopy" onclick="copiar()" style="display:none;">Copiar código</button>
+    <button class="btn-copy" id="btnCopyParadas" onclick="copiarParadas()" style="display:none;background:#059669;">Copiar solo paradas</button>
+    <br>
+    <pre id="resultado"></pre>
+  </div>
+
+  <script>
+    let codigoGenerado = '';
+    let paradasGeneradas = '';
+
+    function agregarPunto() {
+      const cont = document.getElementById('waypoints');
+      const num = cont.children.length + 1;
+      const row = document.createElement('div');
+      row.className = 'wp-row';
+      row.innerHTML = `
+        <span class="wp-label">${num}</span>
+        <input type="text" placeholder="lat, lng">
+        <button class="btn-add" onclick="this.parentElement.remove();renumerarPuntos()" style="padding:8px 10px;min-width:36px;">✕</button>`;
+      cont.appendChild(row);
+    }
+
+    function renumerarPuntos() {
+      document.querySelectorAll('#waypoints .wp-label').forEach((el, i) => el.textContent = i + 1);
+    }
+
+    function parseCoord(str) {
+      const p = str.replace(/\s/g, '').split(',');
+      if (p.length !== 2) return null;
+      const lat = parseFloat(p[0]), lng = parseFloat(p[1]);
+      if (isNaN(lat) || isNaN(lng)) return null;
+      return { lat, lng };
+    }
+
+    async function generarRuta() {
+      const btn = document.getElementById('btnGenerar');
+      const status = document.getElementById('status');
+      status.className = '';
+      status.textContent = 'Consultando OSRM...';
+      btn.disabled = true;
+
+      const inputs = document.querySelectorAll('#waypoints input');
+      const coords = [];
+      for (const inp of inputs) {
+        const c = parseCoord(inp.value);
+        if (c) coords.push(c);
+      }
+
+      if (coords.length < 2) {
+        status.className = 'error';
+        status.textContent = 'Necesitas al menos 2 puntos válidos (lat, lng).';
+        btn.disabled = false;
+        return;
+      }
+
+      // OSRM usa formato lon,lat
+      const waypoints = coords.map(c => `${c.lng},${c.lat}`).join(';');
+      const url = `https://router.project-osrm.org/route/v1/driving/${waypoints}?overview=full&geometries=geojson&steps=false`;
+
+      try {
+        const resp = await fetch(url);
+        const json = await resp.json();
+
+        if (json.code !== 'Ok' || !json.routes?.length) {
+          throw new Error(json.message || 'OSRM no encontró la ruta');
+        }
+
+        const route   = json.routes[0];
+        const puntos  = route.geometry.coordinates; // [lng, lat]
+        const distKm  = (route.distance / 1000).toFixed(1);
+        const durMin  = Math.round(route.duration / 60);
+        const nombre  = document.getElementById('nombreRuta').value.trim() || 'RUTA5';
+        const label   = document.getElementById('labelRuta').value.trim() || 'Ruta nueva';
+
+        // Convertir [lng, lat] → [lat, lng] para Leaflet
+        const puntosLeaflet = puntos.map(([lng, lat]) => [
+          parseFloat(lat.toFixed(6)),
+          parseFloat(lng.toFixed(6))
+        ]);
+
+        // Generar paradas automáticas en los waypoints originales
+        const paradas = coords.map((c, i) => {
+          const nombres = [
+            document.getElementById('labelRuta').value.split('→')[0]?.trim() || 'Terminal Inicio',
+            ...Array(coords.length - 2).fill('').map((_, j) => `Parada intermedia ${j + 1}`),
+            document.getElementById('labelRuta').value.split('→')[1]?.trim() || 'Terminal Final',
+          ];
+          return `    { latlng: [${c.lat}, ${c.lng}], nombre: '${nombres[i] || 'Parada ' + (i+1)}' }`;
+        });
+
+        // Generar código
+        const puntosStr = puntosLeaflet.map(p => `[${p[0]},${p[1]}]`).join(',');
+
+        codigoGenerado = `  /* ================================================================
+     ${nombre} — ${label}
+     Distancia: ${distKm} km · Duración estimada: ${durMin} min
+     ${puntosLeaflet.length} puntos de ruta real (OSRM)
+  ================================================================ */
+  const ${nombre}_PUNTOS = [${puntosStr}];
+
+  const ${nombre}_PARADAS = [
+${paradas.join(',\n')}
+  ];`;
+
+        paradasGeneradas = `  const ${nombre}_PARADAS = [\n${paradas.join(',\n')}\n  ];`;
+
+        document.getElementById('resultado').textContent = codigoGenerado;
+        document.getElementById('resultado').style.display = 'block';
+        document.getElementById('btnCopy').style.display = 'inline-block';
+        document.getElementById('btnCopyParadas').style.display = 'inline-block';
+        document.getElementById('resumen').style.display = 'block';
+        document.getElementById('resumen').innerHTML =
+          `<strong>${puntosLeaflet.length} puntos</strong> de ruta real · ${distKm} km · ~${durMin} min de recorrido completo`;
+
+        status.textContent = '✓ Ruta generada correctamente. Copia el código y pégalo en MapaService.js.';
+      } catch(e) {
+        status.className = 'error';
+        status.textContent = 'Error: ' + e.message + '. Verifica las coordenadas o tu conexión a internet.';
+      }
+
+      btn.disabled = false;
+    }
+
+    function copiar() {
+      navigator.clipboard.writeText(codigoGenerado).then(() => {
+        document.getElementById('btnCopy').textContent = '¡Copiado!';
+        setTimeout(() => document.getElementById('btnCopy').textContent = 'Copiar código', 2000);
+      });
+    }
+
+    function copiarParadas() {
+      navigator.clipboard.writeText(paradasGeneradas).then(() => {
+        document.getElementById('btnCopyParadas').textContent = '¡Copiado!';
+        setTimeout(() => document.getElementById('btnCopyParadas').textContent = 'Copiar solo paradas', 2000);
+      });
+    }
+  </script>
+</body>
+</html>
