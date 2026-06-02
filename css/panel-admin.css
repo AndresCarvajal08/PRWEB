@@ -873,3 +873,69 @@ tr:hover td { background: var(--gray-50); }
     .logout-btn span { display: none; }
     .logout-btn { padding: 7px 10px; }
 }
+
+/* ===== RESPONSIVE 480px — smartphones ===== */
+@media (max-width: 480px) {
+    .topnav { padding: 0 10px; gap: 8px; }
+    .nav-brand-text { font-size: .95rem; }
+    .nav-role-badge { display: none; }
+    .user-name-nav { display: none; }
+    .nav-search { display: none; }
+    .logout-btn span { display: none; }
+    .logout-btn { padding: 6px 8px; }
+
+    .content-area { padding: 12px 10px 80px; }
+
+    .grid-2, .grid-3 { grid-template-columns: 1fr !important; }
+    .grid-4 { grid-template-columns: 1fr 1fr !important; }
+    .form-row { grid-template-columns: 1fr !important; }
+
+    .page-header h1 { font-size: 1.1rem; }
+    .page-header p { font-size: .78rem; }
+    .page-header-row { flex-direction: column; gap: 8px; align-items: flex-start; }
+
+    .admin-header { padding: 14px; }
+    .admin-kpi { flex-wrap: wrap; gap: 8px; }
+    .admin-kpi .kpi-divider { display: none; }
+    .admin-kpi .kpi { min-width: calc(50% - 4px); }
+    .admin-kpi .kpi-value { font-size: 1.4rem; }
+
+    .stat-card { padding: 12px; }
+    .stat-card .value { font-size: 1.4rem; }
+
+    .card { padding: 14px 12px; }
+    .card-title { font-size: .875rem; }
+
+    .tabs { overflow-x: auto; white-space: nowrap; width: 100%; }
+    .tab-btn { padding: 6px 10px; font-size: .75rem; }
+
+    .table-wrap { margin: 0 -10px; border-radius: 0; }
+    td, th { padding: 8px 10px; font-size: .78rem; }
+
+    .modal-box { margin: 8px; }
+    .modal-grid { grid-template-columns: 1fr !important; }
+    .modal-body { padding: 16px; }
+    .modal-header { padding: 16px; }
+    .modal-footer { padding: 12px 16px; }
+    .modal-footer .btn { padding: 9px 14px; font-size: .82rem; }
+
+    .btn { padding: 8px 14px; font-size: .82rem; }
+    .btn-sm { padding: 5px 10px; font-size: .75rem; }
+
+    .form-control { font-size: .875rem; padding: 9px 12px; }
+}
+
+/* ===== RESPONSIVE 360px — smartphones pequeños ===== */
+@media (max-width: 360px) {
+    .grid-4 { grid-template-columns: 1fr !important; }
+    .content-area { padding: 10px 8px 76px; }
+    .card { padding: 12px 10px; }
+    .nav-logo { width: 30px; height: 30px; }
+    .nav-brand-text { font-size: .85rem; }
+    .nav-avatar { width: 32px; height: 32px; font-size: 12px; }
+    .page-header h1 { font-size: 1rem; }
+    .admin-kpi .kpi-value { font-size: 1.2rem; }
+    .stat-card .value { font-size: 1.3rem; }
+    td, th { padding: 6px 8px; font-size: .72rem; }
+    .bn-label { font-size: .56rem; }
+}

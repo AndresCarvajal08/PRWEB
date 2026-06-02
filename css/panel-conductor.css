@@ -770,3 +770,52 @@ tr:hover td { background: var(--gray-50); }
     .logout-btn span { display: none; }
     .logout-btn { padding: 7px 10px; }
 }
+
+/* ===== RESPONSIVE 480px — smartphones ===== */
+@media (max-width: 480px) {
+    .topnav { padding: 0 10px; gap: 8px; }
+    .nav-brand-text { font-size: .95rem; }
+    .nav-role-badge { display: none; }
+    .user-name-nav { display: none; }
+    .logout-btn span { display: none; }
+    .logout-btn { padding: 6px 8px; }
+
+    .content-area { padding: 12px 10px 80px; }
+
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
+    .form-row { grid-template-columns: 1fr !important; }
+
+    .page-header h1 { font-size: 1.1rem; }
+    .page-header p { font-size: .78rem; }
+
+    .card { padding: 14px 12px; }
+    .card-title { font-size: .875rem; }
+
+    .status-kpi { flex-wrap: wrap; gap: 8px; }
+    .kpi-divider { display: none; }
+    .kpi { min-width: calc(50% - 4px); }
+    .kpi-value { font-size: 1.4rem; }
+
+    .stat-card { padding: 12px; }
+    .stat-card .value { font-size: 1.4rem; }
+
+    .tabs { overflow-x: auto; white-space: nowrap; }
+    .tab-btn { padding: 6px 10px; font-size: .75rem; }
+
+    .table-wrap { margin: 0 -10px; border-radius: 0; }
+    td, th { padding: 8px 10px; font-size: .78rem; }
+
+    .btn { padding: 8px 14px; font-size: .82rem; }
+    .form-control { font-size: .875rem; }
+}
+
+/* ===== RESPONSIVE 360px ===== */
+@media (max-width: 360px) {
+    .content-area { padding: 10px 8px 76px; }
+    .card { padding: 12px 10px; }
+    .nav-brand-text { font-size: .85rem; }
+    .page-header h1 { font-size: 1rem; }
+    .kpi-value { font-size: 1.2rem; }
+    td, th { padding: 6px 8px; font-size: .72rem; }
+    .bn-label { font-size: .56rem; }
+}

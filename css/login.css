@@ -531,11 +531,22 @@ body {
 }
 
 @media (max-width: 480px) {
-  .panel-form { padding: 40px 20px; }
-  .form-title { font-size: 1.75rem; }
+  .panel-form { padding: 32px 18px; }
+  .form-title { font-size: 1.6rem; }
+  .form-sub { font-size: .875rem; }
   .role-selector { gap: 6px; }
   .role-btn { padding: 10px 4px; }
   .role-label { font-size: .68rem; }
-  .btn-login { font-size: 1rem; padding: 16px; }
+  .btn-login { font-size: 1rem; padding: 15px; }
   .form-options { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .input-wrap input { padding: 14px 14px 14px 42px; font-size: .95rem; }
+}
+
+@media (max-width: 360px) {
+  .panel-form { padding: 24px 14px; }
+  .form-title { font-size: 1.4rem; }
+  .role-icon i { width: 18px !important; height: 18px !important; }
+  .role-label { font-size: .62rem; }
+  .btn-login { font-size: .9rem; padding: 14px; }
+  .field { margin-bottom: 12px; }
 }

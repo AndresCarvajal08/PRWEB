@@ -308,4 +308,17 @@ body {
   .step-line { width: 24px; }
   .form-card { padding: 20px 14px; }
   .btn-next { padding: 11px 18px; font-size: .85rem; }
+  .lic-grid { grid-template-columns: 1fr !important; }
+  .section-title { font-size: 1.4rem; }
+  .iw input, .iw select { font-size: .85rem; padding: 9px 12px 9px 32px; }
+}
+
+@media (max-width: 360px) {
+  .container { padding: 16px 12px; }
+  .topbar { margin-bottom: 20px; }
+  .brand-name { font-size: 1.1rem; }
+  .form-card { padding: 16px 12px; }
+  .sec-title { font-size: .875rem; }
+  .btn-next, .btn-back { padding: 10px 14px; font-size: .82rem; }
+  .step-circle { width: 32px; height: 32px; font-size: .78rem; }
 }

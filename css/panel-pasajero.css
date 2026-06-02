@@ -416,7 +416,7 @@ tr:hover td { background: var(--primary-light); }
 .tooltip-wrap:hover .tooltip-text { opacity: 1; }
 
 /* ===== NOTIFICATION PANEL ===== */
-.notif-panel { position: fixed; top: var(--nav-h); right: 16px; width: 340px; max-height: 480px; overflow-y: auto; background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); box-shadow: var(--shadow-lg); z-index: 300; display: none; }
+.notif-panel { position: fixed; top: var(--nav-h); right: 16px; width: min(340px, calc(100vw - 24px)); max-height: 480px; overflow-y: auto; background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); box-shadow: var(--shadow-lg); z-index: 300; display: none; }
 .notif-panel.open { display: block; animation: slideDown .2s ease; }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 .notif-header { padding: 14px 18px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
@@ -565,3 +565,64 @@ tr:hover td { background: var(--primary-light); }
     animation: spin .7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== RESPONSIVE 480px — smartphones medios ===== */
+@media (max-width: 480px) {
+    .topnav { padding: 0 10px; gap: 8px; }
+    .nav-brand-text { font-size: .95rem; }
+    .nav-role-badge { display: none; }
+    .user-name-nav { display: none; }
+    .nav-search { display: none; }
+    .logout-btn span { display: none; }
+    .logout-btn { padding: 6px 8px; }
+
+    .content-area { padding: 12px 10px 80px; }
+
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
+    .grid-auto { grid-template-columns: 1fr !important; }
+    .form-row { grid-template-columns: 1fr !important; }
+
+    .page-header h1 { font-size: 1.1rem; }
+    .page-header p { font-size: .78rem; }
+    .page-header-row { flex-direction: column; gap: 8px; align-items: flex-start; }
+
+    .card { padding: 14px 12px; }
+    .card-title { font-size: .875rem; }
+
+    .admin-kpi, .status-kpi { flex-wrap: wrap; gap: 8px; }
+    .admin-kpi .kpi-divider, .status-kpi .kpi-divider { display: none; }
+    .admin-kpi .kpi, .status-kpi .kpi { min-width: calc(50% - 4px); }
+    .kpi-value { font-size: 1.4rem; }
+
+    .stat-card { padding: 12px; }
+    .stat-card .value { font-size: 1.5rem; }
+
+    .tabs { overflow-x: auto; white-space: nowrap; width: 100%; }
+    .tab-btn { padding: 6px 10px; font-size: .75rem; }
+
+    .profile-header { flex-direction: column; align-items: center; text-align: center; padding: 16px; }
+    .profile-stats { justify-content: center; flex-wrap: wrap; gap: 12px; }
+
+    .table-wrap { margin: 0 -10px; border-radius: 0; }
+    td, th { padding: 8px 10px; font-size: .78rem; }
+
+    .route-card { padding: 12px; }
+    .route-meta { flex-wrap: wrap; gap: 4px; font-size: .75rem; }
+
+    .btn { padding: 8px 14px; font-size: .82rem; }
+    .btn-primary { font-size: .82rem; }
+}
+
+/* ===== RESPONSIVE 360px — smartphones pequeños (iPhone SE, Galaxy A) ===== */
+@media (max-width: 360px) {
+    .content-area { padding: 10px 8px 76px; }
+    .card { padding: 12px 10px; }
+    .nav-logo { width: 30px; height: 30px; }
+    .nav-brand-text { font-size: .85rem; }
+    .nav-avatar { width: 32px; height: 32px; font-size: 12px; }
+    .page-header h1 { font-size: 1rem; }
+    .kpi-value { font-size: 1.2rem; }
+    .stat-card .value { font-size: 1.3rem; }
+    .bottom-nav-item .bn-label { font-size: .56rem; }
+    td, th { padding: 6px 8px; font-size: .72rem; }
+}
