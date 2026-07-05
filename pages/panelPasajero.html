@@ -3119,15 +3119,7 @@
                         </div>
                     </div>
                 </div>
-                <div>
-                    <label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Duración del viaje <span style="font-weight:400;color:#9ca3af;">(minutos, opcional)</span></label>
-                    <div style="position:relative;">
-                        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9ca3af;display:flex;"><i data-lucide="clock" style="width:14px;height:14px;"></i></span>
-                        <input id="viajeDuracion" type="number" min="1" max="180" placeholder="Ej: 25"
-                            style="width:100%;padding:9px 10px 9px 30px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.87rem;box-sizing:border-box;"
-                            onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='#e5e7eb'">
-                    </div>
-                </div>
+                <input type="hidden" id="viajeDuracion" value="">
                 <div id="errViaje" style="display:none;font-size:.82rem;color:#ef4444;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 12px;"></div>
                 <div style="display:flex;gap:10px;margin-top:2px;">
                     <button type="button" onclick="cerrarModalViaje()"
