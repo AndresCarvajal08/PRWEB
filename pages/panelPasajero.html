@@ -1083,16 +1083,11 @@
                         <p>Análisis de tus patrones de movilidad en Cali</p>
                     </div>
 
-                    <div class="grid-4 mb-4">
+                    <div class="grid-4 mb-4" style="grid-template-columns:repeat(3,1fr);">
                         <div class="stat-card">
                             <div class="icon" style="background:#e6f7f1;display:flex;align-items:center;justify-content:center;"><i data-lucide="bus" style="width:24px;height:24px;color:var(--green);"></i></div>
                             <div class="value" id="histViajesMes">—</div>
                             <div class="label">Viajes este mes</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="icon" style="background:#eff6ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="clock" style="width:24px;height:24px;color:var(--primary);"></i></div>
-                            <div class="value" id="histTiempo">—</div>
-                            <div class="label">Tiempo en transporte</div>
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i data-lucide="banknote" style="width:24px;height:24px;color:var(--amber);"></i></div>
@@ -2894,7 +2889,7 @@
             const ins = document.getElementById('histInsightIA');
             if (ins && viajes.length > 0) {
                 const rutaTxt = rutaFav ? `Tu ruta más usada es <strong>${rutaFav[0]}</strong>.` : '';
-                const gastoTxt = gastoMes > 0 ? `Este mes llevas <strong>$${gastoMes.toLocaleString('es-CO)}</strong> en pasajes.` : '';
+                const gastoTxt = gastoMes > 0 ? `Este mes llevas <strong>$${gastoMes.toLocaleString('es-CO')}</strong> en pasajes.` : '';
                 const horaFrecuente = Object.entries(
                     viajes.reduce((acc, v) => {
                         const h = new Date(v.fecha).getHours();
