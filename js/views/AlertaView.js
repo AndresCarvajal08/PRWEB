@@ -11,9 +11,6 @@
  */
 
 const AlertaView = {
-    _map: null,
-    _markerGroup: null,
-    _geocodeCache: {},
     _ultimasAlertas: [],
 
     /* ----------------------------------------------------------------
@@ -25,9 +22,17 @@ const AlertaView = {
 
         if (alertas.length === 0) {
             container.innerHTML = `
-                <div class="text-sm text-gray text-center p-4">
-                    No hay alertas de movilidad activas hoy.
+                <div style="text-align:center;padding:28px 16px;color:#6b7280;">
+                    <div style="margin-bottom:12px;">
+                        <i data-lucide="map-pin" style="width:38px;height:38px;opacity:.35;display:inline-block;"></i>
+                    </div>
+                    <div style="font-size:.95rem;font-weight:600;color:#374151;margin-bottom:6px;">Sin alertas activas en este momento</div>
+                    <div style="font-size:.82rem;line-height:1.55;">
+                        El mapa muestra la cobertura de WayRoute en Cali.<br>
+                        Cuando los conductores reporten incidentes, aparecerán aquí en tiempo real.
+                    </div>
                 </div>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         } else {
             container.innerHTML = alertas.map(al => this._cardTemplate(al)).join('');
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -37,174 +42,8 @@ const AlertaView = {
         this.actualizarMapa(alertas);
     },
 
-    /* ----------------------------------------------------------------
-       MAPA — inicializa Leaflet y actualiza pines
-    ---------------------------------------------------------------- */
-    actualizarMapa(alertas) {
-        this._ultimasAlertas = alertas || [];
-        const c = document.getElementById('alertsMap');
-        if (!c) return;
-
-        if (!this._map) {
-            this._map = L.map('alertsMap', { center: [3.43722, -76.5225], zoom: 13 });
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap | WayRoute'
-            }).addTo(this._map);
-            this._markerGroup = L.layerGroup().addTo(this._map);
-        }
-
-        this._markerGroup.clearLayers();
-        this._pintarPines(alertas);
-    },
-
-    /* ----------------------------------------------------------------
-       PINTAR PINES — geocodifica y agrega marcadores
-    ---------------------------------------------------------------- */
-    async _pintarPines(alertas) {
-        for (const al of alertas) {
-            let lat = al.lat;
-            let lng = al.lng;
-
-            // Si no tiene coordenadas, geocodificar la dirección
-            if (!lat || !lng) {
-                const coords = await this._geocodificar(al.ubicacion);
-                lat = coords.lat;
-                lng = coords.lng;
-            }
-
-            if (!lat || !lng) continue;
-
-            const color = al.severidad === 'alta' ? '#ef4444'
-                : al.severidad === 'baja' ? '#10b981'
-                    : '#f59e0b';
-
-            const icono = L.divIcon({
-                className: '',
-                html: `<div style="
-                    background:${color};
-                    border:2px solid #fff;
-                    border-radius:50%;
-                    width:36px;height:36px;
-                    display:flex;align-items:center;justify-content:center;
-                    font-size:18px;
-                    box-shadow:0 2px 8px rgba(0,0,0,0.3);
-                ">${this._emojiTipo(al.tipo)}</div>`,
-                iconSize: [36, 36],
-                iconAnchor: [18, 18],
-            });
-
-            const hora = al.fecha
-                ? new Date(al.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : '';
-
-            L.marker([lat, lng], { icon: icono })
-                .addTo(this._markerGroup)
-                .bindPopup(`
-                    <div style="font-family:sans-serif;min-width:180px;">
-                        <strong style="color:#0d2136;">${al.titulo}</strong><br>
-                        <small style="color:#6b7280;">${al.ubicacion || ''}</small>
-                        <p style="margin:6px 0 0;font-size:12px;line-height:1.4;">${al.descripcion}</p>
-                        ${hora ? `<div style="margin-top:6px;font-size:11px;color:#9ca3af;">🕐 ${hora}</div>` : ''}
-                    </div>
-                `);
-        }
-
-        // Ajustar vista al grupo de marcadores si hay pines
-        if (this._markerGroup.getLayers().length > 0) {
-            try {
-                const group = L.featureGroup(this._markerGroup.getLayers());
-                this._map.fitBounds(group.getBounds().pad(0.2));
-            } catch (e) {
-                // Si falla, mantener vista actual
-            }
-        }
-    },
-
-    /* ----------------------------------------------------------------
-       GEOCODIFICADOR REAL — Nominatim (OpenStreetMap)
-       Funciona con cualquier dirección, no solo las hardcodeadas.
-       Agrega ", Cali, Colombia" automáticamente para mayor precisión.
-    ---------------------------------------------------------------- */
-    async _geocodificar(direccion) {
-        if (!direccion) return this._fallbackCali();
-
-        // Revisar caché primero
-        const key = direccion.toLowerCase().trim();
-        if (this._geocodeCache[key]) return this._geocodeCache[key];
-
-        // Construir query: agrega Cali Colombia si no está en la dirección
-        const query = key.includes('cali') ? direccion : `${direccion}, Cali, Colombia`;
-
-        try {
-            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=co`;
-
-            const resp = await fetch(url, {
-                headers: {
-                    // Nominatim requiere User-Agent
-                    'Accept-Language': 'es',
-                }
-            });
-
-            if (!resp.ok) throw new Error('Nominatim error');
-
-            const data = await resp.json();
-
-            if (data && data.length > 0) {
-                const result = {
-                    lat: parseFloat(data[0].lat),
-                    lng: parseFloat(data[0].lon),
-                };
-                // Guardar en caché
-                this._geocodeCache[key] = result;
-                return result;
-            }
-        } catch (e) {
-            console.warn('AlertaView: Nominatim falló para:', direccion, e.message);
-        }
-
-        // Fallback: geocodificador simulado para frases comunes de Cali
-        const fallback = this._geocodificarSimulado(direccion);
-        this._geocodeCache[key] = fallback;
-        return fallback;
-    },
-
-    /* ----------------------------------------------------------------
-       GEOCODIFICADOR SIMULADO — solo como fallback si Nominatim falla
-    ---------------------------------------------------------------- */
-    _geocodificarSimulado(dir) {
-        if (!dir) return this._fallbackCali();
-        const d = dir.toLowerCase();
-
-        if (d.includes('centenario')) return { lat: 3.4516, lng: -76.5319 };
-        if (d.includes('calle 5') || d.includes('cll 5')) return { lat: 3.4427, lng: -76.5409 };
-        if (d.includes('av. 6') || d.includes('avenida 6')) return { lat: 3.4675, lng: -76.5235 };
-        if (d.includes('chipichape')) return { lat: 3.4770, lng: -76.5178 };
-        if (d.includes('aguablanca') || d.includes('oriente')) return { lat: 3.4219, lng: -76.4899 };
-        if (d.includes('unicentro') || d.includes('pasoancho')) return { lat: 3.3797, lng: -76.5317 };
-        if (d.includes('nariño') || d.includes('antonio nariño')) return { lat: 3.3595, lng: -76.5170 };
-        if (d.includes('roosevelt')) return { lat: 3.4350, lng: -76.5417 };
-        if (d.includes('terminal')) return { lat: 3.4715, lng: -76.5015 };
-        if (d.includes('pance')) return { lat: 3.3510, lng: -76.5340 };
-        if (d.includes('san fernando')) return { lat: 3.4312, lng: -76.5435 };
-        if (d.includes('centro') || d.includes('caicedo')) return { lat: 3.4518, lng: -76.5325 };
-        if (d.includes('granada')) return { lat: 3.4620, lng: -76.5270 };
-        if (d.includes('menga')) return { lat: 3.4850, lng: -76.5150 };
-        if (d.includes('siloé') || d.includes('siloe')) return { lat: 3.4380, lng: -76.5530 };
-        if (d.includes('ciudad jardín') || d.includes('jardin')) return { lat: 3.3900, lng: -76.5450 };
-        if (d.includes('santa monica') || d.includes('santa mónica')) return { lat: 3.5010, lng: -76.5060 };
-        if (d.includes('pryca')) return { lat: 3.3798, lng: -76.5317 };
-
-        // Fallback con dispersión aleatoria para no solapar pines
-        return this._fallbackCali();
-    },
-
-    _fallbackCali() {
-        return {
-            lat: 3.43722 + (Math.random() - 0.5) * 0.02,
-            lng: -76.5225 + (Math.random() - 0.5) * 0.02,
-        };
-    },
+    /* El mapa de alertas ahora es un iframe de Google Maps — sin Leaflet */
+    actualizarMapa(alertas) { this._ultimasAlertas = alertas || []; },
 
     /* ----------------------------------------------------------------
        FEED DE INICIO
@@ -314,14 +153,7 @@ const AlertaView = {
         return iconos[tipo] || 'alert-triangle';
     },
 
-    /* ----------------------------------------------------------------
-       REFRESH MAPA — forza invalidateSize cuando la vista se muestra
-    ---------------------------------------------------------------- */
-    refreshMapa() {
-        setTimeout(() => {
-            if (this._map) this._map.invalidateSize({ animate: false });
-        }, 250);
-    },
+    refreshMapa() { /* mapa es iframe de Google Maps — sin acción requerida */ },
 
     /* ----------------------------------------------------------------
        TABS FILTRADAS — rellena tab-congestion, tab-bloqueo, tab-seguridad

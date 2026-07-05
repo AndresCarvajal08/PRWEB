@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/registro.css">
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
   <div class="bg-mesh"></div>
@@ -18,7 +17,7 @@
     <!-- Top bar -->
     <div class="topbar">
       <a href="../login.html" class="brand">
-        <div class="brand-logo"><i data-lucide="bus"></i></div>
+        <div class="brand-logo"><i data-lucide="bus" style="width:20px;height:20px;color:#fff;"></i></div>
         <span class="brand-name">Way<em>Route</em></span>
       </a>
       <a href="../login.html" class="back-link">← Volver al login</a>
@@ -26,7 +25,7 @@
 
     <!-- Header -->
     <div class="section-header">
-      <div class="section-eyebrow"><i data-lucide="user"></i> Registro de Pasajero</div>
+      <div class="section-eyebrow" style="display:flex;align-items:center;gap:6px;"><i data-lucide="user" style="width:16px;height:16px;"></i> Registro de Pasajero</div>
       <h1 class="section-title">Crea tu cuenta gratuita</h1>
       <p class="section-desc">Accede a rutas, paradas cercanas e información del transporte público de Cali.</p>
     </div>
@@ -55,12 +54,12 @@
       <!-- ── PASO 1: DATOS PERSONALES ── -->
       <div class="step-section active" id="sec1">
         <div class="sec-title">
-          <div class="sec-icon"><i data-lucide="user"></i></div>
+          <div class="sec-icon"><i data-lucide="user" style="width:18px;height:18px;"></i></div>
           Información personal
         </div>
 
         <div class="law-box blue">
-          <span><i data-lucide="clipboard-list"></i></span>
+          <span>📋</span>
           <span><strong>Ley 1581 de 2012 — Protección de Datos Personales:</strong> Tus datos serán usados únicamente para la gestión de tu cuenta en WayRoute y no serán compartidos con terceros sin tu consentimiento.</span>
         </div>
 
@@ -68,7 +67,7 @@
           <div class="field" id="f-nombres">
             <label for="nombres">Nombres <span class="req">*</span></label>
             <div class="iw">
-              <span class="xi"><i data-lucide="user"></i></span>
+              <span class="xi"><i data-lucide="user" style="width:15px;height:15px;"></i></span>
               <input type="text" id="nombres" placeholder="Ej: Laura Valentina" autocomplete="given-name">
             </div>
             <div class="err">Ingresa tus nombres.</div>
@@ -76,7 +75,7 @@
           <div class="field" id="f-apellidos">
             <label for="apellidos">Apellidos <span class="req">*</span></label>
             <div class="iw">
-              <span class="xi"><i data-lucide="user"></i></span>
+              <span class="xi"><i data-lucide="user" style="width:15px;height:15px;"></i></span>
               <input type="text" id="apellidos" placeholder="Ej: Ruiz García" autocomplete="family-name">
             </div>
             <div class="err">Ingresa tus apellidos.</div>
@@ -87,7 +86,7 @@
           <div class="field" id="f-cedula">
             <label for="cedula">Cédula de ciudadanía <span class="req">*</span></label>
             <div class="iw">
-              <span class="xi"><i data-lucide="credit-card"></i></span>
+              <span class="xi"><i data-lucide="credit-card" style="width:15px;height:15px;"></i></span>
               <input type="text" id="cedula" placeholder="Ej: 1.130.682.441" inputmode="numeric">
             </div>
             <div class="err">Ingresa tu número de cédula.</div>
@@ -95,7 +94,7 @@
           <div class="field" id="f-celular">
             <label for="celular">Celular <span class="req">*</span></label>
             <div class="iw">
-              <span class="xi"><i data-lucide="smartphone"></i></span>
+              <span class="xi"><i data-lucide="smartphone" style="width:15px;height:15px;"></i></span>
               <input type="tel" id="celular" placeholder="+57 312 000 0000" autocomplete="tel">
             </div>
             <div class="err">Ingresa tu número de celular.</div>
@@ -106,7 +105,7 @@
           <div class="field" id="f-fecha-nac">
             <label for="fechaNac">Fecha de nacimiento <span class="req">*</span></label>
             <div class="iw">
-              <span class="xi"><i data-lucide="cake"></i></span>
+              <span class="xi"><i data-lucide="calendar" style="width:15px;height:15px;"></i></span>
               <input type="date" id="fechaNac" max="2007-03-18" autocomplete="bday">
             </div>
             <div class="err">Ingresa tu fecha de nacimiento.</div>
@@ -114,7 +113,7 @@
           <div class="field" id="f-barrio">
             <label for="barrio">Barrio / Sector</label>
             <div class="iw">
-              <span class="xi"><i data-lucide="map-pin"></i></span>
+              <span class="xi"><i data-lucide="map-pin" style="width:15px;height:15px;"></i></span>
               <input type="text" id="barrio" placeholder="Ej: Ciudad Jardín" autocomplete="address-level3">
             </div>
           </div>
@@ -123,7 +122,7 @@
         <div class="field" id="f-dir">
           <label for="direccion">Dirección de residencia</label>
           <div class="iw">
-            <span class="xi"><i data-lucide="home"></i></span>
+            <span class="xi"><i data-lucide="home" style="width:15px;height:15px;"></i></span>
             <input type="text" id="direccion" placeholder="Ej: Cra 5 # 10-25">
           </div>
         </div>
@@ -132,14 +131,14 @@
       <!-- ── PASO 2: CUENTA ── -->
       <div class="step-section" id="sec2">
         <div class="sec-title">
-          <div class="sec-icon"><i data-lucide="shield-check"></i></div>
+          <div class="sec-icon"><i data-lucide="lock" style="width:18px;height:18px;"></i></div>
           Credenciales de acceso
         </div>
 
         <div class="field col-span-2" id="f-correo" style="margin-bottom:16px;">
           <label for="correo">Correo electrónico <span class="req">*</span></label>
           <div class="iw">
-            <span class="xi"><i data-lucide="mail"></i></span>
+            <span class="xi"><i data-lucide="mail" style="width:15px;height:15px;"></i></span>
             <input type="email" id="correo" placeholder="tu@correo.com" autocomplete="email">
           </div>
           <div class="err">Ingresa un correo válido.</div>
@@ -149,9 +148,9 @@
           <div class="field" id="f-pass">
             <label for="pass">Contraseña <span class="req">*</span></label>
             <div class="iw">
-              <span class="xi"><i data-lucide="lock"></i></span>
+              <span class="xi"><i data-lucide="lock" style="width:15px;height:15px;"></i></span>
               <input type="password" id="pass" placeholder="Mínimo 8 caracteres" class="pr" oninput="checkStrength(this.value)" autocomplete="new-password">
-              <span class="xir" onclick="toggleVis('pass', this)"><i data-lucide="eye"></i></span>
+              <span class="xir" onclick="toggleVis('pass', this)"><i data-lucide="eye" style="width:15px;height:15px;"></i></span>
             </div>
             <div class="pass-strength" id="strengthWrap">
               <div class="strength-bar">
@@ -167,16 +166,16 @@
           <div class="field" id="f-pass2">
             <label for="pass2">Confirmar contraseña <span class="req">*</span></label>
             <div class="iw">
-              <span class="xi"><i data-lucide="lock"></i></span>
+              <span class="xi"><i data-lucide="lock" style="width:15px;height:15px;"></i></span>
               <input type="password" id="pass2" placeholder="Repite tu contraseña" class="pr" autocomplete="new-password">
-              <span class="xir" onclick="toggleVis('pass2', this)"><i data-lucide="eye"></i></span>
+              <span class="xir" onclick="toggleVis('pass2', this)"><i data-lucide="eye" style="width:15px;height:15px;"></i></span>
             </div>
             <div class="err">Las contraseñas no coinciden.</div>
           </div>
         </div>
 
         <div class="sec-title" style="margin-top:24px;">
-          <div class="sec-icon"><i data-lucide="bus"></i></div>
+          <div class="sec-icon"><i data-lucide="bus" style="width:18px;height:18px;"></i></div>
           Preferencias de transporte
         </div>
 
@@ -199,7 +198,7 @@
       <!-- ── PASO 3: CONFIRMACIÓN ── -->
       <div class="step-section" id="sec3">
         <div class="sec-title">
-          <div class="sec-icon"><i data-lucide="check-circle"></i></div>
+          <div class="sec-icon green"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></div>
           Resumen y confirmación
         </div>
 
@@ -250,10 +249,10 @@
 
       <!-- Pantalla éxito -->
       <div class="success-screen" id="successScreen">
-        <div class="success-icon"><i data-lucide="check-circle"></i></div>
+        <div class="success-icon"><i data-lucide="check-circle" style="width:48px;height:48px;color:#0DCCA0;"></i></div>
         <h2 class="success-title">¡Cuenta creada exitosamente!</h2>
         <p class="success-desc">Bienvenido a WayRoute. Tu cuenta de pasajero ha sido creada.<br>Ahora puedes consultar rutas y paradas de toda la ciudad.</p>
-        <a href="../index.html" class="success-btn" id="successBtn">Ir a mi panel <i data-lucide="bus"></i></a>
+        <a href="../index.html" class="success-btn" id="successBtn">Ir a mi panel 🚌</a>
       </div>
 
       <!-- Navegación -->
@@ -273,6 +272,7 @@
 
   <!-- Supabase y Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="../js/services/supabase.js"></script>
   <script src="../js/services/AuthService.js"></script>
 
@@ -283,6 +283,7 @@
     // ── HABEAS DATA — mostrar modal antes de permitir el registro ──
     document.addEventListener('DOMContentLoaded', () => {
       HabeasData.init({ rol: 'pasajero', onReject: '../login.html' });
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 
     let currentStep = 1;
@@ -398,7 +399,7 @@
       if (/[A-Z]/.test(p)) score++;
       if (/[0-9]/.test(p)) score++;
       if (/[^a-zA-Z0-9]/.test(p)) score++;
-      const labels = ['','Débil','Regular','Buena','Fuerte'];
+      const labels = ['','Débil 🔴','Regular 🟡','Buena 🔵','Fuerte 🟢'];
       for (let i = 1; i <= 4; i++) {
         const seg = document.getElementById('seg' + i);
         seg.className = 'strength-seg' + (i <= score ? ' fill-' + score : '');
@@ -475,15 +476,10 @@
     function toast(msg, type='success') {
       const el = document.createElement('div');
       el.className = `toast toast-${type}`;
-      el.innerHTML = `${msg}`;
+      el.innerHTML = `<span>${type==='success'?'✅':'❌'}</span> ${msg}`;
       document.getElementById('toastBox').appendChild(el);
       setTimeout(() => el.remove(), 4000);
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    });
-    if (typeof lucide !== 'undefined') lucide.createIcons();
   </script>
 </body>
 </html>

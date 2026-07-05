@@ -38,7 +38,7 @@
       <div class="hero-map"></div>
 
       <div class="hero-brand">
-        <div class="hero-logo"><i data-lucide="bus"></i></div>
+        <div class="hero-logo"><i data-lucide="bus" style="width:26px;height:26px;color:#fff;"></i></div>
         <div>
           <div class="hero-name">Way<span>Route</span></div>
           <div class="hero-tagline">Transporte Público Tradicional</div>
@@ -56,7 +56,7 @@
       </div>
 
       <div class="hero-footer">
-        <div class="hero-footer-icon"><i data-lucide="landmark"></i></div>
+        <div class="hero-footer-icon"><i data-lucide="landmark" style="width:20px;height:20px;opacity:.7;"></i></div>
         <div class="hero-footer-text">
           <strong>Secretaría de Movilidad de Cali</strong><br>
           Proyecto de grado — Ingeniería de Sistemas
@@ -75,25 +75,25 @@
       <!-- Selector de rol -->
       <div class="role-selector" id="roleSelector">
         <button class="role-btn active" id="role-pasajero" onclick="selectRole('pasajero', this)" type="button">
-          <div class="role-check">✓</div>
-          <span class="role-icon"><i data-lucide="user"></i></span>
+          <div class="role-check"><i data-lucide="check" style="width:12px;height:12px;"></i></div>
+          <span class="role-icon"><i data-lucide="user" style="width:22px;height:22px;"></i></span>
           <span class="role-label">Pasajero</span>
         </button>
         <button class="role-btn" id="role-conductor" onclick="selectRole('conductor', this)" type="button">
-          <div class="role-check">✓</div>
-          <span class="role-icon"><i data-lucide="bus"></i></span>
+          <div class="role-check"><i data-lucide="check" style="width:12px;height:12px;"></i></div>
+          <span class="role-icon"><i data-lucide="bus" style="width:22px;height:22px;"></i></span>
           <span class="role-label">Conductor</span>
         </button>
         <button class="role-btn" id="role-administrador" onclick="selectRole('administrador', this)" type="button">
-          <div class="role-check">✓</div>
-          <span class="role-icon"><i data-lucide="settings"></i></span>
+          <div class="role-check"><i data-lucide="check" style="width:12px;height:12px;"></i></div>
+          <span class="role-icon"><i data-lucide="shield" style="width:22px;height:22px;"></i></span>
           <span class="role-label">Admin</span>
         </button>
       </div>
 
       <!-- Alerta de error -->
       <div class="alert-error" id="alertError">
-        <span><i data-lucide="alert-triangle"></i></span>
+        <span>⚠️</span>
         <span id="alertMsg">Correo o contraseña incorrectos.</span>
       </div>
 
@@ -103,7 +103,7 @@
         <div class="field" id="fieldEmail">
           <label for="inputEmail">Correo electrónico</label>
           <div class="input-wrap">
-            <span class="icon-left"><i data-lucide="mail"></i></span>
+            <span class="icon-left"><i data-lucide="mail" style="width:16px;height:16px;"></i></span>
             <input type="email" id="inputEmail" placeholder="tu@correo.com" autocomplete="email" required>
           </div>
           <div class="field-error" id="errEmail">Ingresa un correo válido.</div>
@@ -112,10 +112,10 @@
         <div class="field" id="fieldPass">
           <label for="inputPass">Contraseña</label>
           <div class="input-wrap">
-            <span class="icon-left"><i data-lucide="lock"></i></span>
+            <span class="icon-left"><i data-lucide="lock" style="width:16px;height:16px;"></i></span>
             <input type="password" id="inputPass" placeholder="Tu contraseña" class="has-right"
               autocomplete="current-password" required>
-            <span class="icon-right" id="togglePass" onclick="togglePassword()" title="Mostrar/ocultar"><i data-lucide="eye"></i></span>
+            <span class="icon-right" id="togglePass" onclick="togglePassword()" title="Mostrar/ocultar"><i data-lucide="eye" style="width:16px;height:16px;"></i></span>
           </div>
           <div class="field-error" id="errPass">La contraseña es requerida.</div>
         </div>
@@ -139,7 +139,28 @@
 
       <div class="register-link">
         ¿No tienes cuenta?
-        <a href="pages/registro-pasajero.html" id="registerLink">Regístrate gratis</a>
+        <a href="pages/registro-pasajero.html" id="registerLink" onclick="actualizarLinkRegistro(currentRole)">Regístrate gratis</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Recuperar Contraseña -->
+  <div id="modalRecuperar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:none;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;padding:32px;width:360px;max-width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+      <h3 style="margin:0 0 8px;font-size:1.1rem;">🔑 Recuperar contraseña</h3>
+      <p style="font-size:.85rem;color:#6b7280;margin:0 0 20px;">Ingresa tu correo registrado y te enviaremos un enlace para restablecerla.</p>
+      <input id="inputRecuperarCorreo" type="email" placeholder="tucorreo@ejemplo.com"
+        style="width:100%;padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;font-size:.9rem;margin-bottom:12px;box-sizing:border-box;">
+      <div id="msgRecuperar" style="font-size:.82rem;margin-bottom:12px;display:none;"></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="cerrarModalRecuperar()"
+          style="flex:1;padding:10px;border:1px solid #d1d5db;background:#fff;border-radius:8px;cursor:pointer;font-size:.88rem;">
+          Cancelar
+        </button>
+        <button id="btnEnviarRecuperar" onclick="enviarRecuperacion()"
+          style="flex:1;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:600;">
+          Enviar enlace
+        </button>
       </div>
     </div>
   </div>
@@ -149,12 +170,16 @@
   <script src="js/services/supabase.js"></script>
   <script src="js/services/AuthService.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+
     // ── ESTADO ──
     let currentRole = 'pasajero';
     const DEMO_CREDS = {
-      pasajero: { email: 'lauraruiz@gmail.com', pass: 'Pasajero1*', hint: 'Correo: lauraruiz@gmail.com<br>Clave: Pasajero1*' },
-      conductor: { email: 'jcaicedo@laermita.com.co', pass: 'Conductor1*', hint: 'Correo: jcaicedo@laermita.com.co<br>Clave: Conductor1*' },
-      administrador: { email: 'admin@wayroute.gov.co', pass: 'Admin2025*', hint: 'Correo: admin@wayroute.gov.co<br>Clave: Admin2025*' }
+      pasajero: { email: 'lauraruiz@gmail.com', pass: 'Pasajero1*', hint: '📧 lauraruiz@gmail.com<br>🔒 Pasajero1*' },
+      conductor: { email: 'jcaicedo@laermita.com.co', pass: 'Conductor1*', hint: '📧 jcaicedo@laermita.com.co<br>🔒 Conductor1*' },
+      administrador: { email: 'admin@wayroute.gov.co', pass: 'Admin2025*', hint: '📧 admin@wayroute.gov.co<br>🔒 Admin2025*' }
     };
 
     // Verificar si ya hay sesión
@@ -171,10 +196,13 @@
       document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentRole = rol;
-      document.getElementById('credsContent').innerHTML = DEMO_CREDS[rol].hint;
-      document.getElementById('credsHint').classList.add('show');
-      // Actualizar link de registro
+      actualizarLinkRegistro(rol);
+      clearErrors();
+    }
+
+    function actualizarLinkRegistro(rol) {
       const regLink = document.getElementById('registerLink');
+      if (!regLink) return;
       if (rol === 'pasajero') {
         regLink.href = 'pages/registro-pasajero.html';
         regLink.textContent = 'Regístrate gratis';
@@ -185,7 +213,6 @@
         regLink.href = '#';
         regLink.textContent = 'Contacta al administrador';
       }
-      clearErrors();
     }
 
     // ── TOGGLE CONTRASEÑA ──
@@ -225,11 +252,8 @@
         }
 
         // Verificar que el rol coincida con el seleccionado
-        const rolUsuario = resultado.usuario.rol;
-        const rolesEquivalentes = { 'admin': 'administrador', 'administrador': 'admin' };
-        const rolCoincide = rolUsuario === currentRole || rolesEquivalentes[rolUsuario] === currentRole;
-        if (!rolCoincide) {
-          showError(`Este correo pertenece al rol "${rolUsuario}". Selecciona el rol correcto.`);
+        if (resultado.usuario.rol !== currentRole) {
+          showError(`Este correo pertenece al rol "${resultado.usuario.rol}". Selecciona el rol correcto.`);
           return;
         }
 
@@ -256,7 +280,47 @@
 
     // ── OLVIDÓ CONTRASEÑA ──
     function showForgot() {
-      alert('En la versión de producción, recibirías un correo para restablecer tu contraseña.\n\nPor ahora usa las credenciales de demostración.');
+      const correoActual = document.getElementById('inputEmail')?.value || '';
+      if (correoActual) document.getElementById('inputRecuperarCorreo').value = correoActual;
+      document.getElementById('msgRecuperar').style.display = 'none';
+      document.getElementById('modalRecuperar').style.display = 'flex';
+    }
+
+    function cerrarModalRecuperar() {
+      document.getElementById('modalRecuperar').style.display = 'none';
+    }
+
+    async function enviarRecuperacion() {
+      const correo = document.getElementById('inputRecuperarCorreo').value.trim();
+      const msg = document.getElementById('msgRecuperar');
+      const btn = document.getElementById('btnEnviarRecuperar');
+
+      if (!correo) {
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = 'Por favor ingresa tu correo.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      const { error } = await window.supabaseClient.auth.resetPasswordForEmail(correo, {
+        redirectTo: window.location.origin + '/pages/nueva-contrasena.html'
+      });
+
+      btn.disabled = false;
+      btn.textContent = 'Enviar enlace';
+      msg.style.display = 'block';
+
+      if (error) {
+        msg.style.color = '#ef4444';
+        msg.textContent = '❌ ' + error.message;
+      } else {
+        msg.style.color = '#16a34a';
+        msg.textContent = '📬 Enlace enviado a ' + correo + '. Revisa tu bandeja de entrada.';
+        btn.style.display = 'none';
+      }
     }
 
     // ── HELPERS ──
@@ -272,11 +336,6 @@
       document.getElementById('alertMsg').textContent = msg;
       el.classList.add('show');
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    });
-    if (typeof lucide !== 'undefined') lucide.createIcons();
   </script>
 
 </body>

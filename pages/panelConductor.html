@@ -21,9 +21,6 @@
 
         <!-- TOP NAV -->
         <nav class="topnav">
-            <button class="hamburger" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Menú">
-                <i data-lucide="menu" style="width:20px;height:20px;"></i>
-            </button>
             <a class="nav-brand" href="#">
                 <div class="nav-logo"><i data-lucide="bus" style="width:18px;height:18px;color:#fff;"></i></div>
                 <div class="nav-brand-text">Way<span>Route</span></div>
@@ -44,8 +41,6 @@
                 </button>
             </div>
         </nav>
-
-        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
         <div class="main-wrapper">
             <!-- SIDEBAR -->
@@ -82,135 +77,151 @@
 
                 <!-- ====== INICIO ====== -->
                 <div class="view active" id="view-inicio">
-                    <div class="page-header">
-                        <h1 id="welcomeGreeting">¡Buenos días, Conductor! <i data-lucide="bus" style="width:22px;height:22px;vertical-align:middle;"></i></h1>
-                        <p id="shiftInfo">Cargando información del turno...</p>
+                    <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                        <div>
+                            <h1 id="welcomeGreeting">¡Buenos días, Conductor! 🚌</h1>
+                            <p id="shiftInfo">Cargando información del turno...</p>
+                        </div>
+                        <div style="display:flex;gap:10px;align-items:center;">
+                            <button id="btnIniciarTurno" onclick="abrirModalTurno()"
+                                style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-weight:600;font-size:.9rem;cursor:pointer;">
+                                <i data-lucide="play-circle" style="width:18px;height:18px;"></i> Iniciar Turno
+                            </button>
+                            <button id="btnFinalizarTurno" onclick="confirmarFinTurno()"
+                                style="display:none;align-items:center;gap:8px;padding:10px 20px;background:#dc2626;color:#fff;border:none;border-radius:var(--radius-sm);font-weight:600;font-size:.9rem;cursor:pointer;">
+                                <i data-lucide="stop-circle" style="width:18px;height:18px;"></i> Finalizar Turno
+                            </button>
+                        </div>
                     </div>
 
                     <div class="status-header">
                         <div class="status-kpi">
                             <div class="kpi">
-                                <div class="kpi-value"><span class="status-dot status-online"></span></div>
+                                <div class="kpi-value" id="kpiEstadoDot"><span class="status-dot status-offline"></span></div>
                                 <div class="kpi-label">Estado</div>
                             </div>
                             <div class="kpi-divider"></div>
                             <div class="kpi">
-                                <div class="kpi-value">G-07</div>
+                                <div class="kpi-value" id="kpiRuta">—</div>
                                 <div class="kpi-label">Ruta asignada</div>
                             </div>
                             <div class="kpi-divider"></div>
                             <div class="kpi">
-                                <div class="kpi-value">7</div>
+                                <div class="kpi-value" id="kpiVueltas">—</div>
                                 <div class="kpi-label">Vueltas hoy</div>
                             </div>
                             <div class="kpi-divider"></div>
                             <div class="kpi">
-                                <div class="kpi-value">4h 20m</div>
+                                <div class="kpi-value" id="kpiTiempo">—</div>
                                 <div class="kpi-label">Tiempo activo</div>
                             </div>
                             <div class="kpi-divider"></div>
                             <div class="kpi">
-                                <div class="kpi-value">2</div>
+                                <div class="kpi-value" id="kpiAlertas">0</div>
                                 <div class="kpi-label">Alertas activas</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid-2 mb-4">
-                        <!-- Estado actual -->
+                    <!-- Estado sin turno activo -->
+                    <div id="estadoSinTurno" class="card mb-4" style="text-align:center;padding:40px 24px;">
+                        <i data-lucide="clock-4" style="width:48px;height:48px;color:var(--gray-300);margin-bottom:16px;"></i>
+                        <div style="font-size:1.1rem;font-weight:600;color:var(--gray-600);margin-bottom:8px;">Sin turno activo</div>
+                        <div class="text-sm text-gray" style="margin-bottom:20px;">Iniciá tu turno para registrar tu actividad y vueltas.</div>
+                        <button onclick="abrirModalTurno()"
+                            style="padding:12px 28px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-weight:600;font-size:.95rem;cursor:pointer;">
+                            ▶ Iniciar Turno ahora
+                        </button>
+                    </div>
+
+                    <div class="grid-2 mb-4" id="estadoConTurno" style="display:none;">
+                        <!-- Tarjeta dinámica del turno -->
                         <div class="driver-card">
-                            <div
-                                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
                                 <div>
-                                    <div style="font-size:1.2rem;font-weight:700;">Guala G-07</div>
-                                    <div class="text-sm text-gray">Centenario → Unicentro · Coopcencar</div>
+                                    <div style="font-size:1.2rem;font-weight:700;" id="turnoVehiculo">—</div>
+                                    <div class="text-sm text-gray" id="turnoRutaDesc">—</div>
                                 </div>
                                 <span class="tag tag-green">En servicio</span>
                             </div>
                             <div class="grid-2 mb-4">
-                                <div
-                                    style="text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm);">
-                                    <div style="font-size:1.4rem;font-weight:700;">28 km/h</div>
-                                    <div class="text-xs text-gray">Velocidad actual</div>
+                                <div style="text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;" id="turnoHoraInicio">—</div>
+                                    <div class="text-xs text-gray">Hora de inicio</div>
                                 </div>
-                                <div
-                                    style="text-align:center;padding:14px;background:var(--blue-light);border-radius:var(--radius-sm);">
-                                    <div style="font-size:1.4rem;font-weight:700;color:#1d4ed8;">Parada 3/5</div>
-                                    <div class="text-xs text-gray">Chipichape</div>
+                                <div style="text-align:center;padding:14px;background:var(--blue-light);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;color:#1d4ed8;" id="turnoVueltasCard">0</div>
+                                    <div class="text-xs text-gray">Vueltas registradas</div>
                                 </div>
                             </div>
-                            <div style="font-size:.82rem;font-weight:600;color:var(--gray-500);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i data-lucide="map" style="width:14px;height:14px;"></i>
-                                Progreso del recorrido</div>
-                            <div class="route-stop-row">
-                                <div class="route-stop">
-                                    <div class="route-stop-dot done"></div>
-                                    <div class="route-stop-name">Centenario</div>
-                                </div>
-                                <div class="route-stop-line"></div>
-                                <div class="route-stop">
-                                    <div class="route-stop-dot done"></div>
-                                    <div class="route-stop-name">Av.6N Cll34</div>
-                                </div>
-                                <div class="route-stop-line"></div>
-                                <div class="route-stop">
-                                    <div class="route-stop-dot current"></div>
-                                    <div class="route-stop-name" style="font-weight:700;color:var(--amber);">◀ Aquí
-                                    </div>
-                                </div>
-                                <div class="route-stop-line pending"></div>
-                                <div class="route-stop">
-                                    <div class="route-stop-dot"></div>
-                                    <div class="route-stop-name">Parque Perro</div>
-                                </div>
-                                <div class="route-stop-line pending"></div>
-                                <div class="route-stop">
-                                    <div class="route-stop-dot"></div>
-                                    <div class="route-stop-name">Unicentro</div>
-                                </div>
+                            <div style="display:flex;gap:8px;margin-top:8px;">
+                                <button onclick="registrarVuelta()"
+                                    style="flex:1;padding:10px;background:#eff6ff;color:var(--primary);border:1.5px solid #bfdbfe;border-radius:var(--radius-sm);font-weight:600;cursor:pointer;">
+                                    +1 Vuelta
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Feed de novedades en tiempo real -->
-                        <div id="inicioAlertsFeed">
-                            <div class="alert-item alert-info">
-                                <div class="alert-icon"><i data-lucide="refresh-cw" style="width:16px;height:16px;color:var(--primary);"></i></div>
-                                <div class="alert-content">
-                                    <div class="alert-title">Sincronizando...</div>
-                                    <div class="alert-desc">Consiguiendo novedades de vía en Supabase.</div>
+                        <!-- Feed de novedades + reporte rápido -->
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div id="inicioAlertsFeed">
+                                <div class="alert-item alert-info">
+                                    <div class="alert-icon"><i data-lucide="refresh-cw" style="width:16px;height:16px;color:var(--primary);"></i></div>
+                                    <div class="alert-content">
+                                        <div class="alert-title">Sincronizando...</div>
+                                        <div class="alert-desc">Consiguiendo novedades de vía en Supabase.</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card mt-2">
-                            <div class="card-title" style="margin-bottom:12px;">Reporte rápido</div>
-                            <div style="display:flex;flex-direction:column;gap:8px;">
-                                <button class="incident-btn block" style="padding:10px;margin-bottom:0;"
-                                    onclick="reportar('bloqueo')">Bloqueo o Desvío</button>
-                                <button class="incident-btn mechanic" style="padding:10px;margin-bottom:0;"
-                                    onclick="reportar('falla')">Falla Mecánica</button>
-                                <button class="incident-btn security" style="padding:10px;margin-bottom:0;"
-                                    onclick="reportar('seguridad')">Incidente de Seguridad</button>
+                            <div class="card">
+                                <div class="card-title" style="margin-bottom:12px;">Reporte rápido</div>
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    <button class="incident-btn block" style="padding:10px;margin-bottom:0;" onclick="reportar('bloqueo')">Bloqueo o Desvío</button>
+                                    <button class="incident-btn mechanic" style="padding:10px;margin-bottom:0;" onclick="reportar('falla')">Falla Mecánica</button>
+                                    <button class="incident-btn security" style="padding:10px;margin-bottom:0;" onclick="reportar('seguridad')">Incidente de Seguridad</button>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid-3">
+                    <div class="grid-3" id="statsRow" style="display:none;">
                         <div class="stat-card">
                             <div class="icon" style="background:#eff6ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="repeat" style="width:24px;height:24px;color:var(--primary);"></i></div>
-                            <div class="value">7</div>
+                            <div class="value" id="statVueltas">0</div>
                             <div class="label">Vueltas completadas</div>
-                            <div class="trend up">↑ Meta: 10</div>
+                            <div class="trend up" id="statVueltasMeta">↑ Meta: 10</div>
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#e6f7f1;display:flex;align-items:center;justify-content:center;"><i data-lucide="clock" style="width:24px;height:24px;color:var(--green);"></i></div>
-                            <div class="value">4h 20m</div>
+                            <div class="value" id="statTiempo">0h 0m</div>
                             <div class="label">Tiempo en servicio</div>
                             <div class="trend up">↑ En horario</div>
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i data-lucide="file-text" style="width:24px;height:24px;color:var(--amber);"></i></div>
-                            <div class="value">3</div>
+                            <div class="value" id="statReportes">0</div>
                             <div class="label">Reportes enviados</div>
-                            <div class="trend up">↑ 2 validados</div>
+                            <div class="trend up" id="statReportesTrend">↑ Turno actual</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL INICIAR TURNO -->
+                <div id="modalIniciarTurno" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+                    <div style="background:#fff;border-radius:12px;padding:32px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.18);">
+                        <div style="font-size:1.25rem;font-weight:700;margin-bottom:6px;">Iniciar Turno</div>
+                        <div class="text-sm text-gray" style="margin-bottom:20px;">Seleccioná la ruta para registrar tu turno de hoy.</div>
+                        <label style="font-size:.85rem;font-weight:600;color:var(--gray-600);display:block;margin-bottom:6px;">Ruta asignada</label>
+                        <select id="selectRutaTurno" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.95rem;margin-bottom:20px;">
+                            <option value="">Seleccionar ruta...</option>
+                            <option value="G-07">G-07 · Gualas Oriente</option>
+                            <option value="B-22A">B-22A · Ruta Norte</option>
+                            <option value="G-12">G-12 · Especial Sur</option>
+                            <option value="B-14">B-14 · Ruta Sur Pryca</option>
+                        </select>
+                        <div style="display:flex;gap:10px;">
+                            <button onclick="cerrarModalTurno()" style="flex:1;padding:11px;background:#f1f5f9;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Cancelar</button>
+                            <button onclick="confirmarInicioTurno()" style="flex:1;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">▶ Iniciar</button>
                         </div>
                     </div>
                 </div>
@@ -382,12 +393,12 @@
                                 <div class="form-group">
                                     <label class="form-label">Tipo de incidencia</label>
                                     <select class="form-control" id="formTipoIncidencia">
-                                        <option value="bloqueo">Bloqueo vial</option>
-                                        <option value="congestion">Congestión inusual</option>
-                                        <option value="falla">Falla mecánica del vehículo</option>
-                                        <option value="seguridad">Incidente de seguridad</option>
-                                        <option value="clima">Daño por clima</option>
-                                        <option value="otro">Otro</option>
+                                        <option value="bloqueo">🚧 Bloqueo vial</option>
+                                        <option value="congestion">🚦 Congestión inusual</option>
+                                        <option value="falla">🔧 Falla mecánica del vehículo</option>
+                                        <option value="seguridad">🚨 Incidente de seguridad</option>
+                                        <option value="clima">⛈️ Daño por clima</option>
+                                        <option value="otro">📢 Otro</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -417,14 +428,20 @@
                                     <div class="form-group">
                                         <label class="form-label">Severidad</label>
                                         <select class="form-control" id="formSeveridadIncidencia">
-                                            <option value="moderada">Moderada</option>
-                                            <option value="alta">Alta</option>
-                                            <option value="baja">Baja</option>
+                                            <option value="moderada">🟡 Moderada</option>
+                                            <option value="alta">🔴 Alta</option>
+                                            <option value="baja">🟢 Baja</option>
                                         </select>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary" id="btnEnviarReporteDetalle"
-                                    onclick="enviarReporteForm()">Enviar Reporte a Base de Datos →</button>
+                                <div style="display:flex;gap:10px;margin-top:4px;">
+                                    <button class="btn btn-primary" id="btnEnviarReporteDetalle" style="flex:1;"
+                                        onclick="enviarReporteForm()">Enviar Reporte →</button>
+                                    <button class="btn btn-secondary" id="btnCompartirReporte" style="flex:0 0 auto;"
+                                        onclick="compartirReporteActual()" title="Compartir reporte">
+                                        📤 Compartir
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="card">
@@ -491,34 +508,37 @@
                     </div>
                 </div>
 
-                <!-- ====== HISTORIAL ====== -->
+                <!-- ====== HISTORIAL (C-HU-04) ====== -->
                 <div class="view" id="view-historial">
                     <div class="page-header">
                         <h1>Historial de Turnos</h1>
-                        <p>Registro de actividad y desempeño del conductor</p>
+                        <p>Registro de actividad cargado desde Supabase</p>
                     </div>
                     <div class="grid-3 mb-4">
                         <div class="stat-card">
                             <div class="icon" style="background:#eff6ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="calendar" style="width:24px;height:24px;color:var(--primary);"></i></div>
-                            <div class="value">68</div>
+                            <div class="value" id="statTurnosMes">—</div>
                             <div class="label">Turnos este mes</div>
-                            <div class="trend up">↑ +3 vs mes anterior</div>
+                            <div class="trend up" id="statTurnosMesTrend">Cargando...</div>
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#e6f7f1;display:flex;align-items:center;justify-content:center;"><i data-lucide="repeat" style="width:24px;height:24px;color:var(--green);"></i></div>
-                            <div class="value">476</div>
+                            <div class="value" id="statVueltasTotales">—</div>
                             <div class="label">Vueltas totales</div>
-                            <div class="trend up">↑ Meta cumplida</div>
+                            <div class="trend up">↑ Acumulado</div>
                         </div>
                         <div class="stat-card">
                             <div class="icon" style="background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i data-lucide="file-text" style="width:24px;height:24px;color:var(--amber);"></i></div>
-                            <div class="value">28</div>
+                            <div class="value" id="statReportesEnv">—</div>
                             <div class="label">Reportes enviados</div>
-                            <div class="trend up">↑ 24 validados</div>
+                            <div class="trend up">↑ Desde Supabase</div>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-title">Últimos turnos</div>
+                        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                            Últimos turnos
+                            <button onclick="cargarHistorialTurnos()" style="font-size:.8rem;padding:4px 12px;border-radius:6px;border:1px solid #2563eb;background:#eff6ff;color:#2563eb;cursor:pointer;">↻ Actualizar</button>
+                        </div>
                         <div class="table-wrap">
                             <table>
                                 <thead>
@@ -532,52 +552,8 @@
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Hoy</td>
-                                        <td><strong>G-07</strong></td>
-                                        <td>5:30 AM</td>
-                                        <td>En curso</td>
-                                        <td>7</td>
-                                        <td>3</td>
-                                        <td><span class="tag tag-green">Activo</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Ayer</td>
-                                        <td><strong>G-07</strong></td>
-                                        <td>5:30 AM</td>
-                                        <td>2:00 PM</td>
-                                        <td>10</td>
-                                        <td>1</td>
-                                        <td><span class="tag tag-gray">Completado</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Lun 17</td>
-                                        <td><strong>G-07</strong></td>
-                                        <td>6:00 AM</td>
-                                        <td>1:30 PM</td>
-                                        <td>9</td>
-                                        <td>2</td>
-                                        <td><span class="tag tag-gray">Completado</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Dom 16</td>
-                                        <td><strong>G-12</strong></td>
-                                        <td>7:00 AM</td>
-                                        <td>12:00 PM</td>
-                                        <td>6</td>
-                                        <td>0</td>
-                                        <td><span class="tag tag-gray">Completado</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Sáb 15</td>
-                                        <td><strong>G-07</strong></td>
-                                        <td>5:30 AM</td>
-                                        <td>1:00 PM</td>
-                                        <td>9</td>
-                                        <td>1</td>
-                                        <td><span class="tag tag-gray">Completado</span></td>
-                                    </tr>
+                                <tbody id="bodyTurnosDinamico">
+                                    <tr><td colspan="7" style="text-align:center;padding:16px;color:#94a3b8;">⏳ Cargando desde Supabase...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -660,6 +636,7 @@
     <script src="../js/models/UsuarioModel.js"></script>
     <script src="../js/models/AlertaModel.js"></script>
     <script src="../js/models/ConductorModel.js"></script>
+    <script src="../js/models/TurnoModel.js"></script>
 
     <!-- ── VIEWS ── -->
     <script src="../js/views/NavView.js"></script>
@@ -681,48 +658,147 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
         if (typeof lucide !== 'undefined') lucide.createIcons();
-    </script>
 
-    <!-- BOTTOM NAV (móvil) -->
-    <nav class="bottom-nav" id="bottomNav">
-        <button class="bottom-nav-item active" id="bn-inicio" onclick="navigate('inicio');setBottomNav('bn-inicio')">
-            <i data-lucide="home" style="width:20px;height:20px;"></i>
-            <span class="bn-label">Inicio</span>
-        </button>
-        <button class="bottom-nav-item" id="bn-miRuta" onclick="navigate('miRuta');setBottomNav('bn-miRuta')">
-            <i data-lucide="route" style="width:20px;height:20px;"></i>
-            <span class="bn-label">Mi Ruta</span>
-        </button>
-        <button class="bottom-nav-item" id="bn-alertas" onclick="navigate('alertas');setBottomNav('bn-alertas')">
-            <i data-lucide="bell" style="width:20px;height:20px;"></i>
-            <span class="bn-label">Alertas</span>
-        </button>
-        <button class="bottom-nav-item" id="bn-reportes" onclick="navigate('reportes');setBottomNav('bn-reportes')">
-            <i data-lucide="clipboard-list" style="width:20px;height:20px;"></i>
-            <span class="bn-label">Reportar</span>
-        </button>
-        <button class="bottom-nav-item" id="bn-perfil" onclick="navigate('perfil');setBottomNav('bn-perfil')">
-            <i data-lucide="user" style="width:20px;height:20px;"></i>
-            <span class="bn-label">Perfil</span>
-        </button>
-    </nav>
+        // Cargar historial / reparar mapa al navegar
+        const _origNavigate = window.navigate;
+        window.navigate = function(view) {
+            if (typeof _origNavigate === 'function') _origNavigate(view);
 
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('show');
-        }
-        function setBottomNav(id) {
-            document.querySelectorAll('#bottomNav .bottom-nav-item').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if (window.innerWidth <= 768) {
-                document.querySelector('.sidebar').classList.remove('open');
-                document.getElementById('sidebarOverlay').classList.remove('show');
+            if (view === 'historial' && typeof window.cargarHistorialTurnos === 'function') {
+                setTimeout(window.cargarHistorialTurnos, 150);
             }
-        }
-        lucide.createIcons();
+
+            // Reparar mapa de alertas: invalidateSize() después de que el contenedor sea visible
+            if (view === 'alertas') {
+                setTimeout(() => {
+                    const av = window.AlertaView;
+                    if (!av) return;
+                    if (av._map) {
+                        av._map.invalidateSize();
+                    } else {
+                        // El mapa aún no se creó (primera vez): forzar renderizado
+                        av.actualizarMapa(av._ultimasAlertas || []);
+                        setTimeout(() => av._map && av._map.invalidateSize(), 300);
+                    }
+                }, 200);
+            }
+        };
+
+        // C-HU-07: Compartir reporte con los datos actuales del formulario
+        window.compartirReporteActual = function() {
+            const tipo   = document.getElementById('formTipoIncidencia')?.options[document.getElementById('formTipoIncidencia')?.selectedIndex]?.text || '—';
+            const desc   = document.getElementById('formDescIncidencia')?.value || '—';
+            const ubic   = document.getElementById('formUbicacionIncidencia')?.value || '—';
+            const fecha  = new Date().toLocaleString('es-CO');
+            if (typeof window.compartirIncidente === 'function') {
+                window.compartirIncidente(tipo, desc, ubic, fecha);
+            }
+        };
+
+        // ── GESTIÓN DE TURNO ──
+        let _turnoActivo = null;
+        let _vueltasActuales = 0;
+        let _reportesActuales = 0;
+        let _timerTurno = null;
+        let _inicioTurnoMs = null;
+
+        window.abrirModalTurno = function() {
+            document.getElementById('modalIniciarTurno').style.display = 'flex';
+        };
+        window.cerrarModalTurno = function() {
+            document.getElementById('modalIniciarTurno').style.display = 'none';
+        };
+
+        window.confirmarInicioTurno = async function() {
+            const ruta = document.getElementById('selectRutaTurno').value;
+            if (!ruta) { showToast('⚠️ Seleccioná una ruta primero.'); return; }
+
+            cerrarModalTurno();
+
+            // Intentar guardar en Supabase via TurnoModel
+            const sesionStr = sessionStorage.getItem('movicali_sesion') || sessionStorage.getItem('movicali_sesion_conductor');
+            const sesion = sesionStr ? JSON.parse(sesionStr) : null;
+            if (window.TurnoModel && sesion?.id) {
+                const res = await window.TurnoModel.iniciarTurno(sesion.id, ruta);
+                if (res.ok) _turnoActivo = res.turno;
+            }
+
+            _vueltasActuales = 0;
+            _reportesActuales = 0;
+            _inicioTurnoMs = Date.now();
+
+            // Actualizar UI
+            const horaInicio = new Date().toTimeString().slice(0, 5);
+            document.getElementById('kpiRuta').textContent = ruta;
+            document.getElementById('kpiVueltas').textContent = '0';
+            document.getElementById('kpiTiempo').textContent = '0h 0m';
+            document.getElementById('kpiEstadoDot').innerHTML = '<span class="status-dot status-online"></span>';
+            document.getElementById('turnoVehiculo').textContent = ruta;
+            document.getElementById('turnoRutaDesc').textContent = 'Turno iniciado hoy · ' + horaInicio;
+            document.getElementById('turnoHoraInicio').textContent = horaInicio;
+            document.getElementById('turnoVueltasCard').textContent = '0';
+            document.getElementById('statVueltas').textContent = '0';
+            document.getElementById('statTiempo').textContent = '0h 0m';
+            document.getElementById('statReportes').textContent = '0';
+
+            document.getElementById('estadoSinTurno').style.display = 'none';
+            document.getElementById('estadoConTurno').style.display = 'grid';
+            document.getElementById('statsRow').style.display = 'grid';
+            document.getElementById('btnIniciarTurno').style.display = 'none';
+            document.getElementById('btnFinalizarTurno').style.display = 'flex';
+
+            // Timer de tiempo activo
+            _timerTurno = setInterval(() => {
+                const mins = Math.floor((Date.now() - _inicioTurnoMs) / 60000);
+                const h = Math.floor(mins / 60);
+                const m = mins % 60;
+                const str = `${h}h ${m}m`;
+                document.getElementById('kpiTiempo').textContent = str;
+                document.getElementById('statTiempo').textContent = str;
+            }, 30000);
+
+            showToast('✅ Turno iniciado correctamente — ruta ' + ruta);
+        };
+
+        window.registrarVuelta = function() {
+            _vueltasActuales++;
+            document.getElementById('kpiVueltas').textContent = _vueltasActuales;
+            document.getElementById('turnoVueltasCard').textContent = _vueltasActuales;
+            document.getElementById('statVueltas').textContent = _vueltasActuales;
+            showToast('🔄 Vuelta #' + _vueltasActuales + ' registrada.');
+        };
+
+        window.confirmarFinTurno = async function() {
+            if (!confirm('¿Seguro que querés finalizar el turno?')) return;
+            if (_timerTurno) clearInterval(_timerTurno);
+
+            if (window.TurnoModel && _turnoActivo?.id) {
+                await window.TurnoModel.finalizarTurno(_turnoActivo.id);
+            }
+
+            _turnoActivo = null;
+            document.getElementById('estadoSinTurno').style.display = 'block';
+            document.getElementById('estadoConTurno').style.display = 'none';
+            document.getElementById('statsRow').style.display = 'none';
+            document.getElementById('btnIniciarTurno').style.display = 'flex';
+            document.getElementById('btnFinalizarTurno').style.display = 'none';
+            document.getElementById('kpiEstadoDot').innerHTML = '<span class="status-dot status-offline"></span>';
+            document.getElementById('kpiRuta').textContent = '—';
+            document.getElementById('kpiVueltas').textContent = '—';
+            document.getElementById('kpiTiempo').textContent = '—';
+
+            showToast('🏁 Turno finalizado. ¡Buen descanso!');
+        };
+
+        // Incrementar contador de reportes cuando se envía un reporte
+        const _origEnviarReporteForm = window.enviarReporteForm;
+        window.enviarReporteForm = async function() {
+            if (typeof _origEnviarReporteForm === 'function') await _origEnviarReporteForm();
+            if (_turnoActivo !== null) {
+                _reportesActuales++;
+                document.getElementById('statReportes').textContent = _reportesActuales;
+            }
+        };
     </script>
 </body>
 

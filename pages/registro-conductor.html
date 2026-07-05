@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/registro.css">
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
   <div class="bg-mesh"></div>
@@ -17,14 +16,14 @@
   <div class="container">
     <div class="topbar">
       <a href="../login.html" class="brand">
-        <div class="brand-logo"><i data-lucide="bus"></i></div>
+        <div class="brand-logo"><i data-lucide="bus" style="width:20px;height:20px;color:#fff;"></i></div>
         <span class="brand-name">Way<em>Route</em></span>
       </a>
       <a href="../login.html" class="back-link">← Volver al login</a>
     </div>
 
     <div class="section-header">
-      <div class="section-eyebrow"><i data-lucide="bus"></i> Registro Oficial de Conductor</div>
+      <div class="section-eyebrow" style="display:flex;align-items:center;gap:6px;"><i data-lucide="bus" style="width:16px;height:16px;"></i> Registro Oficial de Conductor</div>
       <h1 class="section-title">Ficha de vinculación</h1>
       <p class="section-desc">Registro de conductores del sistema de transporte público tradicional de Santiago de Cali. Cumple con la Ley 769/2002 y Ley 1581/2012.</p>
     </div>
@@ -49,26 +48,26 @@
       <!-- ═══════════════════════════════ -->
       <div class="step-section active" id="sec1">
         <div class="law-box blue">
-          <span><i data-lucide="clipboard-list"></i></span>
+          <span>📋</span>
           <span><strong>Ley 1581/2012 — Protección de Datos:</strong> Sus datos personales serán tratados conforme al Marco Legal Colombiano de Protección de Datos. Solo serán usados para la gestión operativa del servicio de transporte.</span>
         </div>
 
-        <div class="sec-title"><div class="sec-icon"><i data-lucide="user"></i></div> Información personal del conductor</div>
+        <div class="sec-title"><div class="sec-icon"><i data-lucide="user" style="width:18px;height:18px;"></i></div> Información personal del conductor</div>
 
         <div class="grid-2 mb">
           <div class="field" id="f-nombres"><label>Nombres <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="user"></i></span><input type="text" id="nombres" placeholder="Ej: Jorge Armando"></div><div class="err">Requerido.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="user" style="width:15px;height:15px;"></i></span><input type="text" id="nombres" placeholder="Ej: Jorge Armando"></div><div class="err">Requerido.</div></div>
           <div class="field" id="f-apellidos"><label>Apellidos <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="user"></i></span><input type="text" id="apellidos" placeholder="Ej: Caicedo Mena"></div><div class="err">Requerido.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="user" style="width:15px;height:15px;"></i></span><input type="text" id="apellidos" placeholder="Ej: Caicedo Mena"></div><div class="err">Requerido.</div></div>
         </div>
 
         <div class="grid-3 mb">
           <div class="field" id="f-cedula"><label>Cédula de ciudadanía <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="credit-card"></i></span><input type="text" id="cedula" placeholder="Ej: 14.932.051"></div><div class="err">Requerido.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="credit-card" style="width:15px;height:15px;"></i></span><input type="text" id="cedula" placeholder="Ej: 14.932.051"></div><div class="err">Requerido.</div></div>
           <div class="field" id="f-celular"><label>Celular <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="smartphone"></i></span><input type="tel" id="celular" placeholder="+57 316 000 0000"></div><div class="err">Requerido.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="smartphone" style="width:15px;height:15px;"></i></span><input type="tel" id="celular" placeholder="+57 316 000 0000"></div><div class="err">Requerido.</div></div>
           <div class="field" id="f-fecha-nac"><label>Fecha de nacimiento <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="cake"></i></span><input type="date" id="fechaNac" max="2002-01-01"></div><div class="err">Requerido.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="calendar" style="width:15px;height:15px;"></i></span><input type="date" id="fechaNac" max="2002-01-01"></div><div class="err">Requerido.</div></div>
         </div>
 
         <div class="grid-2 mb">
@@ -87,18 +86,18 @@
           <div class="field" id="f-turno"><label>Turno de trabajo <span class="req">*</span></label>
             <div class="iw no"><select id="turno">
               <option value="">Seleccionar…</option>
-              <option value="Mañana (05:00 – 13:00)">Mañana (05:00 – 13:00)</option>
-              <option value="Tarde (13:00 – 21:00)">Tarde (13:00 – 21:00)</option>
-              <option value="Noche (21:00 – 05:00)">Noche (21:00 – 05:00)</option>
-              <option value="Doble (05:00 – 17:00)">Doble (05:00 – 17:00)</option>
+              <option value="Mañana (05:00 – 13:00)">🌅 Mañana (05:00 – 13:00)</option>
+              <option value="Tarde (13:00 – 21:00)">🌇 Tarde (13:00 – 21:00)</option>
+              <option value="Noche (21:00 – 05:00)">🌙 Noche (21:00 – 05:00)</option>
+              <option value="Doble (05:00 – 17:00)">⏰ Doble (05:00 – 17:00)</option>
             </select></div><div class="err">Selecciona el turno.</div></div>
         </div>
 
         <div class="grid-2">
           <div class="field"><label>Correo electrónico personal</label>
-            <div class="iw"><span class="xi"><i data-lucide="mail"></i></span><input type="email" id="correoPersonal" placeholder="correo@empresa.com"></div></div>
+            <div class="iw"><span class="xi"><i data-lucide="mail" style="width:15px;height:15px;"></i></span><input type="email" id="correoPersonal" placeholder="correo@empresa.com"></div></div>
           <div class="field"><label>Dirección de residencia</label>
-            <div class="iw"><span class="xi"><i data-lucide="home"></i></span><input type="text" id="direccion" placeholder="Cra 5 # 10-25, Cali"></div></div>
+            <div class="iw"><span class="xi"><i data-lucide="home" style="width:15px;height:15px;"></i></span><input type="text" id="direccion" placeholder="Cra 5 # 10-25, Cali"></div></div>
         </div>
       </div>
 
@@ -107,25 +106,25 @@
       <!-- ═══════════════════════════════ -->
       <div class="step-section" id="sec2">
         <div class="law-box warn">
-          <span><i data-lucide="scale" style="width:14px;height:14px;vertical-align:middle;"></i></span>
+          <i data-lucide="scale" style="width:16px;height:16px;flex-shrink:0;"></i>
           <span><strong>Res. 20203040021965 Min-Transporte:</strong> El vehículo debe contar con tarjeta de operación vigente, SOAT y revisión técnico-mecánica activos para la prestación del servicio público. Verifique la vigencia antes de registrar.</span>
         </div>
 
-        <div class="sec-title"><div class="sec-icon warn"><i data-lucide="bus"></i></div> Información del vehículo</div>
+        <div class="sec-title"><div class="sec-icon warn"><i data-lucide="bus" style="width:18px;height:18px;"></i></div> Información del vehículo</div>
 
         <div class="grid-3 mb">
           <div class="field" id="f-placa"><label>Placa del vehículo <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="tag"></i></span><input type="text" id="placa" placeholder="Ej: WXY-219" maxlength="8" style="text-transform:uppercase"></div><div class="err">Requerida.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="tag" style="width:15px;height:15px;"></i></span><input type="text" id="placa" placeholder="Ej: WXY-219" maxlength="8" style="text-transform:uppercase"></div><div class="err">Requerida.</div></div>
           <div class="field" id="f-tipo"><label>Tipo de vehículo <span class="req">*</span></label>
             <div class="iw no"><select id="tipoVeh">
               <option value="">Seleccionar…</option>
-              <option value="Bus urbano">Bus urbano</option>
-              <option value="Campero / Guala">Campero / Guala</option>
-              <option value="Microbús">Microbús</option>
-              <option value="Buseta">Buseta</option>
+              <option value="Bus urbano">🚌 Bus urbano</option>
+              <option value="Campero / Guala">🚙 Campero / Guala</option>
+              <option value="Microbús">🚐 Microbús</option>
+              <option value="Buseta">🚍 Buseta</option>
             </select></div><div class="err">Requerido.</div></div>
           <div class="field" id="f-capacidad"><label>Capacidad (pasajeros) <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="users"></i></span><input type="number" id="capacidad" placeholder="Ej: 39" min="4" max="80"></div><div class="err">Requerida.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="users" style="width:15px;height:15px;"></i></span><input type="number" id="capacidad" placeholder="Ej: 39" min="4" max="80"></div><div class="err">Requerida.</div></div>
         </div>
 
         <div class="grid-3 mb">
@@ -137,28 +136,28 @@
               <option>Hino</option><option>Volkswagen</option><option>Otra</option>
             </select></div><div class="err">Requerida.</div></div>
           <div class="field" id="f-modelo"><label>Modelo <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="wrench"></i></span><input type="text" id="modeloVeh" placeholder="Ej: OF-1418"></div><div class="err">Requerido.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="wrench" style="width:15px;height:15px;"></i></span><input type="text" id="modeloVeh" placeholder="Ej: OF-1418"></div><div class="err">Requerido.</div></div>
           <div class="field" id="f-anio"><label>Año <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="calendar"></i></span><input type="number" id="anioVeh" placeholder="Ej: 2019" min="1990" max="2026"></div><div class="err">Requerido.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="calendar" style="width:15px;height:15px;"></i></span><input type="number" id="anioVeh" placeholder="Ej: 2019" min="1990" max="2026"></div><div class="err">Requerido.</div></div>
         </div>
 
         <div class="grid-2 mb">
           <div class="field"><label>Color del vehículo</label>
-            <div class="iw"><span class="xi"><i data-lucide="palette"></i></span><input type="text" id="colorVeh" placeholder="Ej: Amarillo con franja roja"></div></div>
+            <div class="iw"><span class="xi"><i data-lucide="palette" style="width:15px;height:15px;"></i></span><input type="text" id="colorVeh" placeholder="Ej: Amarillo con franja roja"></div></div>
           <div class="field" id="f-top"><label>Tarjeta de Operación N° <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="file-text"></i></span><input type="text" id="tarjetaOp" placeholder="Ej: TOP-20240312-001"></div><div class="err">Requerida.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="file-text" style="width:15px;height:15px;"></i></span><input type="text" id="tarjetaOp" placeholder="Ej: TOP-20240312-001"></div><div class="err">Requerida.</div></div>
         </div>
 
         <div class="law-box green" style="margin-top:4px;">
-          <span><i data-lucide="file-text"></i></span>
+          <i data-lucide="file-text" style="width:16px;height:16px;flex-shrink:0;"></i>
           <span><strong>Documentos de ley obligatorios:</strong> El SOAT (Ley 769/2002, Art. 42) y la revisión técnico-mecánica (Dec. 2150/1995) deben estar vigentes para operar el servicio.</span>
         </div>
 
         <div class="grid-2">
           <div class="field" id="f-soat"><label>Vencimiento SOAT <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="clipboard-list"></i></span><input type="date" id="soatVence"></div><div class="err">Requerido.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="calendar" style="width:15px;height:15px;"></i></span><input type="date" id="soatVence"></div><div class="err">Requerido.</div></div>
           <div class="field" id="f-tecno"><label>Vencimiento Revisión Técnico-Mecánica <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="wrench"></i></span><input type="date" id="tecnoVence"></div><div class="err">Requerida.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="calendar" style="width:15px;height:15px;"></i></span><input type="date" id="tecnoVence"></div><div class="err">Requerida.</div></div>
         </div>
       </div>
 
@@ -167,15 +166,15 @@
       <!-- ═══════════════════════════════ -->
       <div class="step-section" id="sec3">
         <div class="law-box blue">
-          <span><i data-lucide="scale" style="width:14px;height:14px;vertical-align:middle;"></i></span>
+          <i data-lucide="scale" style="width:16px;height:16px;flex-shrink:0;"></i>
           <span><strong>Código Nacional de Tránsito — Ley 769/2002, Art. 19:</strong> Para conducir vehículos de servicio público colectivo se requiere categoría <strong>C3</strong> como mínimo. Vehículos especiales de ladera (gualas/camperos): categoría <strong>C2</strong>.</span>
         </div>
 
-        <div class="sec-title"><div class="sec-icon"><i data-lucide="credit-card"></i></div> Licencia de conducción</div>
+        <div class="sec-title"><div class="sec-icon"><i data-lucide="credit-card" style="width:18px;height:18px;"></i></div> Licencia de conducción</div>
 
         <div class="grid-2 mb">
           <div class="field" id="f-lic-num"><label>Número de licencia <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="credit-card"></i></span><input type="text" id="licNum" placeholder="Igual al número de cédula"></div><div class="err">Requerido.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="credit-card" style="width:15px;height:15px;"></i></span><input type="text" id="licNum" placeholder="Igual al número de cédula"></div><div class="err">Requerido.</div></div>
           <div class="field">
             <label>Autoridad expedidora</label>
             <div class="iw no"><select id="licAuth">
@@ -195,8 +194,8 @@
             <button type="button" class="lic-btn" data-cat="B2" onclick="selLic(this)">B2<br><span class="lic-desc">Camión liviano</span></button>
             <button type="button" class="lic-btn" data-cat="B3" onclick="selLic(this)">B3<br><span class="lic-desc">Veh. público ≤ 3.5t</span></button>
             <button type="button" class="lic-btn" data-cat="C1" onclick="selLic(this)">C1<br><span class="lic-desc">Servicio público</span></button>
-            <button type="button" class="lic-btn" data-cat="C2" onclick="selLic(this)" id="catC2">C2<br><span class="lic-desc">Público especial</span></button>
-            <button type="button" class="lic-btn selected" data-cat="C3" onclick="selLic(this)" id="catC3">C3<br><span class="lic-desc">Bus urbano colectivo</span></button>
+            <button type="button" class="lic-btn" data-cat="C2" onclick="selLic(this)" id="catC2">C2 ⭐<br><span class="lic-desc">Público especial</span></button>
+            <button type="button" class="lic-btn selected" data-cat="C3" onclick="selLic(this)" id="catC3">C3 ✅<br><span class="lic-desc">Bus urbano colectivo</span></button>
             <button type="button" class="lic-btn" data-cat="C4" onclick="selLic(this)">C4<br><span class="lic-desc">Veh. articulado</span></button>
           </div>
           <input type="hidden" id="licCat" value="C3">
@@ -205,9 +204,9 @@
 
         <div class="grid-3 mb">
           <div class="field" id="f-lic-exp"><label>Fecha de expedición <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="calendar"></i></span><input type="date" id="licExp"></div><div class="err">Requerida.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="calendar" style="width:15px;height:15px;"></i></span><input type="date" id="licExp"></div><div class="err">Requerida.</div></div>
           <div class="field" id="f-lic-vence"><label>Fecha de vencimiento <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="calendar"></i></span><input type="date" id="licVence"></div><div class="err">Requerida.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="calendar" style="width:15px;height:15px;"></i></span><input type="date" id="licVence"></div><div class="err">Requerida.</div></div>
           <div class="field"><label>Restricciones</label>
             <div class="iw no"><select id="restricciones">
               <option value="Ninguna">Ninguna</option>
@@ -222,15 +221,15 @@
       <!-- PASO 4 — CREDENCIALES DE ACCESO-->
       <!-- ═══════════════════════════════ -->
       <div class="step-section" id="sec4">
-        <div class="sec-title"><div class="sec-icon"><i data-lucide="shield-check"></i></div> Credenciales de acceso al sistema</div>
+        <div class="sec-title"><div class="sec-icon"><i data-lucide="lock" style="width:18px;height:18px;"></i></div> Credenciales de acceso al sistema</div>
 
         <div class="field mb" id="f-correo"><label>Correo electrónico institucional / personal <span class="req">*</span></label>
-          <div class="iw"><span class="xi"><i data-lucide="mail"></i></span><input type="email" id="correo" placeholder="conductor@empresa.com"></div><div class="err">Correo inválido.</div></div>
+          <div class="iw"><span class="xi"><i data-lucide="mail" style="width:15px;height:15px;"></i></span><input type="email" id="correo" placeholder="conductor@empresa.com"></div><div class="err">Correo inválido.</div></div>
 
         <div class="grid-2 mb">
           <div class="field" id="f-pass"><label>Contraseña <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="lock"></i></span><input type="password" id="pass" class="pr" placeholder="Mín. 8 caracteres" oninput="checkStrength(this.value)">
-            <span class="xir" onclick="toggleVis('pass')"><i data-lucide="eye"></i></span></div>
+            <div class="iw"><span class="xi"><i data-lucide="lock" style="width:15px;height:15px;"></i></span><input type="password" id="pass" class="pr" placeholder="Mín. 8 caracteres" oninput="checkStrength(this.value)">
+            <span class="xir" onclick="toggleVis('pass')"><i data-lucide="eye" style="width:15px;height:15px;"></i></span></div>
             <div style="margin-top:6px;">
               <div style="display:flex;gap:4px;margin-bottom:3px;">
                 <div style="flex:1;height:3px;border-radius:99px;background:var(--border);transition:background .3s;" id="seg1"></div>
@@ -242,11 +241,11 @@
             </div>
             <div class="err">Mín. 8 caracteres, mayúscula, número y símbolo.</div></div>
           <div class="field" id="f-pass2"><label>Confirmar contraseña <span class="req">*</span></label>
-            <div class="iw"><span class="xi"><i data-lucide="lock"></i></span><input type="password" id="pass2" class="pr" placeholder="Repite la contraseña">
-            <span class="xir" onclick="toggleVis('pass2')"><i data-lucide="eye"></i></span></div><div class="err">Las contraseñas no coinciden.</div></div>
+            <div class="iw"><span class="xi"><i data-lucide="lock" style="width:15px;height:15px;"></i></span><input type="password" id="pass2" class="pr" placeholder="Repite la contraseña">
+            <span class="xir" onclick="toggleVis('pass2')"><i data-lucide="eye" style="width:15px;height:15px;"></i></span></div><div class="err">Las contraseñas no coinciden.</div></div>
         </div>
 
-        <div class="sec-title" style="margin-top:4px;"><div class="sec-icon"><i data-lucide="map"></i></div>Asignación de ruta</div>
+        <div class="sec-title" style="margin-top:4px;"><div class="sec-icon"><i data-lucide="map" style="width:18px;height:18px;"></i></div>Asignación de ruta</div>
         <div class="grid-2">
           <div class="field" id="f-ruta"><label>Ruta asignada <span class="req">*</span></label>
             <div class="iw no"><select id="rutaAsig">
@@ -267,7 +266,7 @@
       <!-- PASO 5 — CONFIRMACIÓN           -->
       <!-- ═══════════════════════════════ -->
       <div class="step-section" id="sec5">
-        <div class="sec-title"><div class="sec-icon green"><i data-lucide="check-circle"></i></div> Resumen de la ficha</div>
+        <div class="sec-title"><div class="sec-icon green"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></div> Resumen de la ficha</div>
         <div id="summaryBox"></div>
 
         <!-- ── Checklist de aceptaciones legales ── -->
@@ -280,8 +279,8 @@
           <label id="f-habeas" style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:12px;cursor:pointer;margin-bottom:10px;transition:border-color .2s;">
             <input type="checkbox" id="chkHabeas" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#0DCCA0;">
             <div>
-              <div style="font-size:.83rem;font-weight:600;color:#166534;margin-bottom:3px;">
-                🛡️ Autorización de Tratamiento de Datos Personales
+              <div style="font-size:.83rem;font-weight:600;color:#166534;margin-bottom:3px;display:flex;align-items:center;gap:6px;">
+                <i data-lucide="shield-check" style="width:14px;height:14px;"></i> Autorización de Tratamiento de Datos Personales
               </div>
               <div style="font-size:.77rem;color:#374151;line-height:1.55;">
                 Autorizo expresamente el tratamiento de mis datos personales conforme a la
@@ -298,8 +297,8 @@
           <label id="f-terminos-label" style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#EFF8FF;border:1.5px solid #BAE3FF;border-radius:12px;cursor:pointer;transition:border-color .2s;">
             <input type="checkbox" id="terminos" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#1EA0D8;">
             <div>
-              <div style="font-size:.83rem;font-weight:600;color:#0369A1;margin-bottom:3px;">
-                📄 Declaración de veracidad y Reglamento
+              <div style="font-size:.83rem;font-weight:600;color:#0369A1;margin-bottom:3px;display:flex;align-items:center;gap:6px;">
+                <i data-lucide="file-check" style="width:14px;height:14px;"></i> Declaración de veracidad y Reglamento
               </div>
               <div style="font-size:.77rem;color:#374151;line-height:1.55;">
                 Declaro que la información consignada es verídica y completa. Acepto los
@@ -316,10 +315,10 @@
 
       <!-- ÉXITO -->
       <div class="success-screen" id="successScreen">
-        <div class="success-icon"><i data-lucide="bus"></i></div>
+        <div class="success-icon"><i data-lucide="check-circle" style="width:48px;height:48px;color:#0DCCA0;"></i></div>
         <h2 class="success-title">¡Ficha registrada exitosamente!</h2>
         <p class="success-desc">Tu ficha de conductor ha sido creada en el sistema WayRoute.<br>Ahora puedes iniciar sesión y acceder a tu panel de conductor.</p>
-        <a href="../login.html" class="success-btn">Ir al login</a>
+        <a href="../login.html" class="success-btn" style="display:inline-flex;align-items:center;gap:8px;"><i data-lucide="log-in" style="width:16px;height:16px;"></i> Ir al login</a>
       </div>
 
       <!-- NAV -->
@@ -336,6 +335,7 @@
   <div class="toast-container" id="toastBox"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="../js/services/supabase.js"></script>
   <script src="../js/services/AuthService.js"></script>
 
@@ -346,6 +346,7 @@
     // ── HABEAS DATA — mostrar modal antes de permitir el registro ──
     document.addEventListener('DOMContentLoaded', () => {
       HabeasData.init({ rol: 'conductor', onReject: '../login.html' });
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 
     let cur = 1;
@@ -382,10 +383,10 @@
             optOtra.value = 'Otra';
             optOtra.textContent = 'Otra empresa...';
             selectEmpresa.appendChild(optOtra);
-            console.log('Empresas cargadas desde BD');
+            console.log('✅ Empresas cargadas desde BD');
           }
         } catch (err) {
-          console.warn('No se pudieron cargar empresas de la BD, usando predefinidas.', err);
+          console.warn('⚠️ No se pudieron cargar empresas de la BD, usando predefinidas.', err);
         }
       }
     }
@@ -519,7 +520,7 @@
     function checkStrength(p) {
       let sc=0;
       if(p.length>=8)sc++;if(/[A-Z]/.test(p))sc++;if(/[0-9]/.test(p))sc++;if(/[^a-zA-Z0-9]/.test(p))sc++;
-      const labels=['','Débil','Regular','Buena','Fuerte'];
+      const labels=['','Débil 🔴','Regular 🟡','Buena 🔵','Fuerte 🟢'];
       const colors=['','#EF4444','#F59E0B','#1EA0D8','#0DCCA0'];
       for(let i=1;i<=4;i++) document.getElementById('seg'+i).style.background = i<=sc ? colors[sc] : 'var(--border)';
       document.getElementById('strengthLbl').textContent = p ? labels[sc] : 'Ingresa una contraseña';
@@ -535,7 +536,7 @@
     function buildSummary() {
       const rutaRaw = g('rutaAsig'); const [cr, nr] = rutaRaw.split('|');
       document.getElementById('summaryBox').innerHTML = `
-        <div style="margin-bottom:12px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">Datos personales</div>
+        <div style="margin-bottom:12px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">👤 Datos personales</div>
         <div class="sum-grid">
           ${row('Nombre completo', g('nombres')+' '+g('apellidos'))}
           ${row('Cédula', g('cedula'))}
@@ -544,7 +545,7 @@
           ${row('Turno', g('turno'))}
           ${row('Correo', g('correo'))}
         </div>
-        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">Vehículo</div>
+        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">🚌 Vehículo</div>
         <div class="sum-grid">
           ${row('Placa', g('placa').toUpperCase())}
           ${row('Tipo', g('tipoVeh'))}
@@ -553,14 +554,14 @@
           ${row('Vence SOAT', g('soatVence'))}
           ${row('Vence Tecno.', g('tecnoVence'))}
         </div>
-        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">Licencia</div>
+        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">🪪 Licencia</div>
         <div class="sum-grid">
           ${row('Número', g('licNum'))}
           ${row('Categoría', licCatSel)}
           ${row('Expedición', g('licExp'))}
           ${row('Vencimiento', g('licVence'))}
         </div>
-        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">Asignación</div>
+        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">🗺️ Asignación</div>
         <div class="sum-grid">
           ${row('Ruta', nr||cr)}
         </div>`;
@@ -613,15 +614,10 @@
     function toast(msg, type='success') {
       const el = document.createElement('div');
       el.className = `toast toast-${type}`;
-      el.innerHTML = `${msg}`;
+      el.innerHTML = `<span>${type==='success'?'✅':'❌'}</span> ${msg}`;
       document.getElementById('toastBox').appendChild(el);
       setTimeout(()=>el.remove(), 4500);
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    });
-    if (typeof lucide !== 'undefined') lucide.createIcons();
   </script>
 </body>
 </html>

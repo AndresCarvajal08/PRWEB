@@ -271,7 +271,9 @@ body {
 }
 .role-btn:hover:not(.active) { border-color: var(--primary); background: #f0f8fd; }
 .role-icon {
-  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   z-index: 1;
 }
@@ -315,7 +317,8 @@ body {
   left: 13px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 16px;
+  display: flex;
+  align-items: center;
   color: var(--text-m);
   pointer-events: none;
   z-index: 1;
@@ -325,9 +328,10 @@ body {
   right: 13px;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
   cursor: pointer;
   color: var(--text-m);
-  font-size: 16px;
   z-index: 1;
   transition: color 0.15s;
 }

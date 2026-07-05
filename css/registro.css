@@ -167,8 +167,8 @@ body {
 .field.has-error select { border-color: var(--danger) !important; }
 
 .iw { position: relative; }
-.iw .xi { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-m); pointer-events: none; }
-.iw .xir { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; cursor: pointer; color: var(--text-m); transition: color 0.15s; }
+.iw .xi { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); display:flex; align-items:center; color: var(--text-m); pointer-events: none; }
+.iw .xir { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display:flex; align-items:center; cursor: pointer; color: var(--text-m); transition: color 0.15s; }
 .iw .xir:hover { color: var(--primary); }
 .iw input, .iw select, .iw textarea {
   width: 100%; padding: 10px 14px 10px 36px;

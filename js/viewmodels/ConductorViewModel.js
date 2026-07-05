@@ -13,108 +13,192 @@ document.addEventListener('DOMContentLoaded', () => {
     const sesion = _auth.requireAuth('conductor');
     if (!sesion) return;
 
-    // 2. Inicializar Vistas con datos de sesión
+    // 2. Datos de sesión
     let usuarioFull = window.SesionModel ? window.SesionModel.getUsuarioCompleto() : null;
-    
-    // Si no hay datos completos localmente, intentar traerlos de la base de datos
+
     if (!usuarioFull && sesion.id && window.UsuarioModel) {
         window.UsuarioModel.buscarPorAuthUid(sesion.id).then(u => {
             if (u) {
                 usuarioFull = u;
-                if (window.SesionModel) {
-                    sessionStorage.setItem('movicali_usuario_full', JSON.stringify(u));
-                }
-                if (window.NavView) {
-                    window.NavView.actualizarPerfilPantalla(u, sesion);
-                }
-                // Si cargó el usuario, verificar ahora si faltan detalles técnicos
+                sessionStorage.setItem('movicali_usuario_full', JSON.stringify(u));
+                window.NavView?.actualizarPerfilPantalla(u, sesion);
                 cargarDetallesTecnicos(u);
+                rellenarFormularioPerfil(u);
             }
         });
     }
 
-    if (window.NavView) {
-        window.NavView.actualizarUsuarioNav(sesion);
-        window.NavView.actualizarPerfilPantalla(usuarioFull, sesion);
-    }
+    window.NavView?.actualizarUsuarioNav(sesion);
+    window.NavView?.actualizarPerfilPantalla(usuarioFull, sesion);
 
-    // 2b. Si es conductor y faltan datos técnicos, intentar cargarlos de Supabase
     function cargarDetallesTecnicos(u) {
-        if (sesion.rol === 'conductor' && u && !u.vehiculo_placa && window.ConductorModel) {
+        if (sesion.rol === 'conductor' && u && window.ConductorModel) {
             window.ConductorModel.obtenerDetalles(sesion.id).then(detalles => {
                 if (detalles) {
                     const updatedUser = { ...u, ...detalles };
-                    if (window.SesionModel) {
-                        sessionStorage.setItem('movicali_usuario_full', JSON.stringify(updatedUser));
-                    }
-                    if (window.NavView) {
-                        window.NavView.actualizarPerfilPantalla(updatedUser, sesion);
-                    }
+                    sessionStorage.setItem('movicali_usuario_full', JSON.stringify(updatedUser));
+                    window.NavView?.actualizarPerfilPantalla(updatedUser, sesion);
+                    rellenarFormularioPerfil(updatedUser);
                 }
             });
         }
     }
-    
-    if (usuarioFull) cargarDetallesTecnicos(usuarioFull);
-    
-    // Updates específicos de conductor
-    if (usuarioFull) {
-        const shiftInfo = document.getElementById('shiftInfo');
-        const profileSub = document.getElementById('profileSub');
-        const empresa = usuarioFull.empresa || 'Empresa Independiente';
-        const rutaStr = usuarioFull.ruta_asignada || 'Ruta no asignada';
 
-        if (shiftInfo) shiftInfo.textContent = `Turno activo · ${rutaStr} · ${empresa}`;
+    function rellenarFormularioPerfil(u) {
+        const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+        setVal('profileInputNombre',   (u.nombres || '') + (u.apellidos ? ' ' + u.apellidos : ''));
+        setVal('profileInputEmail',    u.correo);
+        setVal('profileInputTelefono', u.celular);
+        setVal('profileInputPlaca',    u.vehiculo_placa);
+        if (u.licencia_categoria || u.licencia_numero) {
+            setVal('profileInputLicencia', `${u.licencia_categoria || ''} — ${u.licencia_numero || ''}`);
+        }
+        const nameEl = document.getElementById('profileName');
+        if (nameEl) nameEl.textContent = (u.nombres || '') + ' ' + (u.apellidos || '');
+    }
+
+    if (usuarioFull) {
+        cargarDetallesTecnicos(usuarioFull);
+        rellenarFormularioPerfil(usuarioFull);
+
+        const shiftInfo  = document.getElementById('shiftInfo');
+        const profileSub = document.getElementById('profileSub');
+        const empresa    = usuarioFull.empresa || 'Empresa Independiente';
+        const rutaStr    = usuarioFull.ruta_asignada || 'Ruta no asignada';
+
+        if (shiftInfo)  shiftInfo.textContent  = `Turno activo · ${rutaStr} · ${empresa}`;
         if (profileSub) profileSub.textContent = `Conductor · ${empresa} · ${rutaStr}`;
     }
 
-    // 3. Inicializar Módulos de datos (Sincroniza y hace polling)
+    // 3. Alertas
     const _alertas = window.AlertaViewModel || window.AlertaController;
-    if (_alertas) {
-        _alertas.init(true); // true = conductor
-    }
+    if (_alertas) _alertas.init(true);
 
-    // 4. Exponer guardado de perfil unificado
-    window.guardarPerfil = async function() {
+    // ── C-HU-04: Cargar historial de turnos desde Supabase ──
+    window.cargarHistorialTurnos = async function () {
+        const tbody = document.getElementById('bodyTurnosDinamico');
+        if (!tbody) return;
+
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:#94a3b8;">⏳ Cargando turnos...</td></tr>';
+
+        const turnos = await (window.TurnoModel
+            ? window.TurnoModel.obtenerPorConductor(sesion.id)
+            : Promise.resolve([]));
+
+        if (!turnos.length) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:#94a3b8;">Sin registros de turnos aún.</td></tr>';
+            return;
+        }
+
+        const hoy = new Date().toISOString().split('T')[0];
+        tbody.innerHTML = turnos.map(t => {
+            const estaActivo = t.estado === 'activo';
+            const fechaLabel = t.fecha === hoy ? 'Hoy' : t.fecha;
+            const estadoTag  = estaActivo
+                ? '<span class="tag tag-green">Activo</span>'
+                : '<span class="tag tag-gray">Completado</span>';
+            return `<tr>
+                <td>${fechaLabel}</td>
+                <td><strong>${t.ruta || '—'}</strong></td>
+                <td>${t.hora_inicio || '—'}</td>
+                <td>${estaActivo ? 'En curso' : (t.hora_fin || '—')}</td>
+                <td>${t.vueltas ?? '—'}</td>
+                <td>${t.reportes ?? '—'}</td>
+                <td>${estadoTag}</td>
+            </tr>`;
+        }).join('');
+    };
+
+    // ── C-HU-03: Guardar perfil completo del conductor ──
+    window.guardarPerfil = async function () {
         const btn = document.getElementById('btnGuardarPerfil');
         if (!btn || !window.UsuarioModel) return;
 
+        const nombres     = document.getElementById('profileInputNombre').value.trim();
+        const correo      = document.getElementById('profileInputEmail').value.trim();
+        const celular     = document.getElementById('profileInputTelefono').value.trim();
+        const placa       = document.getElementById('profileInputPlaca').value.trim();
+        const licenciaStr = document.getElementById('profileInputLicencia').value.trim();
+
+        if (!nombres) {
+            window.Toast?.show('⚠️ El nombre es obligatorio.');
+            return;
+        }
+
+        const partes    = nombres.split(' ');
         const nuevosDatos = {
-            nombres: document.getElementById('profileInputNombre').value,
-            correo: document.getElementById('profileInputEmail').value,
-            celular: document.getElementById('profileInputTelefono').value
+            nombres:   partes[0],
+            apellidos: partes.length > 1 ? partes.slice(1).join(' ') : '',
+            celular,
+            barrio:    null
         };
 
-        const placa = document.getElementById('profileInputPlaca').value;
-        const licenciaStr = document.getElementById('profileInputLicencia').value;
-
-        btn.disabled = true;
+        btn.disabled    = true;
         btn.textContent = '⏳ Guardando...';
 
+        // 1. Actualizar tabla usuarios
         const result = await window.UsuarioModel.actualizar(nuevosDatos);
-        
-        // Actualizar detalles técnicos si existen
+
+        // 2. Actualizar correo directamente en tabla usuarios (sin tocar auth)
+        if (result.ok && correo && window.supabaseClient) {
+            const u = window.SesionModel?.getUsuarioCompleto();
+            if (u?.id) {
+                await window.supabaseClient
+                    .from('usuarios')
+                    .update({ correo })
+                    .eq('id', u.id);
+            }
+        }
+
+        // 3. Actualizar tabla conductores (placa, licencia)
         if (result.ok && window.ConductorModel) {
-            const sesion = window.SesionModel.getSesion();
-            // Parsing simple de la licencia (tomar lo que está después del guion o todo el string)
             const licNum = licenciaStr.includes('—') ? licenciaStr.split('—')[1].trim() : licenciaStr;
             const licCat = licenciaStr.includes('—') ? licenciaStr.split('—')[0].trim() : '';
 
             await window.ConductorModel.actualizarDetalles(sesion.id, {
-                vehiculo_placa: placa,
-                licencia_numero: licNum,
-                licencia_categoria: licCat
+                vehiculo_placa:      placa,
+                licencia_numero:     licNum,
+                licencia_categoria:  licCat
             });
         }
-        
-        btn.disabled = false;
+
+        btn.disabled    = false;
         btn.textContent = 'Guardar cambios en base de datos';
 
         if (result.ok) {
-            window.Toast.show('✅ Perfil actualizado en la base de datos de Supabase.');
-            window.NavView.actualizarUsuarioNav(window.SesionModel.getSesion());
+            // Actualizar header del perfil en pantalla
+            const nameEl = document.getElementById('profileName');
+            if (nameEl) nameEl.textContent = nombres;
+
+            window.Toast?.show('✅ Perfil actualizado correctamente en Supabase.');
+            window.NavView?.actualizarUsuarioNav(window.SesionModel.getSesion());
         } else {
-            window.Toast.show('❌ Error: ' + result.error);
+            window.Toast?.show('❌ Error: ' + result.error);
         }
     };
+
+    // ── C-HU-07: Compartir reporte de incidente ──
+    window.compartirIncidente = function (tipo, desc, ubicacion, fecha) {
+        const texto = `🚨 REPORTE DE INCIDENTE — WayRoute\n` +
+            `Tipo: ${tipo}\n` +
+            `Descripción: ${desc}\n` +
+            `Ubicación: ${ubicacion}\n` +
+            `Fecha: ${fecha}\n` +
+            `Reportado desde la app WayRoute / MoviCali`;
+
+        if (navigator.share) {
+            navigator.share({ title: 'Reporte WayRoute', text: texto })
+                .catch(() => copiarAlPortapapeles(texto));
+        } else {
+            copiarAlPortapapeles(texto);
+        }
+    };
+
+    function copiarAlPortapapeles(texto) {
+        navigator.clipboard?.writeText(texto).then(() => {
+            window.Toast?.show('📋 Reporte copiado al portapapeles.');
+        }).catch(() => {
+            window.Toast?.show('⚠️ No se pudo copiar. Copia manualmente.');
+        });
+    }
 });
