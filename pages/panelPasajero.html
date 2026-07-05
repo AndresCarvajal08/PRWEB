@@ -325,6 +325,11 @@
                                 <div style="font-size:.75rem;color:#64748b;margin-top:2px;">por pasajero · pago en efectivo</div>
                                 <div id="costoRutaNombre" style="font-size:.72rem;color:#94a3b8;margin-top:4px;"></div>
                             </div>
+                            <div id="btnRegistrarViaje" style="display:none;align-self:flex-end;">
+                                <button onclick="abrirModalViaje()" class="btn btn-primary" style="white-space:nowrap;">
+                                    <i data-lucide="plus-circle" style="width:14px;height:14px;"></i> Registrar viaje
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -2512,18 +2517,31 @@
             'Sur Pryca':     3200
         };
 
+        const RUTA_META = {
+            'Especial Sur':   { codigo: 'G-07', nombre: 'Ruta Especial Sur',  origen: 'La Ermita',     destino: 'Centenario'       },
+            'Norte':          { codigo: 'B-22A', nombre: 'Ruta Norte',         origen: 'Granada (Cll 22N)', destino: 'Santa Mónica' },
+            'Gualas Oriente': { codigo: 'G-12', nombre: 'Gualas Oriente',     origen: 'Cra 22',        destino: 'Cll 92'           },
+            'Sur Pryca':      { codigo: 'B-14', nombre: 'Ruta Sur',           origen: 'Pryca (Cra 86)', destino: 'U. Antonio Nariño'}
+        };
+
         function actualizarCostoRuta() {
             const sel     = document.getElementById('selectRutaCosto');
             const display = document.getElementById('costoEstimadoDisplay');
+            const btnReg  = document.getElementById('btnRegistrarViaje');
             const ruta    = sel.value;
 
-            if (!ruta) { display.style.display = 'none'; return; }
+            if (!ruta) {
+                display.style.display = 'none';
+                btnReg.style.display  = 'none';
+                return;
+            }
 
             const tarifa = TARIFAS_RUTA[ruta] || 3500;
-            document.getElementById('costoValor').textContent =
-                '$' + tarifa.toLocaleString('es-CO');
-            document.getElementById('costoRutaNombre').textContent = ruta;
+            document.getElementById('costoValor').textContent = '$' + tarifa.toLocaleString('es-CO');
+            document.getElementById('costoRutaNombre').textContent = RUTA_META[ruta]?.nombre || ruta;
             display.style.display = 'block';
+            btnReg.style.display  = 'flex';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         window.actualizarCostoRuta = actualizarCostoRuta;
 
@@ -2702,6 +2720,200 @@
             } catch (e) { /* sin conexión, quedan en — */ }
         }
 
+        // ===== VIAJES — GUARDAR Y CARGAR HISTORIAL =====
+
+        function abrirModalViaje() {
+            const ruta = document.getElementById('selectRutaCosto').value;
+            const meta = RUTA_META[ruta] || {};
+            const costo = TARIFAS_RUTA[ruta] || 0;
+            document.getElementById('viajeRuta').value     = meta.nombre || ruta;
+            document.getElementById('viajeRutaCod').value  = meta.codigo || ruta;
+            document.getElementById('viajeCosto').value    = costo;
+            document.getElementById('viajeOrigen').value   = document.getElementById('quickOrigin')?.value || meta.origen || '';
+            document.getElementById('viajeDestino').value  = document.getElementById('quickDest')?.value  || meta.destino || '';
+            document.getElementById('viajeDuracion').value = '';
+            document.getElementById('errViaje').style.display = 'none';
+            document.getElementById('modalViaje').style.display = 'flex';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function cerrarModalViaje() {
+            document.getElementById('modalViaje').style.display = 'none';
+        }
+
+        async function guardarViaje() {
+            const origen   = document.getElementById('viajeOrigen').value.trim();
+            const destino  = document.getElementById('viajeDestino').value.trim();
+            const rutaNombre = document.getElementById('viajeRuta').value;
+            const rutaCod  = document.getElementById('viajeRutaCod').value;
+            const costo    = parseInt(document.getElementById('viajeCosto').value) || 0;
+            const duracion = parseInt(document.getElementById('viajeDuracion').value) || null;
+            const err      = document.getElementById('errViaje');
+            const btn      = document.getElementById('btnGuardarViaje');
+
+            if (!origen || !destino) {
+                err.textContent = 'Origen y destino son obligatorios.';
+                err.style.display = 'block';
+                return;
+            }
+
+            const s = sessionStorage.getItem('wayroute_sesion');
+            const userId = s ? JSON.parse(s).id : null;
+            if (!userId) { err.textContent = 'Sesión no encontrada.'; err.style.display = 'block'; return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            try {
+                const { error } = await window.supabaseClient.from('viajes').insert({
+                    usuario_id:  userId,
+                    ruta_codigo: rutaCod,
+                    ruta_nombre: rutaNombre,
+                    origen, destino,
+                    duracion_min: duracion,
+                    costo,
+                    estado: 'completado',
+                    fecha: new Date().toISOString()
+                });
+                if (error) throw error;
+                cerrarModalViaje();
+                showToast('Viaje registrado correctamente');
+                // Refrescar historial si está visible
+                if (document.getElementById('view-historial')?.classList.contains('active')) {
+                    cargarHistorial();
+                }
+            } catch (e) {
+                err.textContent = 'Error al guardar: ' + (e.message || 'intenta de nuevo');
+                err.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="check" style="width:15px;height:15px;"></i> Guardar viaje';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+
+        async function cargarHistorial() {
+            const s = sessionStorage.getItem('wayroute_sesion');
+            const userId = s ? JSON.parse(s).id : null;
+            if (!userId || !window.supabaseClient) return;
+
+            const { data: viajes, error } = await window.supabaseClient
+                .from('viajes')
+                .select('*')
+                .eq('usuario_id', userId)
+                .order('fecha', { ascending: false });
+
+            if (error || !viajes || viajes.length === 0) return;
+
+            // ── KPIs ──
+            const ahora = new Date();
+            const viajesMes = viajes.filter(v => {
+                const d = new Date(v.fecha);
+                return d.getMonth() === ahora.getMonth() && d.getFullYear() === ahora.getFullYear();
+            });
+
+            const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            set('histViajesMes', viajesMes.length);
+
+            const tiempoTotal = viajes.reduce((s, v) => s + (v.duracion_min || 0), 0);
+            set('histTiempo', tiempoTotal > 0 ? tiempoTotal + ' min' : '—');
+
+            const gastoMes = viajesMes.reduce((s, v) => s + (v.costo || 0), 0);
+            set('histGasto', gastoMes > 0 ? '$' + gastoMes.toLocaleString('es-CO') : '—');
+
+            const conteoRutas = viajes.reduce((acc, v) => {
+                const r = v.ruta_nombre || v.ruta_codigo || 'Sin ruta';
+                acc[r] = (acc[r] || 0) + 1;
+                return acc;
+            }, {});
+            const rutaFav = Object.entries(conteoRutas).sort((a, b) => b[1] - a[1])[0];
+            if (rutaFav) set('histRutaFav', rutaFav[0].replace('Ruta ', '').split(' ').slice(0,2).join(' '));
+
+            // ── TIMELINE ──
+            const tl = document.getElementById('histTimeline');
+            if (tl) {
+                tl.innerHTML = viajes.slice(0, 8).map(v => {
+                    const fecha = new Date(v.fecha);
+                    const horaStr = fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+                    const fechaStr = fecha.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' });
+                    return `<div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">${v.ruta_nombre || v.ruta_codigo}</div>
+                            <div class="timeline-sub">${v.origen || '—'} → ${v.destino || '—'}</div>
+                            <div class="timeline-meta">${fechaStr} · ${horaStr} · $${(v.costo||0).toLocaleString('es-CO')}${v.duracion_min ? ' · ' + v.duracion_min + ' min' : ''}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            // ── RUTAS MÁS USADAS ──
+            const ru = document.getElementById('histRutasUsadas');
+            if (ru) {
+                const total = viajes.length;
+                const sorted = Object.entries(conteoRutas).sort((a, b) => b[1] - a[1]).slice(0, 4);
+                const colores = ['#2563eb', '#10b981', '#f59e0b', '#ef4444'];
+                ru.innerHTML = sorted.map(([ruta, cnt], i) => `
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:4px;">
+                            <span style="font-weight:500;">${ruta}</span>
+                            <span style="color:#6b7280;">${cnt} viaje${cnt > 1 ? 's' : ''}</span>
+                        </div>
+                        <div style="background:#e5e7eb;border-radius:4px;height:6px;">
+                            <div style="background:${colores[i]};width:${Math.round(cnt/total*100)}%;height:6px;border-radius:4px;"></div>
+                        </div>
+                    </div>`).join('');
+            }
+
+            // ── HORARIOS FRECUENTES ──
+            const hh = document.getElementById('histHorarios');
+            if (hh) {
+                const franjas = { 'Mañana (5-12h)': 0, 'Tarde (12-18h)': 0, 'Noche (18-23h)': 0, 'Madrugada (0-5h)': 0 };
+                viajes.forEach(v => {
+                    const h = new Date(v.fecha).getHours();
+                    if (h >= 5 && h < 12) franjas['Mañana (5-12h)']++;
+                    else if (h >= 12 && h < 18) franjas['Tarde (12-18h)']++;
+                    else if (h >= 18 && h < 23) franjas['Noche (18-23h)']++;
+                    else franjas['Madrugada (0-5h)']++;
+                });
+                const maxFranja = Math.max(...Object.values(franjas));
+                hh.innerHTML = Object.entries(franjas)
+                    .filter(([, c]) => c > 0)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([franja, cnt]) => `
+                        <div style="display:flex;align-items:center;gap:10px;font-size:.83rem;">
+                            <span style="width:140px;color:#374151;">${franja}</span>
+                            <div style="flex:1;background:#e5e7eb;border-radius:4px;height:6px;">
+                                <div style="background:#2563eb;width:${Math.round(cnt/maxFranja*100)}%;height:6px;border-radius:4px;"></div>
+                            </div>
+                            <span style="color:#6b7280;width:28px;text-align:right;">${cnt}</span>
+                        </div>`).join('');
+            }
+
+            // ── INSIGHT IA ──
+            const ins = document.getElementById('histInsightIA');
+            if (ins && viajes.length > 0) {
+                const rutaTxt = rutaFav ? `Tu ruta más usada es <strong>${rutaFav[0]}</strong>.` : '';
+                const gastoTxt = gastoMes > 0 ? `Este mes llevas <strong>$${gastoMes.toLocaleString('es-CO)}</strong> en pasajes.` : '';
+                const horaFrecuente = Object.entries(
+                    viajes.reduce((acc, v) => {
+                        const h = new Date(v.fecha).getHours();
+                        acc[h] = (acc[h] || 0) + 1;
+                        return acc;
+                    }, {})
+                ).sort((a, b) => b[1] - a[1])[0];
+                const horaTxt = horaFrecuente ? `Sueles viajar alrededor de las <strong>${horaFrecuente[0]}:00</strong>.` : '';
+                ins.innerHTML = `Con base en tus ${viajes.length} viajes registrados: ${rutaTxt} ${gastoTxt} ${horaTxt} ¡Sigue usando WayRoute para recomendaciones más precisas!`;
+            }
+        }
+
+        // Cargar historial al navegar a esa sección
+        const _origNavigate = window.navigate;
+        window.navigate = function(view) {
+            _origNavigate(view);
+            if (view === 'historial') cargarHistorial();
+        };
+
         // Meses activo basado en fecha de registro del usuario
         function calcularMesesActivo() {
             const u = window.SesionModel?.getUsuarioCompleto?.();
@@ -2871,6 +3083,70 @@
         // Cargar contactos al iniciar
         document.addEventListener('DOMContentLoaded', () => { renderContactos(); });
     </script>
+
+    <!-- Modal registrar viaje -->
+    <div id="modalViaje" onclick="if(event.target===this)cerrarModalViaje()"
+        style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+        <div style="background:#fff;border-radius:20px;width:420px;max-width:94vw;box-shadow:0 24px 60px rgba(0,0,0,.22);overflow:hidden;">
+            <div style="background:linear-gradient(135deg,#059669,#10b981);padding:22px 24px 18px;color:#fff;display:flex;align-items:center;gap:12px;">
+                <div style="background:rgba(255,255,255,.18);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i data-lucide="bus" style="width:20px;height:20px;"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:1.05rem;font-weight:700;">Registrar viaje</div>
+                    <div id="viajeRuta" style="font-size:.8rem;opacity:.85;"></div>
+                </div>
+                <button onclick="cerrarModalViaje()" type="button"
+                    style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                    <i data-lucide="x" style="width:16px;height:16px;"></i>
+                </button>
+            </div>
+            <div style="padding:22px 24px 24px;display:flex;flex-direction:column;gap:14px;">
+                <input type="hidden" id="viajeRutaCod">
+                <input type="hidden" id="viajeCosto">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Origen <span style="color:#ef4444;">*</span></label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9ca3af;display:flex;"><i data-lucide="map-pin" style="width:14px;height:14px;"></i></span>
+                            <input id="viajeOrigen" type="text" placeholder="Ej: Centro"
+                                style="width:100%;padding:9px 10px 9px 30px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.87rem;box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='#e5e7eb'">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Destino <span style="color:#ef4444;">*</span></label>
+                        <div style="position:relative;">
+                            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9ca3af;display:flex;"><i data-lucide="flag" style="width:14px;height:14px;"></i></span>
+                            <input id="viajeDestino" type="text" placeholder="Ej: Unicentro"
+                                style="width:100%;padding:9px 10px 9px 30px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.87rem;box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='#e5e7eb'">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:.78rem;font-weight:600;color:#374151;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Duración del viaje <span style="font-weight:400;color:#9ca3af;">(minutos, opcional)</span></label>
+                    <div style="position:relative;">
+                        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9ca3af;display:flex;"><i data-lucide="clock" style="width:14px;height:14px;"></i></span>
+                        <input id="viajeDuracion" type="number" min="1" max="180" placeholder="Ej: 25"
+                            style="width:100%;padding:9px 10px 9px 30px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:.87rem;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='#e5e7eb'">
+                    </div>
+                </div>
+                <div id="errViaje" style="display:none;font-size:.82rem;color:#ef4444;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 12px;"></div>
+                <div style="display:flex;gap:10px;margin-top:2px;">
+                    <button type="button" onclick="cerrarModalViaje()"
+                        style="flex:1;padding:11px;border:1.5px solid #e5e7eb;background:#fff;border-radius:10px;cursor:pointer;font-size:.9rem;font-weight:500;color:#374151;">
+                        Cancelar
+                    </button>
+                    <button id="btnGuardarViaje" type="button" onclick="guardarViaje()"
+                        style="flex:2;padding:11px;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:.9rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i data-lucide="check" style="width:15px;height:15px;"></i> Guardar viaje
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal agregar contacto -->
     <div id="modalContacto" onclick="if(event.target===this)cerrarModalContacto()"
