@@ -2705,7 +2705,7 @@
             try {
                 const [{ count: usuarios }, { count: reportes }, { data: alertas }] = await Promise.all([
                     window.supabaseClient.from('usuarios').select('*', { count: 'exact', head: true }),
-                    window.supabaseClient.from('reportes').select('*', { count: 'exact', head: true }).eq('estado', 'pendiente'),
+                    window.supabaseClient.from('reportes').select('*', { count: 'exact', head: true }).eq('estatus', 'pendiente'),
                     window.supabaseClient.from('reportes').select('id').gte('created_at', new Date(Date.now() - 86400000).toISOString())
                 ]);
                 const set = (id, v) => { const el = document.getElementById(id); if (el && v !== null) el.textContent = v; };

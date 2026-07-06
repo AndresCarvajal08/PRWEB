@@ -797,7 +797,7 @@ const AdminPanel = {
                 sc.from('usuarios').select('*', { count:'exact', head:true }).eq('rol','pasajero'),
                 sc.from('usuarios').select('*', { count:'exact', head:true }).eq('rol','conductor'),
                 sc.from('reportes').select('*', { count:'exact', head:true }).gte('fecha', hoy),
-                sc.from('reportes').select('*', { count:'exact', head:true }).eq('severidad','alta').eq('estado','pendiente'),
+                sc.from('reportes').select('*', { count:'exact', head:true }).eq('severidad','alta').eq('estatus','pendiente'),
                 sc.from('empresas').select('*', { count:'exact', head:true }).eq('activo', true)
             ]);
 
@@ -828,7 +828,7 @@ const AdminPanel = {
         if (!tbody || !window.supabaseClient) return;
         try {
             const { data } = await window.supabaseClient
-                .from('reportes').select('tipo,titulo,ruta,severidad,fecha,estado')
+                .from('reportes').select('tipo,titulo,ruta,severidad,fecha,estatus')
                 .order('fecha', { ascending:false }).limit(6);
 
             if (!data?.length) {
@@ -895,19 +895,13 @@ const AdminPanel = {
         try {
             let q = window.supabaseClient.from('reportes').select('*').order('fecha', { ascending:false }).limit(100);
             if (filtro === 'urgentes')  q = q.eq('severidad','alta');
-            if (filtro === 'validados') q = q.eq('estado','validado');
-            if (filtro === 'todos')     q = q.in('estado',['pendiente', null]).is('estado', null).order('fecha', {ascending:false});
-
-            // Fix: para 'todos' cargar pendientes o sin estado
-            if (filtro === 'todos') {
-                q = window.supabaseClient.from('reportes').select('*').order('fecha', { ascending:false }).limit(100)
-                    .or('estado.eq.pendiente,estado.is.null');
-            }
+            if (filtro === 'validados') q = q.eq('estatus','validado');
+            if (filtro === 'todos')     q = q.order('fecha', { ascending:false });
 
             const { data, error } = await q;
             this._reportes = data || [];
 
-            const pend    = (data||[]).filter(r => !r.estado || r.estado === 'pendiente').length;
+            const pend    = (data||[]).filter(r => !r.estatus || r.estatus === 'pendiente').length;
             const urgList = (data||[]).filter(r => r.severidad === 'alta');
 
             document.getElementById('adminTopNotifBadge').textContent  = pend;
@@ -944,7 +938,7 @@ const AdminPanel = {
             const fecha = new Date(r.fecha);
             const hora  = fecha.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
             const dia   = fecha.toLocaleDateString('es-CO',{day:'2-digit',month:'short'});
-            const est   = r.estado || 'pendiente';
+            const est   = r.estatus || 'pendiente';
             const acciones = est === 'pendiente'
                 ? `<div style="display:flex;gap:4px;">
                      <button class="btn btn-sm" style="background:#dcfce7;color:#166534;border:1px solid #bbf7d0;" title="Validar" onclick="AdminPanel.validarReporte('${r.id}',this)">
@@ -954,7 +948,7 @@ const AdminPanel = {
                        <i data-lucide="x" style="width:12px;height:12px;"></i>
                      </button>
                    </div>`
-                : `<span class="tag ${est==='validado'?'tag-green':'tag-gray'}">${est==='validado'?'Validado':'Rechazado'}</span>`;
+                : `<span class="tag ${est==='validado'?'tag-green':est==='rechazado'?'tag-red':'tag-gray'}">${est==='validado'?'Validado':est==='rechazado'?'Rechazado':est}</span>`;
             return `<tr id="rep-${r.id}">
                 <td><span class="tag tag-${c}" style="font-size:.72rem;">${(r.tipo||r.titulo||'Reporte').substring(0,28)}</span></td>
                 <td style="font-size:.8rem;">${r.ubicacion||'—'}</td>
@@ -971,7 +965,7 @@ const AdminPanel = {
     async validarReporte(id, btn) {
         btn.disabled = true;
         try {
-            const { error } = await window.supabaseClient.from('reportes').update({ estado:'validado' }).eq('id', id);
+            const { error } = await window.supabaseClient.from('reportes').update({ estatus:'validado' }).eq('id', id);
             if (error) throw error;
             const row = document.getElementById(`rep-${id}`);
             if (row) row.cells[6].innerHTML = `<span class="tag tag-green">Validado</span>`;
@@ -983,7 +977,7 @@ const AdminPanel = {
     async rechazarReporte(id, btn) {
         btn.disabled = true;
         try {
-            const { error } = await window.supabaseClient.from('reportes').update({ estado:'rechazado' }).eq('id', id);
+            const { error } = await window.supabaseClient.from('reportes').update({ estatus:'rechazado' }).eq('id', id);
             if (error) throw error;
             const row = document.getElementById(`rep-${id}`);
             if (row) { row.style.opacity='.4'; row.cells[6].innerHTML = `<span class="tag tag-gray">Rechazado</span>`; }
@@ -1001,7 +995,7 @@ const AdminPanel = {
             const { data } = await window.supabaseClient
                 .from('reportes').select('*')
                 .in('severidad',['alta','media'])
-                .in('estado',['pendiente']).or('estado.is.null,estado.eq.pendiente')
+                .or('estatus.eq.pendiente,estatus.is.null')
                 .order('fecha', { ascending:false }).limit(30);
 
             if (!data?.length) {
