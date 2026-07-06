@@ -236,6 +236,8 @@ async function loginUsuario(correo, password) {
     
     // 3. Crear sesión en el navegador
     const usuario = userData;
+    // Normalizar rol legacy 'admin' → 'administrador'
+    if (usuario.rol === 'admin') usuario.rol = 'administrador';
     const sesion = {
       id: usuario.id,
       nombre: usuario.nombres + ' ' + (usuario.apellidos || ''),
