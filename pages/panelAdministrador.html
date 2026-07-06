@@ -791,14 +791,16 @@ const AdminPanel = {
                 { count: conductores },
                 { count: reportesHoy },
                 { count: urgentes },
-                { count: empresas }
+                { count: empresas },
+                { count: reportesActivos }
             ] = await Promise.all([
                 sc.from('usuarios').select('*', { count:'exact', head:true }),
                 sc.from('usuarios').select('*', { count:'exact', head:true }).eq('rol','pasajero'),
                 sc.from('usuarios').select('*', { count:'exact', head:true }).eq('rol','conductor'),
                 sc.from('reportes').select('*', { count:'exact', head:true }).gte('fecha', hoy),
                 sc.from('reportes').select('*', { count:'exact', head:true }).eq('severidad','alta').or('estatus.eq.activo,estatus.eq.pendiente,estatus.is.null'),
-                sc.from('empresas').select('*', { count:'exact', head:true }).eq('activo', true)
+                sc.from('empresas').select('*', { count:'exact', head:true }).eq('activo', true),
+                sc.from('reportes').select('*', { count:'exact', head:true }).or('estatus.eq.activo,estatus.eq.pendiente,estatus.is.null')
             ]);
 
             const set = (id, val) => { const el = document.getElementById(id); if(el) el.innerHTML = val ?? 0; };
@@ -815,9 +817,9 @@ const AdminPanel = {
             const elTrU = document.getElementById('trendUsuarios');
             if (elTrU) elTrU.innerHTML = `${pasajeros??0} pasajeros · ${conductores??0} conductores`;
 
-            document.getElementById('adminTopNotifBadge').textContent = reportesHoy ?? 0;
-            document.getElementById('adminSidebarReportsChip').textContent = reportesHoy ?? 0;
-            document.getElementById('adminSidebarAlertsChip').textContent  = urgentes ?? 0;
+            document.getElementById('adminTopNotifBadge').textContent        = reportesActivos ?? 0;
+            document.getElementById('adminSidebarReportsChip').textContent   = reportesActivos ?? 0;
+            document.getElementById('adminSidebarAlertsChip').textContent    = urgentes ?? 0;
         } catch(e) {
             console.error('Error KPIs:', e);
         }
