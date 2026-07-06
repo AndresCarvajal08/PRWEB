@@ -115,7 +115,7 @@
                         <div class="kpi-divider"></div>
                         <div class="kpi">
                             <div class="kpi-value" id="kpiReportesHoy"><div class="loading-spinner"></div></div>
-                            <div class="kpi-label">Reportes hoy</div>
+                            <div class="kpi-label">Reportes activos</div>
                         </div>
                         <div class="kpi-divider"></div>
                         <div class="kpi">
@@ -807,11 +807,11 @@ const AdminPanel = {
             set('kpiTotalUsuarios',   total ?? 0);
             set('kpiConductores',     conductores ?? 0);
             set('kpiEmpresasActivas', empresas ?? 0);
-            set('kpiReportesHoy',     reportesHoy ?? 0);
+            set('kpiReportesHoy',     reportesActivos ?? 0);
             set('kpiUrgentes',        urgentes ?? 0);
             set('statTotalUsuarios',  (total??0).toLocaleString('es-CO'));
             set('statConductoresDash',conductores ?? 0);
-            set('statReportesDash',   reportesHoy ?? 0);
+            set('statReportesDash',   reportesActivos ?? 0);
             set('statEmpresasDash',   empresas ?? 0);
 
             const elTrU = document.getElementById('trendUsuarios');
