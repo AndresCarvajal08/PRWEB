@@ -996,7 +996,7 @@ const AdminPanel = {
             const { data } = await window.supabaseClient
                 .from('reportes').select('*')
                 .in('severidad',['alta','media'])
-                .or('estatus.eq.pendiente,estatus.is.null')
+                .or('estatus.eq.activo,estatus.eq.pendiente,estatus.is.null')
                 .order('fecha', { ascending:false }).limit(30);
 
             if (!data?.length) {
