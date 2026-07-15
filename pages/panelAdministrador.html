@@ -838,7 +838,7 @@ const AdminPanel = {
                 return;
             }
             tbody.innerHTML = data.map(r => {
-                const c = r.severidad==='alta'?'red':r.severidad==='media'?'amber':'blue';
+                const c = r.severidad==='alta'?'red':r.severidad==='media'||r.severidad==='moderada'?'amber':'blue';
                 const h = new Date(r.fecha).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
                 return `<tr>
                     <td><span class="tag tag-${c}" style="font-size:.72rem;">${(r.tipo||r.titulo||'—').substring(0,22)}</span></td>
@@ -936,7 +936,7 @@ const AdminPanel = {
             return;
         }
         tbody.innerHTML = data.map(r => {
-            const c = r.severidad==='alta'?'red':r.severidad==='media'?'amber':'blue';
+            const c = r.severidad==='alta'?'red':r.severidad==='media'||r.severidad==='moderada'?'amber':'blue';
             const fecha = new Date(r.fecha);
             const hora  = fecha.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
             const dia   = fecha.toLocaleDateString('es-CO',{day:'2-digit',month:'short'});
@@ -997,7 +997,7 @@ const AdminPanel = {
         try {
             const { data } = await window.supabaseClient
                 .from('reportes').select('*')
-                .in('severidad',['alta','media'])
+                .in('severidad',['alta','media','moderada'])
                 .or('estatus.eq.activo,estatus.eq.pendiente,estatus.is.null')
                 .order('fecha', { ascending:false }).limit(30);
 
