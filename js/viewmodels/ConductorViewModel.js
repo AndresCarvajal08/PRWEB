@@ -81,9 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:#94a3b8;">⏳ Cargando turnos...</td></tr>';
 
-        const turnos = await (window.TurnoModel
+        let turnos = await (window.TurnoModel
             ? window.TurnoModel.obtenerPorConductor(sesion.id)
             : Promise.resolve([]));
+
+        // Si no hay registros reales, usar datos de ejemplo
+        if (!turnos.length && window.TurnoModel) {
+            turnos = window.TurnoModel._datosFallback();
+        }
 
         if (!turnos.length) {
             tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:#94a3b8;">Sin registros de turnos aún.</td></tr>';
@@ -91,6 +96,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const hoy = new Date().toISOString().split('T')[0];
+        const mesActual = hoy.slice(0, 7); // YYYY-MM
+        const turnosMes  = turnos.filter(t => (t.fecha || '').startsWith(mesActual)).length;
+        const vueltasTotal = turnos.reduce((s, t) => s + (t.vueltas || 0), 0);
+        const reportesTotal = turnos.reduce((s, t) => s + (t.reportes || 0), 0);
+
+        const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setEl('statTurnosMes', turnosMes);
+        setEl('statVueltasTotales', vueltasTotal);
+        setEl('statReportesEnv', reportesTotal);
+        const trendEl = document.getElementById('statTurnosMesTrend');
+        if (trendEl) trendEl.textContent = `↑ ${turnosMes} este mes`;
+
         tbody.innerHTML = turnos.map(t => {
             const estaActivo = t.estado === 'activo';
             const fechaLabel = t.fecha === hoy ? 'Hoy' : t.fecha;
