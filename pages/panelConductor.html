@@ -79,7 +79,7 @@
                 <div class="view active" id="view-inicio">
                     <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
                         <div>
-                            <h1 id="welcomeGreeting">¡Buenos días, Conductor! 🚌</h1>
+                            <h1 id="welcomeGreeting">¡Buenos días, Conductor! <i data-lucide="bus" style="width:20px;height:20px;display:inline-block;vertical-align:-3px;"></i></h1>
                             <p id="shiftInfo">Cargando información del turno...</p>
                         </div>
                         <div style="display:flex;gap:10px;align-items:center;">
@@ -393,12 +393,12 @@
                                 <div class="form-group">
                                     <label class="form-label">Tipo de incidencia</label>
                                     <select class="form-control" id="formTipoIncidencia">
-                                        <option value="bloqueo">🚧 Bloqueo vial</option>
-                                        <option value="congestion">🚦 Congestión inusual</option>
-                                        <option value="falla">🔧 Falla mecánica del vehículo</option>
-                                        <option value="seguridad">🚨 Incidente de seguridad</option>
-                                        <option value="clima">⛈️ Daño por clima</option>
-                                        <option value="otro">📢 Otro</option>
+                                        <option value="bloqueo">Bloqueo vial</option>
+                                        <option value="congestion">Congestión inusual</option>
+                                        <option value="falla">Falla mecánica del vehículo</option>
+                                        <option value="seguridad">Incidente de seguridad</option>
+                                        <option value="clima">Daño por clima</option>
+                                        <option value="otro">Otro</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -428,9 +428,9 @@
                                     <div class="form-group">
                                         <label class="form-label">Severidad</label>
                                         <select class="form-control" id="formSeveridadIncidencia">
-                                            <option value="moderada">🟡 Moderada</option>
-                                            <option value="alta">🔴 Alta</option>
-                                            <option value="baja">🟢 Baja</option>
+                                            <option value="moderada">Moderada</option>
+                                            <option value="alta">Alta</option>
+                                            <option value="baja">Baja</option>
                                         </select>
                                     </div>
                                 </div>
@@ -439,7 +439,7 @@
                                         onclick="enviarReporteForm()">Enviar Reporte →</button>
                                     <button class="btn btn-secondary" id="btnCompartirReporte" style="flex:0 0 auto;"
                                         onclick="compartirReporteActual()" title="Compartir reporte">
-                                        📤 Compartir
+                                        <i data-lucide="share-2" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Compartir
                                     </button>
                                 </div>
                             </div>
@@ -584,7 +584,7 @@
                                     <div style="font-size:.72rem;opacity:.8;">Vueltas</div>
                                 </div>
                                 <div style="text-align:center;">
-                                    <div style="font-size:1.2rem;font-weight:700;">4.8★</div>
+                                    <div style="font-size:1.2rem;font-weight:700;">4.8 <i data-lucide="star" style="width:14px;height:14px;display:inline-block;vertical-align:-1px;"></i></div>
                                     <div style="font-size:.72rem;opacity:.8;">Calificación</div>
                                 </div>
                             </div>
@@ -711,7 +711,7 @@
 
         window.confirmarInicioTurno = async function() {
             const ruta = document.getElementById('selectRutaTurno').value;
-            if (!ruta) { showToast('⚠️ Seleccioná una ruta primero.'); return; }
+            if (!ruta) { showToast('Seleccioná una ruta primero.'); return; }
 
             cerrarModalTurno();
 
@@ -757,7 +757,7 @@
                 document.getElementById('statTiempo').textContent = str;
             }, 30000);
 
-            showToast('✅ Turno iniciado correctamente — ruta ' + ruta);
+            showToast('Turno iniciado correctamente — ruta ' + ruta);
         };
 
         window.registrarVuelta = function() {
@@ -765,7 +765,7 @@
             document.getElementById('kpiVueltas').textContent = _vueltasActuales;
             document.getElementById('turnoVueltasCard').textContent = _vueltasActuales;
             document.getElementById('statVueltas').textContent = _vueltasActuales;
-            showToast('🔄 Vuelta #' + _vueltasActuales + ' registrada.');
+            showToast('Vuelta #' + _vueltasActuales + ' registrada.');
         };
 
         window.confirmarFinTurno = async function() {
@@ -787,7 +787,7 @@
             document.getElementById('kpiVueltas').textContent = '—';
             document.getElementById('kpiTiempo').textContent = '—';
 
-            showToast('🏁 Turno finalizado. ¡Buen descanso!');
+            showToast('Turno finalizado. ¡Buen descanso!');
         };
 
         // Incrementar contador de reportes cuando se envía un reporte

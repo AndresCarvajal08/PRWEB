@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const licenciaStr = document.getElementById('profileInputLicencia').value.trim();
 
         if (!nombres) {
-            window.Toast?.show('⚠️ El nombre es obligatorio.');
+            window.Toast?.show('El nombre es obligatorio.');
             return;
         }
 
@@ -187,16 +187,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const nameEl = document.getElementById('profileName');
             if (nameEl) nameEl.textContent = nombres;
 
-            window.Toast?.show('✅ Perfil actualizado correctamente en Supabase.');
+            window.Toast?.show('Perfil actualizado correctamente en Supabase.');
             window.NavView?.actualizarUsuarioNav(window.SesionModel.getSesion());
         } else {
-            window.Toast?.show('❌ Error: ' + result.error);
+            window.Toast?.show('Error: ' + result.error);
         }
     };
 
     // ── C-HU-07: Compartir reporte de incidente ──
     window.compartirIncidente = function (tipo, desc, ubicacion, fecha) {
-        const texto = `🚨 REPORTE DE INCIDENTE — WayRoute\n` +
+        const texto = `REPORTE DE INCIDENTE — WayRoute\n` +
             `Tipo: ${tipo}\n` +
             `Descripción: ${desc}\n` +
             `Ubicación: ${ubicacion}\n` +
@@ -213,9 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function copiarAlPortapapeles(texto) {
         navigator.clipboard?.writeText(texto).then(() => {
-            window.Toast?.show('📋 Reporte copiado al portapapeles.');
+            window.Toast?.show('Reporte copiado al portapapeles.');
         }).catch(() => {
-            window.Toast?.show('⚠️ No se pudo copiar. Copia manualmente.');
+            window.Toast?.show('No se pudo copiar. Copia manualmente.');
         });
     }
 });

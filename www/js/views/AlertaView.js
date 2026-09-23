@@ -143,11 +143,6 @@ const AlertaView = {
         </div>`;
     },
 
-    _emojiTipo(tipo) {
-        const emojis = { bloqueo: '🚧', falla: '🔧', seguridad: '🚨', congestion: '🚦', clima: '⛈️' };
-        return emojis[tipo] || '⚠️';
-    },
-
     _iconoLucide(tipo) {
         const iconos = { bloqueo: 'traffic-cone', falla: 'wrench', seguridad: 'shield-alert', congestion: 'alert-triangle', clima: 'cloud-rain' };
         return iconos[tipo] || 'alert-triangle';

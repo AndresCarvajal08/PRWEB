@@ -59,7 +59,7 @@
         </div>
 
         <div class="law-box blue">
-          <span>📋</span>
+          <span><i data-lucide="clipboard" style="width:16px;height:16px;"></i></span>
           <span><strong>Ley 1581 de 2012 — Protección de Datos Personales:</strong> Tus datos serán usados únicamente para la gestión de tu cuenta en WayRoute y no serán compartidos con terceros sin tu consentimiento.</span>
         </div>
 
@@ -207,7 +207,7 @@
         <!-- ── Checklist de aceptaciones legales ── -->
         <div style="margin-bottom:20px;">
           <div style="font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">
-            ✅ Confirmaciones requeridas
+            <i data-lucide="check-circle" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Confirmaciones requeridas
           </div>
 
           <!-- 1. Habeas Data -->
@@ -215,7 +215,7 @@
             <input type="checkbox" id="chkHabeas" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#0DCCA0;">
             <div>
               <div style="font-size:.83rem;font-weight:600;color:#166534;margin-bottom:3px;">
-                🛡️ Autorización de Tratamiento de Datos Personales
+                <i data-lucide="shield-check" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Autorización de Tratamiento de Datos Personales
               </div>
               <div style="font-size:.77rem;color:#374151;line-height:1.55;">
                 Autorizo expresamente el tratamiento de mis datos personales conforme a la
@@ -233,7 +233,7 @@
             <input type="checkbox" id="terminos" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#1EA0D8;">
             <div>
               <div style="font-size:.83rem;font-weight:600;color:#0369A1;margin-bottom:3px;">
-                📄 Términos de Uso y Política de Privacidad
+                <i data-lucide="file-text" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Términos de Uso y Política de Privacidad
               </div>
               <div style="font-size:.77rem;color:#374151;line-height:1.55;">
                 He leído y acepto los
@@ -252,7 +252,7 @@
         <div class="success-icon"><i data-lucide="check-circle" style="width:48px;height:48px;color:#0DCCA0;"></i></div>
         <h2 class="success-title">¡Cuenta creada exitosamente!</h2>
         <p class="success-desc">Bienvenido a WayRoute. Tu cuenta de pasajero ha sido creada.<br>Ahora puedes consultar rutas y paradas de toda la ciudad.</p>
-        <a href="../index.html" class="success-btn" id="successBtn">Ir a mi panel 🚌</a>
+        <a href="../index.html" class="success-btn" id="successBtn">Ir a mi panel <i data-lucide="bus" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i></a>
       </div>
 
       <!-- Navegación -->
@@ -324,7 +324,7 @@
       // Nav
       document.getElementById('btnBack').style.visibility = n > 1 ? 'visible' : 'hidden';
       const nl = document.getElementById('nextLabel');
-      nl.textContent = n === TOTAL ? 'Crear cuenta ✓' : 'Siguiente →';
+      nl.textContent = n === TOTAL ? 'Crear cuenta' : 'Siguiente →';
     }
 
     // ── VALIDACIONES ──
@@ -399,7 +399,7 @@
       if (/[A-Z]/.test(p)) score++;
       if (/[0-9]/.test(p)) score++;
       if (/[^a-zA-Z0-9]/.test(p)) score++;
-      const labels = ['','Débil 🔴','Regular 🟡','Buena 🔵','Fuerte 🟢'];
+      const labels = ['','Débil','Regular','Buena','Fuerte'];
       for (let i = 1; i <= 4; i++) {
         const seg = document.getElementById('seg' + i);
         seg.className = 'strength-seg' + (i <= score ? ' fill-' + score : '');
@@ -476,8 +476,9 @@
     function toast(msg, type='success') {
       const el = document.createElement('div');
       el.className = `toast toast-${type}`;
-      el.innerHTML = `<span>${type==='success'?'✅':'❌'}</span> ${msg}`;
+      el.innerHTML = `<span>${type==='success'?'<i data-lucide="check-circle" style="width:14px;height:14px;"></i>':'<i data-lucide="x-circle" style="width:14px;height:14px;"></i>'}</span> ${msg}`;
       document.getElementById('toastBox').appendChild(el);
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       setTimeout(() => el.remove(), 4000);
     }
   </script>

@@ -218,7 +218,7 @@
                     <!-- Quick Stats -->
                     <div class="grid-4 mb-4">
                         <div class="stat-card">
-                            <div class="icon" style="background:#e6f7f1;">🚌</div>
+                            <div class="icon" style="background:#e6f7f1;display:flex;align-items:center;justify-content:center;"><i data-lucide="bus" style="width:24px;height:24px;color:var(--green);"></i></div>
                             <div class="value" id="statRutasActivas">--</div>
                             <div class="label">Rutas disponibles ahora</div>
                             <div class="trend up">Actualizado en vivo</div>
@@ -235,7 +235,7 @@
                             <button id="btnActivarAlerta"
                                 onclick="activarAlertaProximidad()"
                                 style="margin-top:8px;width:100%;padding:4px 8px;font-size:0.72rem;border-radius:6px;border:1px solid var(--amber);background:#fef3c7;color:#92400e;cursor:pointer;">
-                                🔔 Activar alerta de llegada
+                                <i data-lucide="bell" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Activar alerta de llegada
                             </button>
                         </div>
                         <div class="stat-card">
@@ -314,10 +314,10 @@
                                 <select id="selectRutaCosto" onchange="actualizarCostoRuta()"
                                     style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:.9rem;background:#fff;">
                                     <option value="">-- Elige una ruta --</option>
-                                    <option value="Especial Sur">🔴 Ruta Especial Sur (Centenario → La Ermita)</option>
-                                    <option value="Norte">🔵 Ruta Norte (Granada → Menga)</option>
-                                    <option value="Gualas Oriente">🟢 Gualas Oriente (Cra 22 → Cll 92)</option>
-                                    <option value="Sur Pryca">🟠 Ruta Sur — Pryca / U. Nariño</option>
+                                    <option value="Especial Sur">Ruta Especial Sur (Centenario → La Ermita)</option>
+                                    <option value="Norte">Ruta Norte (Granada → Menga)</option>
+                                    <option value="Gualas Oriente">Gualas Oriente (Cra 22 → Cll 92)</option>
+                                    <option value="Sur Pryca">Ruta Sur — Pryca / U. Nariño</option>
                                 </select>
                             </div>
                             <div id="costoEstimadoDisplay" style="display:none;text-align:center;padding:12px 20px;background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.08);min-width:130px;">
@@ -336,7 +336,7 @@
                     <!-- Rutas Disponibles Ahora (Requested by User) -->
                     <div class="mb-4">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                            <h3 style="font-size:1.1rem;font-weight:700;color:var(--gray-800);">🚌 Rutas disponibles
+                            <h3 style="font-size:1.1rem;font-weight:700;color:var(--gray-800);"><i data-lucide="bus" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Rutas disponibles
                                 ahora</h3>
                             <span class="tag tag-green" style="font-size:.75rem;">En vivo</span>
                         </div>
@@ -619,7 +619,7 @@
                                                 style="width:10px;height:10px;border-radius:50%;background:#16a34a;flex-shrink:0;">
                                             </div>
                                             <span style="font-size:.82rem;font-weight:700;color:#16a34a;">Gualas Oriente
-                                                🚐</span>
+                                                <i data-lucide="car" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i></span>
                                         </div>
                                         <div class="route-stop-row">
                                             <div class="route-stop">
@@ -702,13 +702,13 @@
                                         <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 28 min</span>
                                         <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i>
                                             $2.950</span>
-                                        <span>🚐 Guala</span>
+                                        <span><i data-lucide="car" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Guala</span>
                                     </div>
                                     <div class="text-sm text-gray mb-3">Empresa: Coopcencar · Centenario → Unicentro · 5
                                         paradas</div>
                                     <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                        <span class="tag tag-green">🟢 Operando</span>
-                                        <span class="tag tag-amber">⚠️ Moderada demora</span>
+                                        <span class="tag tag-green">Operando</span>
+                                        <span class="tag tag-amber"><i data-lucide="alert-triangle" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Moderada demora</span>
                                     </div>
                                 </div>
 
@@ -718,18 +718,18 @@
                                             <div class="route-dot" style="background:#3b82f6;"></div>
                                             Bus B-22A
                                         </div>
-                                        <span class="tag tag-amber">🕐 Demorado</span>
+                                        <span class="tag tag-amber"><i data-lucide="clock" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Demorado</span>
                                     </div>
                                     <div class="route-meta mb-3">
                                         <span><i data-lucide="clock" style="width:12px;height:12px;"></i> +18 min</span>
                                         <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i>
                                             $3.100</span>
-                                        <span>🚌 Bus</span>
+                                        <span><i data-lucide="bus" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Bus</span>
                                     </div>
                                     <div class="text-sm text-gray mb-3">Empresa: Transurbano · Centenario → Unicentro ·
                                         8 paradas</div>
                                     <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                        <span class="tag tag-red">🔴 Congestión Av.6N</span>
+                                        <span class="tag tag-red">Congestión Av.6N</span>
                                     </div>
                                 </div>
 
@@ -739,18 +739,18 @@
                                             <div class="route-dot" style="background:#8b5cf6;"></div>
                                             Guala G-12
                                         </div>
-                                        <span class="tag tag-blue">🔄 Alternativa</span>
+                                        <span class="tag tag-blue"><i data-lucide="refresh-cw" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Alternativa</span>
                                     </div>
                                     <div class="route-meta mb-3">
                                         <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 32 min</span>
                                         <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i>
                                             $2.800</span>
-                                        <span>🚐 Guala</span>
+                                        <span><i data-lucide="car" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Guala</span>
                                     </div>
                                     <div class="text-sm text-gray mb-3">Empresa: Coopcencar · Ruta alternativa por Av.3N
                                         · 6 paradas</div>
                                     <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                        <span class="tag tag-green">🟢 Sin inconvenientes</span>
+                                        <span class="tag tag-green">Sin inconvenientes</span>
                                     </div>
                                 </div>
 
@@ -766,12 +766,12 @@
                                         <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 42 min</span>
                                         <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i>
                                             $3.200</span>
-                                        <span>🚌 Bus</span>
+                                        <span><i data-lucide="bus" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Bus</span>
                                     </div>
                                     <div class="text-sm text-gray mb-3">Empresa: Unitransco · Centenario → Unicentro ·
                                         10 paradas</div>
                                     <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                                        <span class="tag tag-green">🟢 A tiempo</span>
+                                        <span class="tag tag-green">A tiempo</span>
                                     </div>
                                 </div>
                             </div>
@@ -801,7 +801,7 @@
                             <div class="ai-messages" id="aiMessages">
                                 <div class="msg msg-bot">
                                     <div class="msg-bubble">
-                                        ¡Hola! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>
+                                        ¡Hola! Soy WayAI, tu asistente de movilidad para Cali.<br><br>
                                         ¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura y económica según el tráfico actual.
                                     </div>
                                     <div class="msg-meta">WayAI • Ahora</div>
@@ -830,30 +830,30 @@
                                 <div class="card-title">Contexto detectado</div>
                                 <div style="display:flex;flex-direction:column;gap:10px;">
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                                        <span class="text-sm text-gray">📍 Ubicación</span>
+                                        <span class="text-sm text-gray"><i data-lucide="map-pin" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Ubicación</span>
                                         <span class="text-sm font-medium" id="ctxUbicacion">Cali</span>
                                     </div>
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                                        <span class="text-sm text-gray">🕐 Hora</span>
+                                        <span class="text-sm text-gray"><i data-lucide="clock" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Hora</span>
                                         <span class="text-sm font-medium" id="ctxHora">Cargando...</span>
                                     </div>
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                                        <span class="text-sm text-gray">📅 Día</span>
+                                        <span class="text-sm text-gray"><i data-lucide="calendar" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Día</span>
                                         <span class="text-sm font-medium" id="ctxDia">Cargando...</span>
                                     </div>
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                                        <span class="text-sm text-gray">🌤️ Clima</span>
+                                        <span class="text-sm text-gray"><i data-lucide="cloud-sun" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Clima</span>
                                         <span class="text-sm font-medium">Parcialmente nublado</span>
                                     </div>
                                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                                        <span class="text-sm text-gray">🚦 Tráfico</span>
+                                        <span class="text-sm text-gray"><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Tráfico</span>
                                         <span class="tag tag-amber">Moderado</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="card">
-                                <div class="card-title">🧠 Base de aprendizaje IA</div>
+                                <div class="card-title"><i data-lucide="brain" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Base de aprendizaje IA</div>
                                 <div class="text-sm text-gray mb-3">Basado en tus últimos 30 días de uso:</div>
                                 <div style="display:flex;flex-direction:column;gap:12px;">
                                     <div>
@@ -891,7 +891,7 @@
                             </div>
 
                             <div class="card" style="background:var(--amber-light);border-color:#fde68a;">
-                                <div class="card-title" style="color:#b45309;">💡 Recomendación Activa</div>
+                                <div class="card-title" style="color:#b45309;"><i data-lucide="lightbulb" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Recomendación Activa</div>
                                 <div class="text-sm" style="color:#92400e;line-height:1.6;">
                                     Hoy hay <strong>+12 min de demora</strong> en tu ruta habitual G-07. Considera salir
                                     a las <strong>7:50 AM</strong> en vez de las 8:00 AM, o usar G-12 por Av.3N.
@@ -942,10 +942,10 @@
                                     </iframe>
                                 </div>
                                 <div class="card mt-3">
-                                    <div class="card-title" style="margin-bottom:10px;">📊 Resumen por tipo</div>
+                                    <div class="card-title" style="margin-bottom:10px;"><i data-lucide="bar-chart-2" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Resumen por tipo</div>
                                     <div style="display:flex;flex-direction:column;gap:8px;">
                                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                                            <span class="text-sm">🚧 Bloqueos</span>
+                                            <span class="text-sm"><i data-lucide="traffic-cone" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Bloqueos</span>
                                             <div style="display:flex;align-items:center;gap:8px;">
                                                 <div class="progress-bar" style="width:80px;">
                                                     <div class="progress-fill" id="resumenBloqueosFill" style="width:0%;background:var(--red);"></div>
@@ -954,7 +954,7 @@
                                             </div>
                                         </div>
                                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                                            <span class="text-sm">🚦 Congestión</span>
+                                            <span class="text-sm"><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Congestión</span>
                                             <div style="display:flex;align-items:center;gap:8px;">
                                                 <div class="progress-bar" style="width:80px;">
                                                     <div class="progress-fill" id="resumenCongestionFill" style="width:0%;background:var(--amber);"></div>
@@ -963,7 +963,7 @@
                                             </div>
                                         </div>
                                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                                            <span class="text-sm">🔐 Seguridad</span>
+                                            <span class="text-sm"><i data-lucide="lock" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Seguridad</span>
                                             <div style="display:flex;align-items:center;gap:8px;">
                                                 <div class="progress-bar" style="width:80px;">
                                                     <div class="progress-fill" id="resumenSeguridadFill" style="width:0%;background:var(--purple);"></div>
@@ -972,7 +972,7 @@
                                             </div>
                                         </div>
                                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                                            <span class="text-sm">⛈️ Clima</span>
+                                            <span class="text-sm"><i data-lucide="cloud-rain" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Clima</span>
                                             <div style="display:flex;align-items:center;gap:8px;">
                                                 <div class="progress-bar" style="width:80px;">
                                                     <div class="progress-fill" id="resumenClimaFill" style="width:0%;background:var(--blue);"></div>
@@ -1026,17 +1026,17 @@
                             <p class="text-sm text-gray mb-3">Obtén tu ubicación GPS y compártela con contactos de confianza.</p>
 
                             <div id="compartirEstado" style="display:none;margin-bottom:12px;padding:10px 14px;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:8px;font-size:.85rem;color:#065f46;">
-                                📍 <span id="compartirCoordenadas">Obteniendo coordenadas...</span>
+                                <i data-lucide="map-pin" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> <span id="compartirCoordenadas">Obteniendo coordenadas...</span>
                             </div>
 
                             <div style="display:flex;gap:10px;margin-bottom:12px;">
                                 <button id="btnCompartirUbicacion" onclick="compartirUbicacion()"
                                     style="flex:1;padding:10px 0;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;">
-                                    📤 Compartir mi ubicación
+                                    <i data-lucide="share-2" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Compartir mi ubicación
                                 </button>
                                 <button id="btnDetenerCompartir" onclick="detenerCompartir()" style="display:none;
                                     flex:0 0 auto;padding:10px 14px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:8px;font-size:.85rem;cursor:pointer;">
-                                    ✖ Detener
+                                    <i data-lucide="x" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Detener
                                 </button>
                             </div>
 
@@ -1068,7 +1068,7 @@
                     <!-- Zonas Seguras -->
                     <!-- Consejos de Seguridad por Horario -->
                     <div class="card">
-                        <div class="card-title">💡 Consejos de seguridad — <span id="consejosHorarioLabel">Ahora</span>
+                        <div class="card-title"><i data-lucide="lightbulb" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Consejos de seguridad — <span id="consejosHorarioLabel">Ahora</span>
                         </div>
                         <div class="text-sm text-gray mb-3">Recomendaciones según la hora actual para que tu viaje sea
                             más seguro.</div>
@@ -1161,8 +1161,8 @@
                         <div class="profile-avatar-lg" id="perfilAvatarLg">--</div>
                         <div class="profile-info">
                             <h2 id="perfilNombreHeader">Cargando...</h2>
-                            <p id="perfilContactoHeader">📧 ... · 📱 ...</p>
-                            <p style="margin-top:4px;" id="perfilUbicacionHeader">📍 ...</p>
+                            <p id="perfilContactoHeader">... · ...</p>
+                            <p style="margin-top:4px;" id="perfilUbicacionHeader">...</p>
                             <div class="profile-stats">
                                 <div class="profile-stat">
                                     <div class="profile-stat-value" id="profileStatViajes">—</div>
@@ -1173,19 +1173,19 @@
                                     <div class="profile-stat-label">Meses activo</div>
                                 </div>
                                 <div class="profile-stat">
-                                    <div class="profile-stat-value">⭐ 4.8</div>
+                                    <div class="profile-stat-value"><i data-lucide="star" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> 4.8</div>
                                     <div class="profile-stat-label">Valoración</div>
                                 </div>
                             </div>
                         </div>
                         <button class="btn"
                             style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);margin-left:auto;align-self:flex-start;"
-                            onclick="showToast('Modo edición activado')">✏️ Editar</button>
+                            onclick="showToast('Modo edición activado')"><i data-lucide="pencil" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Editar</button>
                     </div>
 
                     <div class="grid-2">
                         <div class="card">
-                            <div class="card-title">📋 Datos personales</div>
+                            <div class="card-title"><i data-lucide="clipboard" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Datos personales</div>
                             <div class="form-group">
                                 <label class="form-label">Nombre completo</label>
                                 <input class="form-control" id="inputPerfilNombre" value="">
@@ -1209,10 +1209,10 @@
                         </div>
 
                         <div class="card">
-                            <div class="card-title">⚙️ Preferencias de movilidad</div>
+                            <div class="card-title"><i data-lucide="settings" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Preferencias de movilidad</div>
                             <div class="pref-row">
                                 <div class="pref-info">
-                                    <div class="pref-title">🔔 Alertas de congestión</div>
+                                    <div class="pref-title"><i data-lucide="bell" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Alertas de congestión</div>
                                     <div class="pref-desc">Notificar cuando mis rutas estén demoradas</div>
                                 </div>
                                 <label class="toggle-switch"><input type="checkbox" checked><span
@@ -1220,7 +1220,7 @@
                             </div>
                             <div class="pref-row">
                                 <div class="pref-info">
-                                    <div class="pref-title">🤖 Recomendaciones IA automáticas</div>
+                                    <div class="pref-title"><i data-lucide="bot" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Recomendaciones IA automáticas</div>
                                     <div class="pref-desc">Recibir sugerencias de ruta cada mañana</div>
                                 </div>
                                 <label class="toggle-switch"><input type="checkbox" checked><span
@@ -1228,7 +1228,7 @@
                             </div>
                             <div class="pref-row">
                                 <div class="pref-info">
-                                    <div class="pref-title">🌙 Alertas de seguridad nocturna</div>
+                                    <div class="pref-title"><i data-lucide="moon" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Alertas de seguridad nocturna</div>
                                     <div class="pref-desc">Avisos extra para viajes después de 8 PM</div>
                                 </div>
                                 <label class="toggle-switch"><input type="checkbox" checked><span
@@ -1236,7 +1236,7 @@
                             </div>
                             <div class="pref-row">
                                 <div class="pref-info">
-                                    <div class="pref-title">📍 Compartir ubicación automático</div>
+                                    <div class="pref-title"><i data-lucide="map-pin" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Compartir ubicación automático</div>
                                     <div class="pref-desc">Al iniciar un viaje, compartir con contactos</div>
                                 </div>
                                 <label class="toggle-switch"><input type="checkbox"><span
@@ -1244,7 +1244,7 @@
                             </div>
                             <div class="pref-row">
                                 <div class="pref-info">
-                                    <div class="pref-title">💸 Preferir rutas económicas</div>
+                                    <div class="pref-title"><i data-lucide="dollar-sign" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Preferir rutas económicas</div>
                                     <div class="pref-desc">Priorizar menor tarifa sobre menor tiempo</div>
                                 </div>
                                 <label class="toggle-switch"><input type="checkbox"><span
@@ -1263,18 +1263,18 @@
                     </div>
 
                     <div class="card mt-4">
-                        <div class="card-title">⭐ Rutas favoritas guardadas</div>
+                        <div class="card-title"><i data-lucide="star" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Rutas favoritas guardadas</div>
                         <div class="grid-3">
                             <div class="route-card">
                                 <div class="route-header">
                                     <div class="route-number">
                                         <div class="route-dot" style="background:#10b981;"></div>Guala G-07
                                     </div>
-                                    <span class="tag tag-green">⭐ Fav</span>
+                                    <span class="tag tag-green"><i data-lucide="star" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Fav</span>
                                 </div>
                                 <div class="route-meta">
-                                    <span>📍 Centenario → Unicentro</span>
-                                    <span>💰 $3.500</span>
+                                    <span><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Centenario → Unicentro</span>
+                                    <span><i data-lucide="dollar-sign" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> $3.500</span>
                                 </div>
                             </div>
                             <div class="route-card">
@@ -1282,18 +1282,18 @@
                                     <div class="route-number">
                                         <div class="route-dot" style="background:#3b82f6;"></div>Bus B-22A
                                     </div>
-                                    <span class="tag tag-green">⭐ Fav</span>
+                                    <span class="tag tag-green"><i data-lucide="star" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Fav</span>
                                 </div>
                                 <div class="route-meta">
-                                    <span>📍 Centenario → Centro</span>
-                                    <span>💰 $3.500</span>
+                                    <span><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Centenario → Centro</span>
+                                    <span><i data-lucide="dollar-sign" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> $3.500</span>
                                 </div>
                             </div>
                             <div class="route-card"
                                 style="border:2px dashed var(--gray-200);background:var(--gray-50);cursor:pointer;"
                                 onclick="showToast('Agrega una nueva ruta favorita')">
                                 <div style="text-align:center;padding:12px;">
-                                    <div style="font-size:24px;margin-bottom:8px;">➕</div>
+                                    <div style="font-size:24px;margin-bottom:8px;"><i data-lucide="plus" style="width:24px;height:24px;"></i></div>
                                     <div class="text-sm text-gray">Agregar ruta favorita</div>
                                 </div>
                             </div>
@@ -1312,42 +1312,42 @@
                         <div>
                             <!-- Botones rápidos de reporte -->
                             <div class="card mb-4">
-                                <div class="card-title">⚡ Reporte rápido</div>
+                                <div class="card-title"><i data-lucide="zap" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Reporte rápido</div>
                                 <div style="display:flex;flex-direction:column;gap:10px;">
                                     <button class="incident-btn block" onclick="reportarIncidente('bloqueo')">
-                                        🚧 Reportar Bloqueo o Desvío
+                                        <i data-lucide="traffic-cone" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Reportar Bloqueo o Desvío
                                     </button>
                                     <button class="incident-btn mechanic" onclick="reportarIncidente('falla')">
-                                        🔧 Reportar Falla Mecánica
+                                        <i data-lucide="wrench" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Reportar Falla Mecánica
                                     </button>
                                     <button class="incident-btn security" onclick="reportarIncidente('seguridad')">
-                                        🚨 Reportar Incidente de Seguridad
+                                        <i data-lucide="shield-alert" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Reportar Incidente de Seguridad
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Formulario detallado -->
                             <div class="card">
-                                <div class="card-title">📝 Reporte detallado</div>
+                                <div class="card-title"><i data-lucide="file-text" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Reporte detallado</div>
                                 <div class="form-group">
                                     <label class="form-label">Tipo de incidencia</label>
                                     <div class="input-icon-wrap">
                                         <span class="input-icon"><i data-lucide="flag"
                                                 style="width:15px;height:15px;"></i></span>
                                         <select class="form-control" id="formTipoIncidencia">
-                                            <option value="bloqueo">🚧 Bloqueo vial</option>
-                                            <option value="congestion">🚦 Congestión inusual</option>
-                                            <option value="falla">🔧 Falla mecánica del vehículo</option>
-                                            <option value="seguridad">🚨 Incidente de seguridad</option>
-                                            <option value="clima">⛈️ Daño por clima</option>
-                                            <option value="otro">📢 Otro</option>
+                                            <option value="bloqueo">Bloqueo vial</option>
+                                            <option value="congestion">Congestión inusual</option>
+                                            <option value="falla">Falla mecánica del vehículo</option>
+                                            <option value="seguridad">Incidente de seguridad</option>
+                                            <option value="clima">Daño por clima</option>
+                                            <option value="otro">Otro</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Ubicación del incidente</label>
                                     <div class="input-icon-wrap">
-                                        <span class="input-icon">📍</span>
+                                        <span class="input-icon"><i data-lucide="map-pin" style="width:15px;height:15px;"></i></span>
                                         <input class="form-control" id="formUbicacionIncidencia"
                                             placeholder="Ej: Av. 6N con Calle 34" value="Av. 6N con Calle 34, Cali">
                                     </div>
@@ -1371,9 +1371,9 @@
                                     <div class="form-group">
                                         <label class="form-label">Severidad estimada</label>
                                         <select class="form-control" id="formSeveridadIncidencia">
-                                            <option value="moderada">🟡 Moderada</option>
-                                            <option value="alta">🔴 Alta</option>
-                                            <option value="baja">🟢 Baja</option>
+                                            <option value="moderada">Moderada</option>
+                                            <option value="alta">Alta</option>
+                                            <option value="baja">Baja</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1384,7 +1384,7 @@
                         <div>
                             <!-- Reportes previos -->
                             <div class="card">
-                                <div class="card-title">📊 Mis reportes recientes</div>
+                                <div class="card-title"><i data-lucide="bar-chart-2" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Mis reportes recientes</div>
                                 <div class="table-wrap">
                                     <table>
                                         <thead>
@@ -1397,31 +1397,31 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>🚦 Congestión</td>
+                                                <td><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Congestión</td>
                                                 <td>Av.6N cll 34</td>
-                                                <td><span class="tag tag-green">✅ Validado</span></td>
+                                                <td><span class="tag tag-green"><i data-lucide="check-circle" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Validado</span></td>
                                                 <td class="text-xs text-gray">Hoy 6:30 AM</td>
                                             </tr>
                                             <tr>
-                                                <td>🚧 Bloqueo</td>
+                                                <td><i data-lucide="traffic-cone" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Bloqueo</td>
                                                 <td>Calle 5 Cra 1</td>
                                                 <td><span class="tag tag-amber">⏳ En revisión</span></td>
                                                 <td class="text-xs text-gray">Ayer 2:15 PM</td>
                                             </tr>
                                             <tr>
-                                                <td>🔧 Falla mec.</td>
+                                                <td><i data-lucide="wrench" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Falla mec.</td>
                                                 <td>Av. Colombia</td>
-                                                <td><span class="tag tag-green">✅ Validado</span></td>
+                                                <td><span class="tag tag-green"><i data-lucide="check-circle" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Validado</span></td>
                                                 <td class="text-xs text-gray">Lun 11:00 AM</td>
                                             </tr>
                                             <tr>
-                                                <td>🚨 Seguridad</td>
+                                                <td><i data-lucide="shield-alert" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Seguridad</td>
                                                 <td>Barrio Desepaz</td>
-                                                <td><span class="tag tag-red">🔴 Urgente</span></td>
+                                                <td><span class="tag tag-red">Urgente</span></td>
                                                 <td class="text-xs text-gray">Dom 9:40 PM</td>
                                             </tr>
                                             <tr>
-                                                <td>⛈️ Clima</td>
+                                                <td><i data-lucide="cloud-rain" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Clima</td>
                                                 <td>Cll 16 Aguablanca</td>
                                                 <td><span class="tag tag-gray">Cerrado</span></td>
                                                 <td class="text-xs text-gray">Vie 4:00 PM</td>
@@ -1469,7 +1469,7 @@
                         <div class="text-sm text-gray">Centenario → Unicentro · Empresa: Coopcencar
                         </div>
                     </div>
-                    <span class="tag tag-green" style="font-size:.85rem;padding:6px 14px;">🟢 En
+                    <span class="tag tag-green" style="font-size:.85rem;padding:6px 14px;">En
                         servicio</span>
                 </div>
                 <div class="grid-2 mb-4">
@@ -1486,7 +1486,7 @@
                         <div class="text-xs text-gray">Chipichape</div>
                     </div>
                 </div>
-                <div class="card-title" style="margin-bottom:10px;font-size:.9rem;">🗺️ Progreso del
+                <div class="card-title" style="margin-bottom:10px;font-size:.9rem;"><i data-lucide="map" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Progreso del
                     recorrido</div>
                 <div class="route-stop-row">
                     <div class="route-stop">
@@ -1521,7 +1521,7 @@
 
             <div style="display:flex;flex-direction:column;gap:16px;">
                 <div class="alert-item alert-warning">
-                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-icon"><i data-lucide="alert-triangle" style="width:18px;height:18px;"></i></div>
                     <div class="alert-content">
                         <div class="alert-title">Congestión moderada adelante</div>
                         <div class="alert-desc">IA detecta tráfico en Parque del Perro. Tiempo
@@ -1532,20 +1532,20 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-title" style="margin-bottom:12px;">🚨 Reportar incidencia rápida
+                    <div class="card-title" style="margin-bottom:12px;"><i data-lucide="shield-alert" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Reportar incidencia rápida
                     </div>
                     <div style="display:flex;flex-direction:column;gap:8px;">
                         <button class="incident-btn block" style="padding:10px;"
-                            onclick="reportarIncidente('bloqueo')">🚧 Bloqueo</button>
+                            onclick="reportarIncidente('bloqueo')"><i data-lucide="traffic-cone" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Bloqueo</button>
                         <button class="incident-btn mechanic" style="padding:10px;"
-                            onclick="reportarIncidente('falla')">🔧 Falla mecánica</button>
+                            onclick="reportarIncidente('falla')"><i data-lucide="wrench" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Falla mecánica</button>
                         <button class="incident-btn security" style="padding:10px;"
-                            onclick="reportarIncidente('seguridad')">🚨 Seguridad</button>
+                            onclick="reportarIncidente('seguridad')"><i data-lucide="shield-alert" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Seguridad</button>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div class="card-title" style="margin-bottom:12px;">📊 Turno de hoy</div>
+                    <div class="card-title" style="margin-bottom:12px;"><i data-lucide="bar-chart-2" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Turno de hoy</div>
                     <div style="display:flex;gap:12px;">
                         <div style="flex:1;text-align:center;padding:10px;background:var(--gray-50);border-radius:8px;">
                             <div style="font-weight:700;font-size:1.2rem;">7</div>
@@ -1603,7 +1603,7 @@
         <div class="grid-2">
             <!-- Reportes pendientes de validación -->
             <div class="card">
-                <div class="card-title">📋 Reportes pendientes de validación <span class="nav-chip"
+                <div class="card-title"><i data-lucide="clipboard" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Reportes pendientes de validación <span class="nav-chip"
                         style="position:static;margin-left:4px;">7</span></div>
                 <div class="table-wrap">
                     <table>
@@ -1619,53 +1619,53 @@
                         <tbody>
                             <tr>
                                 <td>Carlos R.</td>
-                                <td>🚧 Bloqueo</td>
+                                <td><i data-lucide="traffic-cone" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Bloqueo</td>
                                 <td>G-07</td>
-                                <td><span class="tag tag-amber">🟡 Media</span></td>
+                                <td><span class="tag tag-amber">Media</span></td>
                                 <td>
                                     <div style="display:flex;gap:4px;">
-                                        <button class="btn btn-primary btn-sm" onclick="validarReporte(this)">✅</button>
+                                        <button class="btn btn-primary btn-sm" onclick="validarReporte(this)"><i data-lucide="check-circle" style="width:14px;height:14px;"></i></button>
                                         <button class="btn btn-secondary btn-sm"
-                                            onclick="rechazarReporte(this)">❌</button>
+                                            onclick="rechazarReporte(this)"><i data-lucide="x-circle" style="width:14px;height:14px;"></i></button>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Luis M.</td>
-                                <td>🔧 Falla</td>
+                                <td><i data-lucide="wrench" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Falla</td>
                                 <td>B-22A</td>
-                                <td><span class="tag tag-red">🔴 Alta</span></td>
+                                <td><span class="tag tag-red">Alta</span></td>
                                 <td>
                                     <div style="display:flex;gap:4px;">
-                                        <button class="btn btn-primary btn-sm" onclick="validarReporte(this)">✅</button>
+                                        <button class="btn btn-primary btn-sm" onclick="validarReporte(this)"><i data-lucide="check-circle" style="width:14px;height:14px;"></i></button>
                                         <button class="btn btn-secondary btn-sm"
-                                            onclick="rechazarReporte(this)">❌</button>
+                                            onclick="rechazarReporte(this)"><i data-lucide="x-circle" style="width:14px;height:14px;"></i></button>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Ana P.</td>
-                                <td>🚨 Seguridad</td>
+                                <td><i data-lucide="shield-alert" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Seguridad</td>
                                 <td>G-18</td>
-                                <td><span class="tag tag-red">🔴 Urgente</span></td>
+                                <td><span class="tag tag-red">Urgente</span></td>
                                 <td>
                                     <div style="display:flex;gap:4px;">
-                                        <button class="btn btn-primary btn-sm" onclick="validarReporte(this)">✅</button>
+                                        <button class="btn btn-primary btn-sm" onclick="validarReporte(this)"><i data-lucide="check-circle" style="width:14px;height:14px;"></i></button>
                                         <button class="btn btn-secondary btn-sm"
-                                            onclick="rechazarReporte(this)">❌</button>
+                                            onclick="rechazarReporte(this)"><i data-lucide="x-circle" style="width:14px;height:14px;"></i></button>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Pedro V.</td>
-                                <td>🚦 Congestión</td>
+                                <td><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Congestión</td>
                                 <td>B-05</td>
-                                <td><span class="tag tag-amber">🟡 Media</span></td>
+                                <td><span class="tag tag-amber">Media</span></td>
                                 <td>
                                     <div style="display:flex;gap:4px;">
-                                        <button class="btn btn-primary btn-sm" onclick="validarReporte(this)">✅</button>
+                                        <button class="btn btn-primary btn-sm" onclick="validarReporte(this)"><i data-lucide="check-circle" style="width:14px;height:14px;"></i></button>
                                         <button class="btn btn-secondary btn-sm"
-                                            onclick="rechazarReporte(this)">❌</button>
+                                            onclick="rechazarReporte(this)"><i data-lucide="x-circle" style="width:14px;height:14px;"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -1676,7 +1676,7 @@
 
             <!-- Estado rutas en tiempo real -->
             <div class="card">
-                <div class="card-title">🗺️ Estado rutas en tiempo real</div>
+                <div class="card-title"><i data-lucide="map" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Estado rutas en tiempo real</div>
                 <div class="table-wrap">
                     <table>
                         <thead>
@@ -1691,37 +1691,37 @@
                             <tr>
                                 <td><strong>G-07</strong></td>
                                 <td>Coopcencar</td>
-                                <td><span class="tag tag-amber">🟡 Demorada</span></td>
+                                <td><span class="tag tag-amber">Demorada</span></td>
                                 <td>8</td>
                             </tr>
                             <tr>
                                 <td><strong>B-22A</strong></td>
                                 <td>Transurbano</td>
-                                <td><span class="tag tag-red">🔴 Congestionada</span></td>
+                                <td><span class="tag tag-red">Congestionada</span></td>
                                 <td>5</td>
                             </tr>
                             <tr>
                                 <td><strong>G-12</strong></td>
                                 <td>Coopcencar</td>
-                                <td><span class="tag tag-green">🟢 Normal</span></td>
+                                <td><span class="tag tag-green">Normal</span></td>
                                 <td>6</td>
                             </tr>
                             <tr>
                                 <td><strong>B-14</strong></td>
                                 <td>Unitransco</td>
-                                <td><span class="tag tag-green">🟢 Normal</span></td>
+                                <td><span class="tag tag-green">Normal</span></td>
                                 <td>10</td>
                             </tr>
                             <tr>
                                 <td><strong>B-05</strong></td>
                                 <td>Transurbano</td>
-                                <td><span class="tag tag-red">🔴 Desviada</span></td>
+                                <td><span class="tag tag-red">Desviada</span></td>
                                 <td>4</td>
                             </tr>
                             <tr>
                                 <td><strong>G-18</strong></td>
                                 <td>Cootranscali</td>
-                                <td><span class="tag tag-amber">🟡 Precaución</span></td>
+                                <td><span class="tag tag-amber">Precaución</span></td>
                                 <td>7</td>
                             </tr>
                         </tbody>
@@ -1786,10 +1786,10 @@
                         <td>5</td>
                         <td>$3.500</td>
                         <td>5:30 – 9:30 PM</td>
-                        <td><span class="tag tag-green">🟢 Activa</span></td>
+                        <td><span class="tag tag-green">Activa</span></td>
                         <td>
-                            <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                    class="btn-icon">👁️</button>
+                            <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                    class="btn-icon"><i data-lucide="eye" style="width:14px;height:14px;"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -1801,10 +1801,10 @@
                         <td>8</td>
                         <td>$3.500</td>
                         <td>5:00 – 10:00 PM</td>
-                        <td><span class="tag tag-amber">🟡 Demorada</span></td>
+                        <td><span class="tag tag-amber">Demorada</span></td>
                         <td>
-                            <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                    class="btn-icon">👁️</button>
+                            <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                    class="btn-icon"><i data-lucide="eye" style="width:14px;height:14px;"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -1816,10 +1816,10 @@
                         <td>6</td>
                         <td>$3.500</td>
                         <td>6:00 – 9:00 PM</td>
-                        <td><span class="tag tag-green">🟢 Activa</span></td>
+                        <td><span class="tag tag-green">Activa</span></td>
                         <td>
-                            <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                    class="btn-icon">👁️</button>
+                            <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                    class="btn-icon"><i data-lucide="eye" style="width:14px;height:14px;"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -1831,10 +1831,10 @@
                         <td>10</td>
                         <td>$3.500</td>
                         <td>5:00 – 10:00 PM</td>
-                        <td><span class="tag tag-green">🟢 Activa</span></td>
+                        <td><span class="tag tag-green">Activa</span></td>
                         <td>
-                            <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                    class="btn-icon">👁️</button>
+                            <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                    class="btn-icon"><i data-lucide="eye" style="width:14px;height:14px;"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -1846,10 +1846,10 @@
                         <td>12</td>
                         <td>$3.500</td>
                         <td>5:00 – 9:00 PM</td>
-                        <td><span class="tag tag-red">🔴 Desviada</span></td>
+                        <td><span class="tag tag-red">Desviada</span></td>
                         <td>
-                            <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                    class="btn-icon">👁️</button>
+                            <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                    class="btn-icon"><i data-lucide="eye" style="width:14px;height:14px;"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -1861,10 +1861,10 @@
                         <td>7</td>
                         <td>$3.500</td>
                         <td>5:30 – 8:00 PM</td>
-                        <td><span class="tag tag-amber">🟡 Precaución</span></td>
+                        <td><span class="tag tag-amber">Precaución</span></td>
                         <td>
-                            <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                    class="btn-icon">👁️</button>
+                            <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                    class="btn-icon"><i data-lucide="eye" style="width:14px;height:14px;"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -1876,10 +1876,10 @@
                         <td>9</td>
                         <td>$3.500</td>
                         <td>5:30 – 9:30 PM</td>
-                        <td><span class="tag tag-green">🟢 Activa</span></td>
+                        <td><span class="tag tag-green">Activa</span></td>
                         <td>
-                            <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                    class="btn-icon">👁️</button>
+                            <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                    class="btn-icon"><i data-lucide="eye" style="width:14px;height:14px;"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -1901,23 +1901,23 @@
 
         <div class="grid-4 mb-4">
             <div class="stat-card">
-                <div class="icon" style="background:#e6f7f1;">👥</div>
+                <div class="icon" style="background:#e6f7f1;display:flex;align-items:center;justify-content:center;"><i data-lucide="users" style="width:24px;height:24px;color:var(--green);"></i></div>
                 <div class="value">2,841</div>
                 <div class="label">Total usuarios</div>
                 <div class="trend up">↑ +23 hoy</div>
             </div>
             <div class="stat-card">
-                <div class="icon" style="background:#eff6ff;">👤</div>
+                <div class="icon" style="background:#eff6ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="user" style="width:24px;height:24px;color:var(--blue);"></i></div>
                 <div class="value">2,694</div>
                 <div class="label">Pasajeros</div>
             </div>
             <div class="stat-card">
-                <div class="icon" style="background:#fef3c7;">🚌</div>
+                <div class="icon" style="background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i data-lucide="bus" style="width:24px;height:24px;color:var(--amber);"></i></div>
                 <div class="value">142</div>
                 <div class="label">Conductores</div>
             </div>
             <div class="stat-card">
-                <div class="icon" style="background:#f5f3ff;">⚙️</div>
+                <div class="icon" style="background:#f5f3ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="settings" style="width:24px;height:24px;color:var(--purple);"></i></div>
                 <div class="value">5</div>
                 <div class="label">Administradores</div>
             </div>
@@ -1931,7 +1931,7 @@
                     <button class="tab-btn" onclick="switchTab(this,'utab-pasajeros')">Pasajeros</button>
                     <button class="tab-btn" onclick="switchTab(this,'utab-conductores')">Conductores</button>
                 </div>
-                <input class="form-control" style="width:220px;" placeholder="🔍 Buscar usuario…">
+                <input class="form-control" style="width:220px;" placeholder="Buscar usuario…">
             </div>
 
             <div id="utab-todos" class="tab-content active">
@@ -1966,10 +1966,10 @@
                                 <td>Centenario</td>
                                 <td>142</td>
                                 <td class="text-xs text-gray">Hoy 7:42 AM</td>
-                                <td><span class="tag tag-green">🟢 Activa</span></td>
+                                <td><span class="tag tag-green">Activa</span></td>
                                 <td>
-                                    <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                            class="btn-icon">🔐</button>
+                                    <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                            class="btn-icon"><i data-lucide="lock" style="width:14px;height:14px;"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -1992,10 +1992,10 @@
                                 <td>Centenario</td>
                                 <td>—</td>
                                 <td class="text-xs text-gray">Hoy 5:30 AM</td>
-                                <td><span class="tag tag-green">🟢 En ruta</span></td>
+                                <td><span class="tag tag-green">En ruta</span></td>
                                 <td>
-                                    <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                            class="btn-icon">🔐</button>
+                                    <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                            class="btn-icon"><i data-lucide="lock" style="width:14px;height:14px;"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -2016,10 +2016,10 @@
                                 <td>Agua Blanca</td>
                                 <td>89</td>
                                 <td class="text-xs text-gray">Ayer 6:15 PM</td>
-                                <td><span class="tag tag-green">🟢 Activa</span></td>
+                                <td><span class="tag tag-green">Activa</span></td>
                                 <td>
-                                    <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                            class="btn-icon">🔐</button>
+                                    <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                            class="btn-icon"><i data-lucide="lock" style="width:14px;height:14px;"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -2042,10 +2042,10 @@
                                 <td>Sur</td>
                                 <td>—</td>
                                 <td class="text-xs text-gray">Hoy 5:55 AM</td>
-                                <td><span class="tag tag-amber">🟡 Pausa</span></td>
+                                <td><span class="tag tag-amber">Pausa</span></td>
                                 <td>
-                                    <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                            class="btn-icon">🔐</button>
+                                    <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                            class="btn-icon"><i data-lucide="lock" style="width:14px;height:14px;"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -2067,10 +2067,10 @@
                                 <td>Ciudad Jardín</td>
                                 <td>56</td>
                                 <td class="text-xs text-gray">Hace 3 días</td>
-                                <td><span class="tag tag-gray">⬜ Inactiva</span></td>
+                                <td><span class="tag tag-gray">Inactiva</span></td>
                                 <td>
-                                    <div style="display:flex;gap:4px;"><button class="btn-icon">✏️</button><button
-                                            class="btn-icon">🔐</button>
+                                    <div style="display:flex;gap:4px;"><button class="btn-icon"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button><button
+                                            class="btn-icon"><i data-lucide="lock" style="width:14px;height:14px;"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -2080,14 +2080,14 @@
             </div>
             <div id="utab-pasajeros" class="tab-content">
                 <div class="empty-state">
-                    <div class="empty-icon">👤</div>
+                    <div class="empty-icon"><i data-lucide="user" style="width:32px;height:32px;"></i></div>
                     <h3>Filtrando solo pasajeros</h3>
                     <p>2.694 pasajeros registrados en el sistema</p>
                 </div>
             </div>
             <div id="utab-conductores" class="tab-content">
                 <div class="empty-state">
-                    <div class="empty-icon">🚌</div>
+                    <div class="empty-icon"><i data-lucide="bus" style="width:32px;height:32px;"></i></div>
                     <h3>Filtrando solo conductores</h3>
                     <p>142 conductores activos en el sistema</p>
                 </div>
@@ -2199,10 +2199,10 @@
             if (perfilAvatarLg) perfilAvatarLg.textContent = avatar;
 
             const perfilContacto = document.getElementById('perfilContactoHeader');
-            if (perfilContacto) perfilContacto.textContent = `📧 ${correoStr || '...'} · 📱 ${telStr || '...'}`;
+            if (perfilContacto) perfilContacto.textContent = `${correoStr || '...'} · ${telStr || '...'}`;
 
             const perfilUbicacion = document.getElementById('perfilUbicacionHeader');
-            if (perfilUbicacion) perfilUbicacion.textContent = `📍 ${barrioStr || 'Cali, CO'} · Pasajero activo`;
+            if (perfilUbicacion) perfilUbicacion.textContent = `${barrioStr || 'Cali, CO'} · Pasajero activo`;
 
             const inputNombre = document.getElementById('inputPerfilNombre');
             if (inputNombre) inputNombre.value = nombre;
@@ -2230,7 +2230,7 @@
                 if (aiMessages) {
                     const firstMsg = aiMessages.querySelector('.msg-bubble');
                     if (firstMsg) {
-                        firstMsg.innerHTML = `¡Hola ${primerNombre}! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
+                        firstMsg.innerHTML = `¡Hola ${primerNombre}! Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
                             `Veo que estás en el barrio <strong>${barrioStr}</strong>. ` +
                             `¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura y económica según el tráfico actual.`;
                     }
@@ -2287,7 +2287,7 @@
         function markAllRead() {
             document.querySelectorAll('.notif-item.unread').forEach(i => i.classList.remove('unread'));
             document.getElementById('notifBadge').style.display = 'none';
-            showToast('✅ Notificaciones marcadas como leídas');
+            showToast('Notificaciones marcadas como leídas');
             toggleNotif();
         }
 
@@ -2313,10 +2313,10 @@
             const dest = (document.getElementById('quickDest').value || '').toLowerCase().trim();
 
             const RUTAS = [
-                { color: '#ef4444', icono: '🚌', nombre: 'Ruta Especial Sur', origen: 'La Ermita', destino: 'Circuito Sur', buses: 4, duracion: '~35 min', tipo: 'bus', keywords: ['ermita', 'sur', 'centro', 'calle 5', 'parada'] },
-                { color: '#3b82f6', icono: '🚌', nombre: 'Ruta Norte', origen: 'Granada', destino: 'Santa Mónica', buses: 3, duracion: '~45 min', tipo: 'bus', keywords: ['granada', 'chipichape', 'menga', 'norte', 'santa monica', 'circunvalar'] },
-                { color: '#16a34a', icono: '🚐', nombre: 'Gualas Oriente', origen: 'Carrera 22', destino: 'Calle 92', buses: 3, duracion: '~30 min', tipo: 'guala', keywords: ['oriente', 'aguablanca', 'guala', 'campero', 'calle 53', 'calle 72', 'calle 92'] },
-                { color: '#f97316', icono: '🚌', nombre: 'Ruta Sur — Pryca / U. Nariño', origen: 'Pryca', destino: 'U. Antonio Nariño', buses: 3, duracion: '~40 min', tipo: 'bus', keywords: ['pryca', 'nariño', 'antonio nariño', 'universidad', 'carrera 86', 'carrera 108'] },
+                { color: '#ef4444', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Especial Sur', origen: 'La Ermita', destino: 'Circuito Sur', buses: 4, duracion: '~35 min', tipo: 'bus', keywords: ['ermita', 'sur', 'centro', 'calle 5', 'parada'] },
+                { color: '#3b82f6', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Norte', origen: 'Granada', destino: 'Santa Mónica', buses: 3, duracion: '~45 min', tipo: 'bus', keywords: ['granada', 'chipichape', 'menga', 'norte', 'santa monica', 'circunvalar'] },
+                { color: '#16a34a', icono: '<i data-lucide="car" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Gualas Oriente', origen: 'Carrera 22', destino: 'Calle 92', buses: 3, duracion: '~30 min', tipo: 'guala', keywords: ['oriente', 'aguablanca', 'guala', 'campero', 'calle 53', 'calle 72', 'calle 92'] },
+                { color: '#f97316', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Sur — Pryca / U. Nariño', origen: 'Pryca', destino: 'U. Antonio Nariño', buses: 3, duracion: '~40 min', tipo: 'bus', keywords: ['pryca', 'nariño', 'antonio nariño', 'universidad', 'carrera 86', 'carrera 108'] },
             ];
 
             let resultados = dest
@@ -2345,37 +2345,37 @@
                                     <div class="route-dot" style="background:${r.color};"></div>
                                     ${r.icono} ${r.nombre}
                                 </div>
-                                <span class="tag tag-green">🟢 Activa</span>
+                                <span class="tag tag-green">Activa</span>
                             </div>
                             <div class="route-meta" style="margin:6px 0;">
-                                <span>📍 ${r.origen} → ${r.destino}</span>
+                                <span><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> ${r.origen} → ${r.destino}</span>
                                 <span>⏱️ ${r.duracion}</span>
-                                <span>💰 $3.500</span>
+                                <span><i data-lucide="dollar-sign" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> $3.500</span>
                                 <span>${r.icono} ${r.buses} unidades</span>
                             </div>
-                            ${r.tipo === 'guala' ? `<div style="margin-top:6px;background:#16a34a15;border:1px solid #16a34a30;border-radius:6px;padding:4px 8px;font-size:.72rem;color:#166534;font-weight:600;">🚐 Guala/Campero 4x4 — Sector Oriente</div>` : ''}
+                            ${r.tipo === 'guala' ? `<div style="margin-top:6px;background:#16a34a15;border:1px solid #16a34a30;border-radius:6px;padding:4px 8px;font-size:.72rem;color:#166534;font-weight:600;"><i data-lucide="car" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Guala/Campero 4x4 — Sector Oriente</div>` : ''}
                         </div>
                     `).join('')}
                 </div>
             `;
 
             navigate('mapa');
-            setTimeout(() => showToast(`🗺️ ${resultados.length} ruta(s) encontrada(s)`), 300);
+            setTimeout(() => showToast(`${resultados.length} ruta(s) encontrada(s)`), 300);
         }
 
         function buscarRutasMapa() {
-            showToast('🔍 Actualizando resultados de búsqueda…');
+            showToast('Actualizando resultados de búsqueda…');
         }
 
         function verRuta(ruta) {
             navigate('mapa');
-            setTimeout(() => showToast(`🗺️ Mostrando detalles de la ruta ${ruta}`), 200);
+            setTimeout(() => showToast(`Mostrando detalles de la ruta ${ruta}`), 200);
         }
 
         function selectRoute(el) {
             document.querySelectorAll('.route-card').forEach(c => c.classList.remove('selected'));
             el.classList.add('selected');
-            showToast('✅ Ruta seleccionada');
+            showToast('Ruta seleccionada');
         }
 
         function setDest(el, dest) {
@@ -2385,7 +2385,7 @@
         }
 
         function filtrarRutas(tipo) {
-            showToast(`🔍 Filtrando: ${tipo === 'all' ? 'Todos los vehículos' : tipo === 'bus' ? 'Solo buses' : 'Solo gualas'}`);
+            showToast(`Filtrando: ${tipo === 'all' ? 'Todos los vehículos' : tipo === 'bus' ? 'Solo buses' : 'Solo gualas'}`);
         }
 
         function chipFilter(el, label) {
@@ -2406,29 +2406,31 @@
         // ===== REPORTES =====
         function reportarIncidente(tipo) {
             const tipos = {
-                bloqueo: '🚧 Bloqueo vial reportado',
-                falla: '🔧 Falla mecánica reportada',
-                seguridad: '🚨 Incidente de seguridad reportado'
+                bloqueo: 'Bloqueo vial reportado',
+                falla: 'Falla mecánica reportada',
+                seguridad: 'Incidente de seguridad reportado'
             };
             showToast(`${tipos[tipo]} — Enviando al centro de control…`);
         }
 
         function enviarReporte() {
-            showToast('✅ Reporte enviado correctamente. Revisión en 5 minutos.');
+            showToast('Reporte enviado correctamente. Revisión en 5 minutos.');
         }
 
         function validarReporte(btn) {
             const row = btn.closest('tr');
-            row.querySelector('.tag').outerHTML = '<span class="tag tag-green">✅ Validado</span>';
-            btn.parentElement.innerHTML = '<span class="tag tag-green">✅</span>';
-            showToast('✅ Reporte validado y publicado como alerta');
+            row.querySelector('.tag').outerHTML = '<span class="tag tag-green"><i data-lucide="check-circle" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Validado</span>';
+            btn.parentElement.innerHTML = '<span class="tag tag-green"><i data-lucide="check-circle" style="width:12px;height:12px;"></i></span>';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            showToast('Reporte validado y publicado como alerta');
         }
 
         function rechazarReporte(btn) {
             const row = btn.closest('tr');
             row.style.opacity = '0.4';
-            btn.parentElement.innerHTML = '<span class="tag tag-gray">❌ Rechazado</span>';
-            showToast('❌ Reporte rechazado');
+            btn.parentElement.innerHTML = '<span class="tag tag-gray"><i data-lucide="x-circle" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Rechazado</span>';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            showToast('Reporte rechazado');
         }
 
         // ===== TABS =====
@@ -2461,30 +2463,30 @@
             if (hora >= 5 && hora < 12) {
                 franja = 'Mañana (5am – 12pm)';
                 consejos = [
-                    { icono: '☀️', titulo: 'Hora pico temprana', desc: 'Entre 7–9am hay mayor congestión. Sal 10 min antes o usa la app para ver el bus más cercano.', color: 'var(--amber-light)', border: '#fde68a', texto: '#b45309' },
-                    { icono: '👀', titulo: 'Verifica tu ruta', desc: 'Antes de salir revisa las alertas activas en WayRoute para evitar bloqueos o desvíos.', color: 'var(--blue-light)', border: '#93c5fd', texto: '#1d4ed8' },
-                    { icono: '📱', titulo: 'Activa compartir viaje', desc: 'Aunque sea de día, compartir tu trayecto con un familiar es un buen hábito desde el primer viaje.', color: 'var(--green-light)', border: '#6ee7b7', texto: 'var(--green-dark)' },
+                    { icono: '<i data-lucide="sun" style="width:22px;height:22px;"></i>', titulo: 'Hora pico temprana', desc: 'Entre 7–9am hay mayor congestión. Sal 10 min antes o usa la app para ver el bus más cercano.', color: 'var(--amber-light)', border: '#fde68a', texto: '#b45309' },
+                    { icono: '<i data-lucide="eye" style="width:22px;height:22px;"></i>', titulo: 'Verifica tu ruta', desc: 'Antes de salir revisa las alertas activas en WayRoute para evitar bloqueos o desvíos.', color: 'var(--blue-light)', border: '#93c5fd', texto: '#1d4ed8' },
+                    { icono: '<i data-lucide="smartphone" style="width:22px;height:22px;"></i>', titulo: 'Activa compartir viaje', desc: 'Aunque sea de día, compartir tu trayecto con un familiar es un buen hábito desde el primer viaje.', color: 'var(--green-light)', border: '#6ee7b7', texto: 'var(--green-dark)' },
                 ];
             } else if (hora >= 12 && hora < 18) {
                 franja = 'Tarde (12pm – 6pm)';
                 consejos = [
-                    { icono: '🌤️', titulo: 'Hora de menor riesgo', desc: 'Las horas del mediodía son las más seguras para moverse. Aprovecha si tienes viajes pendientes.', color: 'var(--green-light)', border: '#6ee7b7', texto: 'var(--green-dark)' },
-                    { icono: '💧', titulo: 'Hidratación en el bus', desc: 'Cali puede superar los 30°C en la tarde. Lleva agua para el trayecto, especialmente en gualas.', color: 'var(--blue-light)', border: '#93c5fd', texto: '#1d4ed8' },
-                    { icono: '🎒', titulo: 'Cuida tus pertenencias', desc: 'En horas pico del mediodía los buses van llenos. Mantén tu bolso al frente y con cierre.', color: 'var(--amber-light)', border: '#fde68a', texto: '#b45309' },
+                    { icono: '<i data-lucide="cloud-sun" style="width:22px;height:22px;"></i>', titulo: 'Hora de menor riesgo', desc: 'Las horas del mediodía son las más seguras para moverse. Aprovecha si tienes viajes pendientes.', color: 'var(--green-light)', border: '#6ee7b7', texto: 'var(--green-dark)' },
+                    { icono: '<i data-lucide="droplet" style="width:22px;height:22px;"></i>', titulo: 'Hidratación en el bus', desc: 'Cali puede superar los 30°C en la tarde. Lleva agua para el trayecto, especialmente en gualas.', color: 'var(--blue-light)', border: '#93c5fd', texto: '#1d4ed8' },
+                    { icono: '<i data-lucide="backpack" style="width:22px;height:22px;"></i>', titulo: 'Cuida tus pertenencias', desc: 'En horas pico del mediodía los buses van llenos. Mantén tu bolso al frente y con cierre.', color: 'var(--amber-light)', border: '#fde68a', texto: '#b45309' },
                 ];
             } else if (hora >= 18 && hora < 21) {
                 franja = 'Noche temprana (6pm – 9pm)';
                 consejos = [
-                    { icono: '🌆', titulo: 'Hora pico nocturna', desc: 'Entre 6–8pm el tráfico es intenso. Consulta el mapa en tiempo real antes de tomar el bus.', color: 'var(--amber-light)', border: '#fde68a', texto: '#b45309' },
-                    { icono: '📍', titulo: 'Comparte tu ubicación', desc: 'Activa "Compartir mi viaje" en la app. Tus contactos sabrán dónde estás en todo momento.', color: 'var(--blue-light)', border: '#93c5fd', texto: '#1d4ed8' },
-                    { icono: '💡', titulo: 'Prefiere paradas iluminadas', desc: 'Al esperar el bus, ubícate en zonas con buena iluminación y cerca de otras personas.', color: 'var(--green-light)', border: '#6ee7b7', texto: 'var(--green-dark)' },
+                    { icono: '<i data-lucide="sunset" style="width:22px;height:22px;"></i>', titulo: 'Hora pico nocturna', desc: 'Entre 6–8pm el tráfico es intenso. Consulta el mapa en tiempo real antes de tomar el bus.', color: 'var(--amber-light)', border: '#fde68a', texto: '#b45309' },
+                    { icono: '<i data-lucide="map-pin" style="width:22px;height:22px;"></i>', titulo: 'Comparte tu ubicación', desc: 'Activa "Compartir mi viaje" en la app. Tus contactos sabrán dónde estás en todo momento.', color: 'var(--blue-light)', border: '#93c5fd', texto: '#1d4ed8' },
+                    { icono: '<i data-lucide="lightbulb" style="width:22px;height:22px;"></i>', titulo: 'Prefiere paradas iluminadas', desc: 'Al esperar el bus, ubícate en zonas con buena iluminación y cerca de otras personas.', color: 'var(--green-light)', border: '#6ee7b7', texto: 'var(--green-dark)' },
                 ];
             } else {
                 franja = 'Noche (9pm – 5am)';
                 consejos = [
-                    { icono: '🌙', titulo: 'Modo nocturno activo', desc: 'A esta hora es fundamental compartir tu viaje. Activa la función en la app antes de subir al bus.', color: '#fef3c7', border: '#fde68a', texto: '#b45309' },
-                    { icono: '🚨', titulo: 'Botón SOS disponible', desc: 'Si sentís algo extraño durante el viaje, usá el botón SOS. Notifica a tus contactos y al 123 automáticamente.', color: '#fee2e2', border: '#fca5a5', texto: '#b91c1c' },
-                    { icono: '👥', titulo: 'No viajes solo/a', desc: 'De ser posible, coordina con alguien para esperar y bajarte juntos. Las gualas paran más cerca de casa.', color: 'var(--blue-light)', border: '#93c5fd', texto: '#1d4ed8' },
+                    { icono: '<i data-lucide="moon" style="width:22px;height:22px;"></i>', titulo: 'Modo nocturno activo', desc: 'A esta hora es fundamental compartir tu viaje. Activa la función en la app antes de subir al bus.', color: '#fef3c7', border: '#fde68a', texto: '#b45309' },
+                    { icono: '<i data-lucide="shield-alert" style="width:22px;height:22px;"></i>', titulo: 'Botón SOS disponible', desc: 'Si sentís algo extraño durante el viaje, usá el botón SOS. Notifica a tus contactos y al 123 automáticamente.', color: '#fee2e2', border: '#fca5a5', texto: '#b91c1c' },
+                    { icono: '<i data-lucide="users" style="width:22px;height:22px;"></i>', titulo: 'No viajes solo/a', desc: 'De ser posible, coordina con alguien para esperar y bajarte juntos. Las gualas paran más cerca de casa.', color: 'var(--blue-light)', border: '#93c5fd', texto: '#1d4ed8' },
                 ];
             }
 
@@ -2497,6 +2499,7 @@
                     <div class="text-xs text-gray" style="line-height:1.5;">${c.desc}</div>
                 </div>
             `).join('');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         // ===== INIT =====
@@ -2550,12 +2553,12 @@
             const enlaceBox = document.getElementById('compartirEnlace');
 
             if (!navigator.geolocation) {
-                showToast('⚠️ Tu navegador no soporta geolocalización.');
+                showToast('Tu navegador no soporta geolocalización.');
                 return;
             }
 
             btn.disabled    = true;
-            btn.textContent = '⏳ Obteniendo GPS...';
+            btn.textContent = 'Obteniendo GPS...';
             estado.style.display = 'block';
             coords.textContent   = 'Obteniendo coordenadas...';
 
@@ -2575,23 +2578,23 @@
                 enlaceBox.style.display = 'block';
                 document.getElementById('btnDetenerCompartir').style.display = 'block';
 
-                btn.textContent = '✅ Ubicación compartida';
+                btn.textContent = 'Ubicación compartida';
 
                 if (navigator.share) {
                     await navigator.share({
                         title: 'Mi ubicación — WayRoute',
-                        text:  '📍 Estoy aquí, sígueme en tiempo real:',
+                        text:  'Estoy aquí, sígueme en tiempo real:',
                         url:   _enlaceUbicacion
                     });
                 } else {
                     await navigator.clipboard.writeText(_enlaceUbicacion);
-                    showToast('📋 Enlace de ubicación copiado al portapapeles.');
+                    showToast('Enlace de ubicación copiado al portapapeles.');
                 }
             } catch (e) {
                 btn.disabled    = false;
-                btn.textContent = '📤 Compartir mi ubicación';
+                btn.textContent = 'Compartir mi ubicación';
                 estado.style.display = 'none';
-                showToast('⚠️ No se pudo obtener la ubicación GPS. Verifica los permisos.');
+                showToast('No se pudo obtener la ubicación GPS. Verifica los permisos.');
             }
         };
 
@@ -2601,14 +2604,14 @@
             document.getElementById('btnDetenerCompartir').style.display = 'none';
             const btn = document.getElementById('btnCompartirUbicacion');
             btn.disabled    = false;
-            btn.textContent = '📤 Compartir mi ubicación';
-            showToast('🔕 Compartición detenida.');
+            btn.textContent = 'Compartir mi ubicación';
+            showToast('Compartición detenida.');
         };
 
         window.copiarEnlaceUbicacion = function () {
             if (!_enlaceUbicacion) return;
             navigator.clipboard?.writeText(_enlaceUbicacion).then(() =>
-                showToast('📋 Enlace copiado al portapapeles.')
+                showToast('Enlace copiado al portapapeles.')
             );
         };
 
@@ -2623,10 +2626,10 @@
             if (_alertaProximidadInterval) {
                 clearInterval(_alertaProximidadInterval);
                 _alertaProximidadInterval = null;
-                btn.textContent = '🔔 Activar alerta de llegada';
+                btn.textContent = 'Activar alerta de llegada';
                 btn.style.background = '#fef3c7';
                 btn.style.color = '#92400e';
-                showToast('🔕 Alerta de proximidad desactivada.');
+                showToast('Alerta de proximidad desactivada.');
                 return;
             }
 
@@ -2635,10 +2638,10 @@
                 Notification.requestPermission();
             }
 
-            btn.textContent = '🔕 Desactivar alerta';
+            btn.textContent = 'Desactivar alerta';
             btn.style.background = '#fbbf24';
             btn.style.color = '#fff';
-            showToast('🔔 Alerta activada — te avisamos cuando el bus esté a menos de 300m.');
+            showToast('Alerta activada — te avisamos cuando el bus esté a menos de 300m.');
 
             _alertaProximidadInterval = setInterval(() => {
                 if (!window.WayRoute?.tiempoLlegadaProximo) return;
@@ -2647,7 +2650,7 @@
 
                 const proximo = tiempos[0];
                 if (proximo.distanciaMetros <= UMBRAL_ALERTA_METROS) {
-                    const msg = `🚌 Bus ${proximo.busProximo} de ${proximo.ruta} llega en ${proximo.minutos} min a ${proximo.parada}`;
+                    const msg = `Bus ${proximo.busProximo} de ${proximo.ruta} llega en ${proximo.minutos} min a ${proximo.parada}`;
 
                     // Notificación nativa (funciona en segundo plano)
                     if ('Notification' in window && Notification.permission === 'granted') {

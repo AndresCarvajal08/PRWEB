@@ -48,7 +48,7 @@
       <!-- ═══════════════════════════════ -->
       <div class="step-section active" id="sec1">
         <div class="law-box blue">
-          <span>📋</span>
+          <span><i data-lucide="clipboard" style="width:16px;height:16px;"></i></span>
           <span><strong>Ley 1581/2012 — Protección de Datos:</strong> Sus datos personales serán tratados conforme al Marco Legal Colombiano de Protección de Datos. Solo serán usados para la gestión operativa del servicio de transporte.</span>
         </div>
 
@@ -86,10 +86,10 @@
           <div class="field" id="f-turno"><label>Turno de trabajo <span class="req">*</span></label>
             <div class="iw no"><select id="turno">
               <option value="">Seleccionar…</option>
-              <option value="Mañana (05:00 – 13:00)">🌅 Mañana (05:00 – 13:00)</option>
-              <option value="Tarde (13:00 – 21:00)">🌇 Tarde (13:00 – 21:00)</option>
-              <option value="Noche (21:00 – 05:00)">🌙 Noche (21:00 – 05:00)</option>
-              <option value="Doble (05:00 – 17:00)">⏰ Doble (05:00 – 17:00)</option>
+              <option value="Mañana (05:00 – 13:00)">Mañana (05:00 – 13:00)</option>
+              <option value="Tarde (13:00 – 21:00)">Tarde (13:00 – 21:00)</option>
+              <option value="Noche (21:00 – 05:00)">Noche (21:00 – 05:00)</option>
+              <option value="Doble (05:00 – 17:00)">Doble (05:00 – 17:00)</option>
             </select></div><div class="err">Selecciona el turno.</div></div>
         </div>
 
@@ -118,10 +118,10 @@
           <div class="field" id="f-tipo"><label>Tipo de vehículo <span class="req">*</span></label>
             <div class="iw no"><select id="tipoVeh">
               <option value="">Seleccionar…</option>
-              <option value="Bus urbano">🚌 Bus urbano</option>
-              <option value="Campero / Guala">🚙 Campero / Guala</option>
-              <option value="Microbús">🚐 Microbús</option>
-              <option value="Buseta">🚍 Buseta</option>
+              <option value="Bus urbano">Bus urbano</option>
+              <option value="Campero / Guala">Campero / Guala</option>
+              <option value="Microbús">Microbús</option>
+              <option value="Buseta">Buseta</option>
             </select></div><div class="err">Requerido.</div></div>
           <div class="field" id="f-capacidad"><label>Capacidad (pasajeros) <span class="req">*</span></label>
             <div class="iw"><span class="xi"><i data-lucide="users" style="width:15px;height:15px;"></i></span><input type="number" id="capacidad" placeholder="Ej: 39" min="4" max="80"></div><div class="err">Requerida.</div></div>
@@ -194,8 +194,8 @@
             <button type="button" class="lic-btn" data-cat="B2" onclick="selLic(this)">B2<br><span class="lic-desc">Camión liviano</span></button>
             <button type="button" class="lic-btn" data-cat="B3" onclick="selLic(this)">B3<br><span class="lic-desc">Veh. público ≤ 3.5t</span></button>
             <button type="button" class="lic-btn" data-cat="C1" onclick="selLic(this)">C1<br><span class="lic-desc">Servicio público</span></button>
-            <button type="button" class="lic-btn" data-cat="C2" onclick="selLic(this)" id="catC2">C2 ⭐<br><span class="lic-desc">Público especial</span></button>
-            <button type="button" class="lic-btn selected" data-cat="C3" onclick="selLic(this)" id="catC3">C3 ✅<br><span class="lic-desc">Bus urbano colectivo</span></button>
+            <button type="button" class="lic-btn" data-cat="C2" onclick="selLic(this)" id="catC2">C2 <i data-lucide="star" style="width:12px;height:12px;display:inline-block;vertical-align:-1px;"></i><br><span class="lic-desc">Público especial</span></button>
+            <button type="button" class="lic-btn selected" data-cat="C3" onclick="selLic(this)" id="catC3">C3 <i data-lucide="check-circle" style="width:12px;height:12px;display:inline-block;vertical-align:-1px;"></i><br><span class="lic-desc">Bus urbano colectivo</span></button>
             <button type="button" class="lic-btn" data-cat="C4" onclick="selLic(this)">C4<br><span class="lic-desc">Veh. articulado</span></button>
           </div>
           <input type="hidden" id="licCat" value="C3">
@@ -272,7 +272,7 @@
         <!-- ── Checklist de aceptaciones legales ── -->
         <div style="margin-bottom:20px;margin-top:16px;">
           <div style="font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">
-            ✅ Confirmaciones requeridas
+            <i data-lucide="check-circle" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Confirmaciones requeridas
           </div>
 
           <!-- 1. Habeas Data -->
@@ -425,7 +425,7 @@
         document.getElementById('line' + i).classList.toggle('done', i < cur);
       }
       document.getElementById('btnBack').style.visibility = n > 1 ? 'visible' : 'hidden';
-      document.getElementById('nextLabel').textContent = n === TOTAL ? 'Registrar conductor ✓' : 'Siguiente →';
+      document.getElementById('nextLabel').textContent = n === TOTAL ? 'Registrar conductor' : 'Siguiente →';
     }
 
     function validate(s) {
@@ -520,7 +520,7 @@
     function checkStrength(p) {
       let sc=0;
       if(p.length>=8)sc++;if(/[A-Z]/.test(p))sc++;if(/[0-9]/.test(p))sc++;if(/[^a-zA-Z0-9]/.test(p))sc++;
-      const labels=['','Débil 🔴','Regular 🟡','Buena 🔵','Fuerte 🟢'];
+      const labels=['','Débil','Regular','Buena','Fuerte'];
       const colors=['','#EF4444','#F59E0B','#1EA0D8','#0DCCA0'];
       for(let i=1;i<=4;i++) document.getElementById('seg'+i).style.background = i<=sc ? colors[sc] : 'var(--border)';
       document.getElementById('strengthLbl').textContent = p ? labels[sc] : 'Ingresa una contraseña';
@@ -536,7 +536,7 @@
     function buildSummary() {
       const rutaRaw = g('rutaAsig'); const [cr, nr] = rutaRaw.split('|');
       document.getElementById('summaryBox').innerHTML = `
-        <div style="margin-bottom:12px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">👤 Datos personales</div>
+        <div style="margin-bottom:12px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;"><i data-lucide="user" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Datos personales</div>
         <div class="sum-grid">
           ${row('Nombre completo', g('nombres')+' '+g('apellidos'))}
           ${row('Cédula', g('cedula'))}
@@ -545,7 +545,7 @@
           ${row('Turno', g('turno'))}
           ${row('Correo', g('correo'))}
         </div>
-        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">🚌 Vehículo</div>
+        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;"><i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Vehículo</div>
         <div class="sum-grid">
           ${row('Placa', g('placa').toUpperCase())}
           ${row('Tipo', g('tipoVeh'))}
@@ -554,17 +554,18 @@
           ${row('Vence SOAT', g('soatVence'))}
           ${row('Vence Tecno.', g('tecnoVence'))}
         </div>
-        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">🪪 Licencia</div>
+        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;"><i data-lucide="id-card" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Licencia</div>
         <div class="sum-grid">
           ${row('Número', g('licNum'))}
           ${row('Categoría', licCatSel)}
           ${row('Expedición', g('licExp'))}
           ${row('Vencimiento', g('licVence'))}
         </div>
-        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;">🗺️ Asignación</div>
+        <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;"><i data-lucide="map" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Asignación</div>
         <div class="sum-grid">
           ${row('Ruta', nr||cr)}
         </div>`;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     async function submit() {
@@ -614,8 +615,9 @@
     function toast(msg, type='success') {
       const el = document.createElement('div');
       el.className = `toast toast-${type}`;
-      el.innerHTML = `<span>${type==='success'?'✅':'❌'}</span> ${msg}`;
+      el.innerHTML = `<span>${type==='success'?'<i data-lucide="check-circle" style="width:14px;height:14px;"></i>':'<i data-lucide="x-circle" style="width:14px;height:14px;"></i>'}</span> ${msg}`;
       document.getElementById('toastBox').appendChild(el);
+      if (typeof lucide !== 'undefined') lucide.createIcons();
       setTimeout(()=>el.remove(), 4500);
     }
   </script>

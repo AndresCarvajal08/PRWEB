@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (aiMessages) {
             const firstMsg = aiMessages.querySelector('.msg-bubble');
             if (firstMsg) {
-                firstMsg.innerHTML = `¡Hola ${userFirstName}! 👋 Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
+                firstMsg.innerHTML = `¡Hola ${userFirstName}! Soy WayAI, tu asistente de movilidad para Cali.<br><br>` +
                     `Veo que estás en el barrio <strong>${barrio}</strong>. ` +
                     `¿A dónde necesitas ir hoy? Puedo recomendarte la ruta más segura y económica según el tráfico actual.`;
             }
@@ -259,17 +259,17 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.textContent = 'Guardar cambios en base de datos';
 
         if (result.ok) {
-            window.Toast.show('✅ Datos actualizados correctamente en Supabase.');
-            
+            window.Toast.show('Datos actualizados correctamente en Supabase.');
+
             // Actualizar Vistas
             const updatedUser = result.usuario;
             document.getElementById('perfilNombreHeader').textContent = updatedUser.nombre;
-            document.getElementById('perfilContactoHeader').textContent = '📧 ' + updatedUser.correo + ' · 📱 ' + updatedUser.celular;
-            document.getElementById('perfilUbicacionHeader').textContent = '📍 ' + updatedUser.barrio + ', Cali · Pasajero activo';
-            
+            document.getElementById('perfilContactoHeader').textContent = updatedUser.correo + ' · ' + updatedUser.celular;
+            document.getElementById('perfilUbicacionHeader').textContent = updatedUser.barrio + ', Cali · Pasajero activo';
+
             window.NavView.actualizarUsuarioNav(window.SesionModel.getSesion());
         } else {
-            window.Toast.show('❌ Error: ' + result.error);
+            window.Toast.show('Error: ' + result.error);
         }
     };
 });

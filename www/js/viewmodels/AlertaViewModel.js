@@ -83,7 +83,7 @@ const AlertaViewModel = {
             const vUbic = document.getElementById('formUbicacionIncidencia').value;
             
             if (!vDesc || !vUbic) {
-                if (window.Toast) window.Toast.show('⚠️ Por favor completa la ubicación y la descripción.');
+                if (window.Toast) window.Toast.show('Por favor completa la ubicación y la descripción.');
                 return;
             }
 
@@ -131,7 +131,7 @@ const AlertaViewModel = {
         }
 
         if (ok) {
-            if (window.Toast) window.Toast.show('✅ Reporte guardado exitosamente.');
+            if (window.Toast) window.Toast.show('Reporte guardado exitosamente.');
             // Limpiar formulario detallado
             if (!tipoRapido) {
                 if (document.getElementById('formDescIncidencia')) document.getElementById('formDescIncidencia').value = '';
@@ -141,7 +141,7 @@ const AlertaViewModel = {
             setTimeout(() => this.sincronizar(true), 800);
         } else {
             console.error('[AlertaViewModel] Falló la creación en AlertaModel');
-            if (window.Toast) window.Toast.show('❌ Error: No se pudo conectar con la base de datos de reportes.');
+            if (window.Toast) window.Toast.show('Error: No se pudo conectar con la base de datos de reportes.');
         }
     }
 };
