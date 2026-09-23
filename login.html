@@ -84,11 +84,6 @@
           <span class="role-icon"><i data-lucide="bus" style="width:22px;height:22px;"></i></span>
           <span class="role-label">Conductor</span>
         </button>
-        <button class="role-btn" id="role-administrador" onclick="selectRole('administrador', this)" type="button">
-          <div class="role-check"><i data-lucide="check" style="width:12px;height:12px;"></i></div>
-          <span class="role-icon"><i data-lucide="shield" style="width:22px;height:22px;"></i></span>
-          <span class="role-label">Admin</span>
-        </button>
       </div>
 
       <!-- Alerta de error -->
@@ -178,8 +173,7 @@
     let currentRole = 'pasajero';
     const DEMO_CREDS = {
       pasajero: { email: 'lauraruiz@gmail.com', pass: 'Pasajero1*', hint: '📧 lauraruiz@gmail.com<br>🔒 Pasajero1*' },
-      conductor: { email: 'jcaicedo@laermita.com.co', pass: 'Conductor1*', hint: '📧 jcaicedo@laermita.com.co<br>🔒 Conductor1*' },
-      administrador: { email: 'admin@wayroute.gov.co', pass: 'Admin2025*', hint: '📧 admin@wayroute.gov.co<br>🔒 Admin2025*' }
+      conductor: { email: 'jcaicedo@laermita.com.co', pass: 'Conductor1*', hint: '📧 jcaicedo@laermita.com.co<br>🔒 Conductor1*' }
     };
 
     // Verificar si ya hay sesión
@@ -251,12 +245,9 @@
           return;
         }
 
-        // Verificar que el rol coincida con el seleccionado
-        if (resultado.usuario.rol !== currentRole) {
-          showError(`Este correo pertenece al rol "${resultado.usuario.rol}". Selecciona el rol correcto.`);
-          return;
-        }
-
+        // El rol real viene de la base de datos, no del botón que se haya
+        // marcado en pantalla. Así cualquier cuenta (incluida administrador,
+        // que ya no tiene botón propio) entra directo a su panel correcto.
         redirigirPorRol(resultado.usuario.rol);
       }, 900);
     }
