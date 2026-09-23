@@ -40,6 +40,12 @@ Pago en efectivo al conductor. Cada ruta tiene tarifa diferente según distancia
 - Respuestas cortas y naturales. Máximo 3 párrafos.
 - No hagas listas largas ni texto técnico frío.
 - Cerrá siempre con una pregunta o invitación, EXCEPTO en agradecimientos y despedidas.
+
+## Cuando te pregunten por posición, tiempos o info de rutas
+- Si el usuario menciona UNA ruta específica (por nombre, zona o punto de referencia), respondé SOLO sobre esa ruta.
+- Si menciona DOS rutas, respondé sobre esas dos únicamente.
+- Si NO menciona ninguna ruta en particular, o pide explícitamente "todas"/"todos los buses", ahí sí mostrá las 4.
+- Nunca respondas con las 4 rutas si el usuario preguntó por una sola.
 `;
 
 // ─────────────────────────────────────────────
@@ -51,6 +57,19 @@ const RUTA_INFO = {
     'Gualas Oriente': { emoji: '🟢', label: 'Gualas Oriente', icono: '🚐' },
     'Sur — Pryca/U.Nariño': { emoji: '🟠', label: 'Ruta Sur (Pryca→U.Nariño)', icono: '🚌' },
 };
+
+// ─────────────────────────────────────────────
+//  DETECTA QUÉ RUTA(S) MENCIONA EL MENSAJE
+//  Devuelve un array vacío si no menciona ninguna en concreto (→ mostrar todas)
+// ─────────────────────────────────────────────
+function detectarRutasMencionadas(msg) {
+    const rutas = [];
+    if (msg.includes("norte") || msg.includes("granada") || msg.includes("menga") || msg.includes("chipichape")) rutas.push("Norte");
+    if (msg.includes("oriente") || msg.includes("guala") || msg.includes("aguablanca") || msg.includes("campero")) rutas.push("Gualas Oriente");
+    if (msg.includes("pryca") || msg.includes("nariño") || msg.includes("narino") || msg.includes("antonio")) rutas.push("Sur — Pryca/U.Nariño");
+    if (msg.includes("ermita") || msg.includes("especial") || msg.includes("sur")) rutas.push("Especial Sur");
+    return [...new Set(rutas)];
+}
 
 // ─────────────────────────────────────────────
 //  FUNCIÓN PRINCIPAL
@@ -175,8 +194,22 @@ async function simulateAIResponse(mensaje) {
             porRuta[b.ruta].push(b);
         });
 
-        let respuesta = "📍 **Posición en tiempo real — todas las rutas:**\n\n";
-        Object.entries(porRuta).forEach(([ruta, buses]) => {
+        // Filtrar solo por la(s) ruta(s) que el usuario mencionó (si mencionó alguna)
+        const rutasMencionadas = detectarRutasMencionadas(msg);
+        const entradasRuta = rutasMencionadas.length
+            ? Object.entries(porRuta).filter(([r]) => rutasMencionadas.includes(r))
+            : Object.entries(porRuta);
+
+        if (!entradasRuta.length) {
+            return "📍 No encontré esa ruta activa en este momento. ¿Te puedo ayudar con otra?";
+        }
+
+        const tituloPos = rutasMencionadas.length === 1
+            ? `📍 **Posición en tiempo real — ${RUTA_INFO[rutasMencionadas[0]]?.label || rutasMencionadas[0]}:**\n\n`
+            : "📍 **Posición en tiempo real:**\n\n";
+
+        let respuesta = tituloPos;
+        entradasRuta.forEach(([ruta, buses]) => {
             const info = RUTA_INFO[ruta] || { emoji: '⚫', label: ruta, icono: '🚌' };
             respuesta += `${info.emoji} **${info.label}**\n`;
             buses.forEach(b => {
@@ -199,14 +232,8 @@ async function simulateAIResponse(mensaje) {
         const pos = obtenerPosiciones();
         if (!pos) return "⏱️ No puedo calcular tiempos porque el mapa no está activo. ¡Abrí la vista **Mapa** y volvé a preguntarme!";
 
-        // Detectar ruta específica mencionada en el mensaje
-        const filtroRuta = (() => {
-            if (msg.includes("norte") || msg.includes("granada") || msg.includes("menga") || msg.includes("chipichape")) return "Norte";
-            if (msg.includes("oriente") || msg.includes("guala") || msg.includes("aguablanca") || msg.includes("campero")) return "Gualas Oriente";
-            if (msg.includes("pryca") || msg.includes("nariño") || msg.includes("antonio")) return "Sur — Pryca/U.Nariño";
-            if (msg.includes("ermita") || msg.includes("especial") || msg.includes("sur")) return "Especial Sur";
-            return null; // sin filtro → mostrar todas
-        })();
+        // Detectar ruta(s) específica(s) mencionada(s) en el mensaje
+        const rutasMencionadas = detectarRutasMencionadas(msg);
 
         const porRuta = {};
         pos.forEach(b => {
@@ -215,22 +242,22 @@ async function simulateAIResponse(mensaje) {
         });
 
         const VEL_MS = 25 * 1000 / 3600;
-        const entradasRuta = filtroRuta
-            ? Object.entries(porRuta).filter(([r]) => r === filtroRuta)
+        const entradasRuta = rutasMencionadas.length
+            ? Object.entries(porRuta).filter(([r]) => rutasMencionadas.includes(r))
             : Object.entries(porRuta);
 
         if (!entradasRuta.length) {
             return `⏱️ No encontré buses activos para esa ruta en este momento. ¿Te puedo ayudar con otra?`;
         }
 
-        const titulo = filtroRuta
-            ? `⏱️ **Tiempo estimado — ${RUTA_INFO[filtroRuta]?.label || filtroRuta}:**\n\n`
-            : "⏱️ **Tiempos estimados — todas las rutas:**\n\n";
+        const titulo = rutasMencionadas.length === 1
+            ? `⏱️ **Tiempo estimado — ${RUTA_INFO[rutasMencionadas[0]]?.label || rutasMencionadas[0]}:**\n\n`
+            : "⏱️ **Tiempos estimados:**\n\n";
 
         let respuesta = titulo;
         entradasRuta.forEach(([ruta, buses]) => {
             const info = RUTA_INFO[ruta] || { emoji: '⚫', label: ruta, icono: '🚌' };
-            if (!filtroRuta) respuesta += `${info.emoji} **${info.label}**\n`;
+            if (rutasMencionadas.length !== 1) respuesta += `${info.emoji} **${info.label}**\n`;
 
             const masProx = buses.reduce((min, b) => b.distanciaMetros < min.distanciaMetros ? b : min, buses[0]);
             const minutos = Math.max(1, Math.round(masProx.distanciaMetros / VEL_MS / 60));
