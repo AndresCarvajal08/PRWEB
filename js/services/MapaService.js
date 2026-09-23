@@ -133,10 +133,10 @@
      CONFIG DE RUTAS + SIMULACIÓN DE FLOTA (independiente del mapa)
   ================================================================ */
   const RUTAS_CONFIG = [
-    { puntos: RUTA1_PUNTOS, paradas: RUTA1_PARADAS, color: '#ef4444', numV: 4, arr: busesRuta1, label: 'Bus Sur', esGuala: false },
-    { puntos: RUTA2_PUNTOS, paradas: RUTA2_PARADAS, color: '#3b82f6', numV: 3, arr: busesRuta2, label: 'Bus Norte', esGuala: false },
-    { puntos: RUTA3_PUNTOS, paradas: RUTA3_PARADAS, color: '#16a34a', numV: 3, arr: busesRuta3, label: 'Guala', esGuala: true },
-    { puntos: RUTA4_PUNTOS, paradas: RUTA4_PARADAS, color: '#f97316', numV: 3, arr: busesRuta4, label: 'Bus Sur2', esGuala: false },
+    { clave: 'Especial Sur', puntos: RUTA1_PUNTOS, paradas: RUTA1_PARADAS, color: '#ef4444', numV: 4, arr: busesRuta1, label: 'Bus Sur', esGuala: false },
+    { clave: 'Norte', puntos: RUTA2_PUNTOS, paradas: RUTA2_PARADAS, color: '#3b82f6', numV: 3, arr: busesRuta2, label: 'Bus Norte', esGuala: false },
+    { clave: 'Gualas Oriente', puntos: RUTA3_PUNTOS, paradas: RUTA3_PARADAS, color: '#16a34a', numV: 3, arr: busesRuta3, label: 'Guala', esGuala: true },
+    { clave: 'Sur — Pryca/U.Nariño', puntos: RUTA4_PUNTOS, paradas: RUTA4_PARADAS, color: '#f97316', numV: 3, arr: busesRuta4, label: 'Bus Sur2', esGuala: false },
   ];
 
   let flotaIniciada = false;
@@ -213,6 +213,22 @@
      API PÚBLICA
   ================================================================ */
   window.WayRoute = window.WayRoute || {};
+
+  /* Distancia (en metros) de un punto [lat,lng] al trazado de cada ruta.
+     No depende de que el mapa esté abierto ni de la flota — usa los
+     puntos GPS reales de cada ruta, siempre disponibles. */
+  window.WayRoute.distanciaARuta = function (lat, lng) {
+    const punto = [lat, lng];
+    return RUTAS_CONFIG.map(cfg => {
+      let minDist = Infinity;
+      for (let i = 0; i < cfg.puntos.length; i += 2) { // muestreo cada 2 puntos: suficiente precisión, más rápido
+        const d = distanciaMetros(punto, cfg.puntos[i]);
+        if (d < minDist) minDist = d;
+      }
+      return { clave: cfg.clave, distanciaMetros: Math.round(minDist) };
+    }).sort((a, b) => a.distanciaMetros - b.distanciaMetros);
+  };
+
   window.WayRoute.obtenerPosicionBuses = function () {
     const flotas = [
       [busesRuta1, RUTA1_PARADAS, 'Especial Sur'],
