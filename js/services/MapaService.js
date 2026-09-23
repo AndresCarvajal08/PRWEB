@@ -189,7 +189,19 @@
 
     RUTAS_CONFIG.forEach(dibujarRuta);
 
-    setTimeout(() => leafletMap.invalidateSize(), 200);
+    /* El mapa gris con marcadores pero sin calles es casi siempre Leaflet
+       calculando el tamaño del contenedor antes de que termine de mostrarse
+       la pestaña. Un solo invalidateSize() a los 200ms no siempre alcanza en
+       equipos o navegadores mas lentos, así que se reintenta varias veces y
+       además se observa el contenedor por si cambia de tamaño más tarde. */
+    [100, 300, 700, 1200].forEach(ms => setTimeout(() => leafletMap && leafletMap.invalidateSize(), ms));
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const contenedor = document.getElementById('leafletMap');
+      if (contenedor) {
+        new ResizeObserver(() => leafletMap && leafletMap.invalidateSize()).observe(contenedor);
+      }
+    }
   }
 
   /* ================================================================
