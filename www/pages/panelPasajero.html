@@ -791,7 +791,7 @@
                                         style="width:22px;height:22px;color:#fff;"></i></div>
                                 <div class="info">
                                     <h3>WayAI — Asistente WayRoute</h3>
-                                    <p><span class="ai-status-dot"></span>En línea • Contexto: Cali, 7:42 AM</p>
+                                    <p><span class="ai-status-dot"></span>En línea • Contexto: Cali, <span id="iaHoraContexto">--:--</span></p>
                                 </div>
                             </div>
                             <div class="ai-messages" id="aiMessages">
@@ -2398,6 +2398,7 @@
             if (!data || !data.length) return null;
             return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), nombre: data[0].display_name };
         }
+        window.geocodificarEnCali = geocodificarEnCali; // reutilizada también por el Asistente IA (IAService.js)
 
         const RADIO_RUTA_CERCANA_M = 2500; // distancia máx. para considerar que una ruta "sirve" ese destino
 

@@ -58,6 +58,13 @@ const RUTA_INFO = {
     'Sur — Pryca/U.Nariño': { emoji: '🟠', label: 'Ruta Sur (Pryca→U.Nariño)', icono: '🚌' },
 };
 
+const RESPUESTA_POR_RUTA = {
+    'Norte': "🔵 ¡Mirá! La **Ruta Norte** opera con 3 buses azules. Sale desde **Granada (Calle 22N)**, pasa por Chipichape, Av. Circunvalar, **Menga** y llega hasta **Santa Mónica**. Tarifa: **$3.100**. ¿Querés saber dónde están los buses ahora?",
+    'Gualas Oriente': "🟢 ¡Las **Gualas del Oriente** están operando con 3 unidades! Recorren desde la **Carrera 22** hasta la **Calle 92**, pasando por Calle 53 y Calle 72W. Son camperos 4x4 ideales para el sector oriental. Tarifa: **$2.800**. ¿Te ayudo con algo más?",
+    'Sur — Pryca/U.Nariño': "🟠 La **Ruta Sur** conecta **Pryca (Carrera 86)** con la **Universidad Antonio Nariño (Carrera 108)**, pasando por las carreras 94, 98B y 102. Opera con 3 buses naranjas. Tarifa: **$3.200**. ¿Querés saber el tiempo estimado de llegada?",
+    'Especial Sur': "🔴 La **Ruta Especial Sur** tiene 4 buses rojos operando. Sale de **La Ermita** y recorre 7 paradas por el centro-sur de Cali. Tarifa: **$2.950**. ¿Te digo dónde están los buses ahora mismo?",
+};
+
 // ─────────────────────────────────────────────
 //  DETECTA QUÉ RUTA(S) MENCIONA EL MENSAJE
 //  Devuelve un array vacío si no menciona ninguna en concreto (→ mostrar todas)
@@ -78,7 +85,48 @@ function detectarRutasMencionadas(msg) {
 let contextoRutaActiva = [];
 const PALABRAS_CONTINUACION = ["si", "sí", "claro", "dale", "va pues", "de una", "listo", "obvio"];
 
-function resolverRutasContexto(msg) {
+// ─────────────────────────────────────────────
+//  RECONOCIMIENTO DE LUGARES REALES (geocodificación)
+//  Si el mensaje no menciona ninguna de las 4 rutas por palabra clave,
+//  se intenta extraer el nombre del lugar y geocodificarlo de verdad
+//  (mismo servicio que usa el buscador de Mapa & Rutas) para calcular
+//  qué ruta pasa más cerca.
+// ─────────────────────────────────────────────
+const PALABRAS_RELLENO_LUGAR = [
+    "dime", "cual", "cuál", "que", "qué", "es", "esta", "está", "estan", "están", "son", "hay",
+    "hacia", "hasta", "cerca de", "cerca", "para", "me", "te", "lleva", "llevan", "llega", "llegan",
+    "llego", "voy", "va", "ir", "el", "la", "los", "las", "una", "un", "de", "del", "al", "a", "en",
+    "ruta", "rutas", "bus", "buses", "guala", "gualas", "donde", "dónde", "como", "cómo", "puedo",
+    "podria", "podría", "llegar", "cuanto", "cuánto", "cuanta", "cuánta", "se", "demora", "demoran",
+    "tarda", "tardan", "falta", "faltan", "minutos", "tiempo", "quiero", "necesito", "quisiera",
+    "sabes", "sabe", "porfa", "porfavor", "favor",
+];
+
+function extraerLugarDeMensaje(msg) {
+    const patron = new RegExp('\\b(' + PALABRAS_RELLENO_LUGAR.join('|') + ')\\b', 'g');
+    return msg.replace(/[¿?¡!]/g, '').replace(patron, ' ').replace(/\s+/g, ' ').trim();
+}
+
+async function resolverRutaPorGeocodificacion(msg) {
+    if (typeof window.geocodificarEnCali !== 'function' ||
+        !window.WayRoute || typeof window.WayRoute.distanciaARuta !== 'function') return [];
+
+    const lugar = extraerLugarDeMensaje(msg);
+    if (lugar.length < 3) return [];
+
+    try {
+        const geo = await window.geocodificarEnCali(lugar);
+        if (!geo) return [];
+        const distancias = window.WayRoute.distanciaARuta(geo.lat, geo.lon);
+        const RADIO_CERCA_M = 2500;
+        const cercanas = distancias.filter(d => d.distanciaMetros <= RADIO_CERCA_M);
+        return (cercanas.length ? cercanas : distancias.slice(0, 1)).map(d => d.clave);
+    } catch (e) {
+        return []; // sin internet o Nominatim no disponible → sin ruta detectada
+    }
+}
+
+async function resolverRutasContexto(msg) {
     const mencionadas = detectarRutasMencionadas(msg);
     if (mencionadas.length) {
         contextoRutaActiva = mencionadas;
@@ -88,6 +136,12 @@ function resolverRutasContexto(msg) {
     const esContinuacion = PALABRAS_CONTINUACION.some(p => msg === p || msg.startsWith(p + " ") || msg.startsWith(p + ","));
     if (esContinuacion && contextoRutaActiva.length) {
         return contextoRutaActiva; // seguir hablando de la misma ruta que ya se mencionó
+    }
+
+    const porGeocodificacion = await resolverRutaPorGeocodificacion(msg);
+    if (porGeocodificacion.length) {
+        contextoRutaActiva = porGeocodificacion;
+        return porGeocodificacion;
     }
 
     contextoRutaActiva = []; // tema nuevo sin ruta específica → mostrar todas
@@ -218,7 +272,7 @@ async function simulateAIResponse(mensaje) {
         });
 
         // Filtrar solo por la(s) ruta(s) que el usuario mencionó (o de la que veníamos hablando)
-        const rutasMencionadas = resolverRutasContexto(msg);
+        const rutasMencionadas = await resolverRutasContexto(msg);
         const entradasRuta = rutasMencionadas.length
             ? Object.entries(porRuta).filter(([r]) => rutasMencionadas.includes(r))
             : Object.entries(porRuta);
@@ -260,7 +314,7 @@ async function simulateAIResponse(mensaje) {
         msg.includes("cuando llega") || msg.includes("cuándo llega");
 
     if (esPreguntaPrecio && esPreguntaTiempo) {
-        const rutasMencionadas = resolverRutasContexto(msg);
+        const rutasMencionadas = await resolverRutasContexto(msg);
         const listaRutas = rutasMencionadas.length ? rutasMencionadas : Object.keys(TARIFAS_RUTA);
 
         let respuesta = "💰 **Tarifas:**\n\n";
@@ -302,7 +356,7 @@ async function simulateAIResponse(mensaje) {
         if (!pos) return "⏱️ No puedo calcular tiempos porque el mapa no está activo. ¡Abrí la vista **Mapa** y volvé a preguntarme!";
 
         // Detectar ruta(s) específica(s) mencionada(s) (o retomar de la que veníamos hablando)
-        const rutasMencionadas = resolverRutasContexto(msg);
+        const rutasMencionadas = await resolverRutasContexto(msg);
 
         const porRuta = {};
         pos.forEach(b => {
@@ -348,13 +402,7 @@ async function simulateAIResponse(mensaje) {
         return "¡No solo eso! 😄 Me especializo en transporte de Cali — rutas, posición en tiempo real, tiempos de llegada y tarifas — pero también puedo charlar un poco. Lo que sí te aseguro es que de buses soy el más sabe. ¿Qué necesitás?";
     }
 
-    /* ── 3. RUTA ESPECÍFICA POR NOMBRE ── */
-    const RESPUESTA_POR_RUTA = {
-        'Norte': "🔵 ¡Mirá! La **Ruta Norte** opera con 3 buses azules. Sale desde **Granada (Calle 22N)**, pasa por Chipichape, Av. Circunvalar, **Menga** y llega hasta **Santa Mónica**. Tarifa: **$3.100**. ¿Querés saber dónde están los buses ahora?",
-        'Gualas Oriente': "🟢 ¡Las **Gualas del Oriente** están operando con 3 unidades! Recorren desde la **Carrera 22** hasta la **Calle 92**, pasando por Calle 53 y Calle 72W. Son camperos 4x4 ideales para el sector oriental. Tarifa: **$2.800**. ¿Te ayudo con algo más?",
-        'Sur — Pryca/U.Nariño': "🟠 La **Ruta Sur** conecta **Pryca (Carrera 86)** con la **Universidad Antonio Nariño (Carrera 108)**, pasando por las carreras 94, 98B y 102. Opera con 3 buses naranjas. Tarifa: **$3.200**. ¿Querés saber el tiempo estimado de llegada?",
-        'Especial Sur': "🔴 La **Ruta Especial Sur** tiene 4 buses rojos operando. Sale de **La Ermita** y recorre 7 paradas por el centro-sur de Cali. Tarifa: **$2.950**. ¿Te digo dónde están los buses ahora mismo?",
-    };
+    /* ── 3. RUTA ESPECÍFICA POR NOMBRE (solo palabra clave — rápido, sin red) ── */
     const rutasEspecificas = detectarRutasMencionadas(msg);
     if (rutasEspecificas.length) {
         contextoRutaActiva = rutasEspecificas; // recordar para un "sí"/"dale" de seguimiento
@@ -394,6 +442,16 @@ async function simulateAIResponse(mensaje) {
     if (msg.includes("chao") || msg.includes("adiós") || msg.includes("adios") ||
         msg.includes("bye") || msg.includes("hasta luego") || msg.includes("nos vemos")) {
         return "¡Chao vé! 👋 Que tengas un viaje seguro. WayRoute siempre está disponible cuando lo necesités. ¡Buen viaje!";
+    }
+
+    /* ── 9b. LUGAR REAL DE CALI POR GEOCODIFICACIÓN (último recurso antes del fallback) ──
+       Solo se intenta acá, al final, para no gastar una llamada de red en cada saludo
+       o mensaje que ya fue resuelto por los patrones anteriores. */
+    const rutasPorLugar = await resolverRutaPorGeocodificacion(msg);
+    if (rutasPorLugar.length) {
+        contextoRutaActiva = rutasPorLugar;
+        if (rutasPorLugar.length === 1) return RESPUESTA_POR_RUTA[rutasPorLugar[0]];
+        return rutasPorLugar.map(r => RESPUESTA_POR_RUTA[r]).join("\n\n");
     }
 
     /* ── 10. FALLBACK ── */

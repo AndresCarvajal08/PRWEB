@@ -52,6 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const capitalizada = str.charAt(0).toUpperCase() + str.slice(1);
         const dtEl = document.getElementById('currentDateTime');
         if (dtEl) dtEl.textContent = `Cali, Valle del Cauca • ${capitalizada}`;
+
+        const iaHoraEl = document.getElementById('iaHoraContexto');
+        if (iaHoraEl) iaHoraEl.textContent = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
     }
     actualizarReloj();
     setInterval(actualizarReloj, 60000);
