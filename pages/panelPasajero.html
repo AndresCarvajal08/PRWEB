@@ -2346,20 +2346,41 @@
 
         const RUTAS_DISPONIBLES = [
             { color: '#ef4444', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Especial Sur', empresa: 'Coopcencar', origen: 'La Ermita', destino: 'Circuito Sur', buses: 4, duracion: '~35 min', tarifa: '$2.950', tipo: 'bus',
-                keywords: ['ermita', 'especial', 'centro', 'calle 5', 'parada', 'unicentro', 'hospital', 'hospital universitario', 'caicedo', 'plaza de caicedo', 'plaza', 'san nicolas', 'san nicolás', 'san antonio', 'la merced', 'merced', 'junin', 'junín', 'tequendama', 'san fernando', 'miraflores', 'templete', 'alameda', 'obrero', 'sucre'] },
+                keywords: ['ermita', 'especial', 'centro', 'calle 5', 'parada', 'unicentro', 'hospital', 'hospital universitario', 'caicedo', 'plaza de caicedo', 'san nicolas', 'san antonio', 'la merced', 'merced', 'junin', 'tequendama', 'san fernando', 'miraflores', 'templete', 'alameda', 'obrero', 'sucre', 'cosmocentro'] },
             { color: '#3b82f6', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Norte', empresa: 'Transurbano', origen: 'Granada', destino: 'Santa Mónica', buses: 3, duracion: '~45 min', tarifa: '$3.100', tipo: 'bus',
-                keywords: ['granada', 'chipichape', 'menga', 'norte', 'santa monica', 'santa mónica', 'circunvalar', 'unicentro', 'terminal', 'terminal de transportes', 'parque del perro', 'parque perro', 'perro', 'parque', 'vipasa', 'flora industrial', 'la flora', 'normandia', 'normandía', 'versalles', 'bellavista', 'cristales', 'la campiña', 'ciudad 2000', 'guadalupe', 'aguacatal', 'avenida sexta', 'av 6', 'av. sexta', 'sexta'] },
+                keywords: ['granada', 'chipichape', 'menga', 'norte', 'santa monica', 'circunvalar', 'unicentro', 'terminal', 'terminal de transportes', 'parque del perro', 'parque perro', 'perro', 'parque', 'vipasa', 'flora industrial', 'la flora', 'normandia', 'versalles', 'bellavista', 'cristales', 'la campiña', 'ciudad 2000', 'guadalupe', 'aguacatal', 'avenida sexta', 'sexta', 'centenario'] },
             { color: '#16a34a', icono: '<i data-lucide="car" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Gualas Oriente', empresa: 'Cooptransoriente', origen: 'Carrera 22', destino: 'Calle 92', buses: 3, duracion: '~30 min', tarifa: '$2.800', tipo: 'guala',
-                keywords: ['oriente', 'aguablanca', 'distrito de aguablanca', 'guala', 'campero', 'calle 53', 'calle 72', 'calle 92', 'americas', 'américas', 'las americas', 'las américas', 'marroquin', 'marroquín', 'potrero grande', 'mojica', 'calipso', 'manuela beltran', 'manuela beltrán', 'alfonso lopez', 'alfonso lópez', 'el retiro', 'comuna 13', 'comuna 14', 'comuna 15', 'floralia', 'poblado'] },
+                keywords: ['oriente', 'aguablanca', 'distrito de aguablanca', 'guala', 'campero', 'calle 53', 'calle 72', 'calle 92', 'americas', 'las americas', 'marroquin', 'potrero grande', 'mojica', 'calipso', 'manuela beltran', 'alfonso lopez', 'el retiro', 'comuna 13', 'comuna 14', 'comuna 15', 'floralia', 'poblado'] },
             { color: '#f97316', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Sur — Pryca / U. Nariño', empresa: 'Unitransco', origen: 'Pryca', destino: 'U. Antonio Nariño', buses: 3, duracion: '~40 min', tarifa: '$3.200', tipo: 'bus',
-                keywords: ['pryca', 'nariño', 'antonio nariño', 'universidad', 'carrera 86', 'carrera 108', 'univalle', 'universidad del valle', 'valle', 'autonoma', 'autónoma', 'universidad autonoma', 'icesi', 'santiago de cali', 'melendez', 'meléndez', 'pance', 'valle del lili', 'ciudad jardin', 'ciudad jardín', 'jamundi', 'jamundí', 'bochalema', 'cañaveralejo', 'cañaveral', 'san buenaventura'] },
+                keywords: ['pryca', 'nariño', 'antonio nariño', 'universidad', 'carrera 86', 'carrera 108', 'univalle', 'universidad del valle', 'valle', 'autonoma', 'universidad autonoma', 'icesi', 'santiago de cali', 'melendez', 'pance', 'valle del lili', 'ciudad jardin', 'jardin plaza', 'palmetto', 'palmetto plaza', 'jamundi', 'bochalema', 'cañaveralejo', 'cañaveral', 'san buenaventura'] },
         ];
 
+        // Quita tildes para comparar sin depender de si el usuario las escribe o no
+        function _sinTildes(str) {
+            return str.normalize('NFD').replace(/[̀-ͯ]/g, '');
+        }
+
+        // Palabras genéricas que no deben usarse solas para decidir una coincidencia
+        // (aparecen repetidas en varias rutas: "San Antonio" y "San Fernando" no son lo mismo)
+        const STOPWORDS_DESTINO = new Set(['san', 'santa', 'la', 'el', 'los', 'las', 'de', 'del', 'ciudad', 'plaza', 'avenida', 'via']);
+
         function filtrarRutasPorDestino(destino) {
-            const dest = (destino || '').toLowerCase().trim();
+            const dest = _sinTildes((destino || '').toLowerCase().trim());
             if (!dest) return { resultados: RUTAS_DISPONIBLES, coincidenciaDirecta: true };
 
-            const resultados = RUTAS_DISPONIBLES.filter(r => r.keywords.some(k => dest.includes(k) || k.includes(dest)));
+            // Coincidencia por frase completa O por cualquier palabra individual compartida
+            // (así "jardín plaza" coincide con la keyword "ciudad jardin" por la palabra "jardin")
+            const destPalabras = dest.split(/\s+/).filter(p => p.length > 2 && !STOPWORDS_DESTINO.has(p));
+            const coincide = (r) => r.keywords.some(kOriginal => {
+                const k = _sinTildes(kOriginal);
+                if (dest.includes(k) || k.includes(dest)) return true;
+                // Coincidencia exacta de palabra (no subcadena) para evitar falsos positivos
+                // como "centro" encontrado dentro de "unicentro"
+                const kPalabras = k.split(/\s+/).filter(p => p.length > 2 && !STOPWORDS_DESTINO.has(p));
+                return kPalabras.some(kp => destPalabras.includes(kp));
+            });
+
+            const resultados = RUTAS_DISPONIBLES.filter(coincide);
             if (resultados.length > 0) return { resultados, coincidenciaDirecta: true };
             return { resultados: RUTAS_DISPONIBLES, coincidenciaDirecta: false };
         }
