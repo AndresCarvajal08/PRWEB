@@ -223,8 +223,14 @@
       <div class="step-section" id="sec4">
         <div class="sec-title"><div class="sec-icon"><i data-lucide="lock" style="width:18px;height:18px;"></i></div> Credenciales de acceso al sistema</div>
 
-        <div class="field mb" id="f-correo"><label>Correo electrónico institucional / personal <span class="req">*</span></label>
-          <div class="iw"><span class="xi"><i data-lucide="mail" style="width:15px;height:15px;"></i></span><input type="email" id="correo" placeholder="conductor@empresa.com" required></div><div class="err">Correo inválido.</div></div>
+        <div class="field mb">
+          <label>Correo de acceso al sistema</label>
+          <div class="iw" style="background:var(--bg-soft, #f4f5f7);">
+            <span class="xi"><i data-lucide="mail" style="width:15px;height:15px;"></i></span>
+            <input type="email" id="correoAccesoDisplay" disabled>
+          </div>
+          <div style="font-size:.75rem;color:var(--text-m);margin-top:4px;">Es el mismo correo personal que registraste en el Paso 1.</div>
+        </div>
 
         <div class="grid-2 mb">
           <div class="field" id="f-pass"><label>Contraseña <span class="req">*</span></label>
@@ -426,6 +432,12 @@
       }
       document.getElementById('btnBack').style.visibility = n > 1 ? 'visible' : 'hidden';
       document.getElementById('nextLabel').textContent = n === TOTAL ? 'Registrar conductor' : 'Siguiente →';
+
+      // El correo de acceso es el mismo correo personal del Paso 1 — solo se muestra aquí como confirmación
+      if (n === 4) {
+        const correoDisplay = document.getElementById('correoAccesoDisplay');
+        if (correoDisplay) correoDisplay.value = document.getElementById('correoPersonal').value.trim();
+      }
     }
 
     function validate(s) {
@@ -494,10 +506,8 @@
         if (!licCatSel) { document.getElementById('errLicCat').style.display='block'; ok=false; }
       }
       if (s === 4) {
-        const correo = document.getElementById('correo').value.trim();
         const pass   = document.getElementById('pass').value;
         const pass2  = document.getElementById('pass2').value;
-        if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { errField('f-correo'); ok=false; }
         if (!isPassOk(pass)) { errField('f-pass'); ok=false; }
         if (pass !== pass2)  { errField('f-pass2'); ok=false; }
         if (!document.getElementById('rutaAsig').value) { errField('f-ruta'); ok=false; }
@@ -591,7 +601,7 @@
           ${row('Celular', g('celular'))}
           ${row('Empresa', g('empresa'))}
           ${row('Turno', g('turno'))}
-          ${row('Correo', g('correo'))}
+          ${row('Correo', g('correoPersonal'))}
         </div>
         <div style="margin:12px 0 10px;font-size:.78rem;font-weight:700;color:var(--text-m);text-transform:uppercase;letter-spacing:.06em;"><i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Vehículo</div>
         <div class="sum-grid">
@@ -627,7 +637,7 @@
         nombres: g('nombres'), apellidos: g('apellidos'),
         cedula: g('cedula'), celular: g('celular'),
         empresa: g('empresa'), turno: g('turno'),
-        correo: g('correo'), password: g('pass'),
+        correo: g('correoPersonal'), password: g('pass'),
         placa: g('placa').toUpperCase(), tipo_vehiculo: g('tipoVeh'),
         marca_vehiculo: g('marcaVeh'), modelo_vehiculo: g('modeloVeh'),
         anio_vehiculo: g('anioVeh'), color_vehiculo: g('colorVeh'),
