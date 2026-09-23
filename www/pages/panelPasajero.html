@@ -1053,7 +1053,7 @@
                         <div class="card">
                             <div class="card-title"><i data-lucide="users" style="width:16px;height:16px;"></i>
                                 Contactos de Confianza</div>
-                            <div class="text-sm text-gray mb-3">Tus contactos de emergencia guardados en este dispositivo.</div>
+                            <div class="text-sm text-gray mb-3">Tus contactos de emergencia guardados en tu cuenta.</div>
                             <div id="listaContactos" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
                             <button class="btn btn-secondary btn-sm" onclick="abrirModalContacto()">
                                 <i data-lucide="user-plus" style="width:14px;height:14px;"></i> Agregar contacto
@@ -2871,6 +2871,7 @@
     <script src="../js/models/SesionModel.js"></script>
     <script src="../js/models/UsuarioModel.js"></script>
     <script src="../js/models/AlertaModel.js"></script>
+    <script src="../js/models/ContactoModel.js"></script>
 
     <!-- ── VIEWS ── -->
     <script src="../js/views/NavView.js"></script>
@@ -3116,26 +3117,19 @@
         }
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
-        // ===== CONTACTOS DE CONFIANZA =====
-        function _clavContactos() {
-            const s = sessionStorage.getItem('wayroute_sesion');
-            const uid = s ? (JSON.parse(s).id || 'anon') : 'anon';
-            return 'wayroute_contactos_' + uid;
+        // ===== CONTACTOS DE CONFIANZA (Supabase — tabla contactos_emergencia) =====
+        async function cargarContactos() {
+            const sesion = window.SesionModel ? window.SesionModel.getSesion() : null;
+            if (!sesion || !window.ContactoModel) return [];
+            return await window.ContactoModel.obtenerPorUsuario(sesion.id);
         }
 
-        function cargarContactos() {
-            const raw = localStorage.getItem(_clavContactos());
-            return raw ? JSON.parse(raw) : [];
-        }
-
-        function guardarContactos(lista) {
-            localStorage.setItem(_clavContactos(), JSON.stringify(lista));
-        }
-
-        function renderContactos() {
-            const lista = cargarContactos();
+        async function renderContactos() {
             const cont = document.getElementById('listaContactos');
             if (!cont) return;
+            cont.innerHTML = `<div style="font-size:.83rem;color:#9ca3af;text-align:center;padding:12px 0;">Cargando contactos...</div>`;
+
+            const lista = await cargarContactos();
             if (lista.length === 0) {
                 cont.innerHTML = `<div style="font-size:.83rem;color:#9ca3af;text-align:center;padding:12px 0;">
                     Sin contactos aún. Agrega uno para activar el SOS.
@@ -3159,7 +3153,7 @@
                         <a href="tel:${telLimpio}" class="btn btn-secondary btn-sm" title="Llamar">
                             <i data-lucide="phone" style="width:13px;height:13px;"></i>
                         </a>
-                        <button class="btn btn-secondary btn-sm" onclick="eliminarContacto(${i})" title="Eliminar" style="color:#ef4444;">
+                        <button class="btn btn-secondary btn-sm" onclick="eliminarContacto('${c.id}')" title="Eliminar" style="color:#ef4444;">
                             <i data-lucide="trash-2" style="width:13px;height:13px;"></i>
                         </button>
                     </div>
@@ -3168,11 +3162,14 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        function eliminarContacto(idx) {
-            const lista = cargarContactos();
-            lista.splice(idx, 1);
-            guardarContactos(lista);
-            renderContactos();
+        async function eliminarContacto(contactoId) {
+            if (!window.ContactoModel) return;
+            const res = await window.ContactoModel.eliminar(contactoId);
+            if (res.ok) {
+                await renderContactos();
+            } else {
+                showToast('No se pudo eliminar el contacto: ' + res.error);
+            }
         }
 
         function abrirModalContacto() {
@@ -3194,7 +3191,7 @@
             document.getElementById('paisDropdown').style.display = 'none';
         }
 
-        function guardarNuevoContacto() {
+        async function guardarNuevoContacto() {
             const nombre = document.getElementById('inputContactoNombre').value.trim();
             const numero = document.getElementById('inputContactoTel').value.trim();
             const codigo = document.getElementById('selectPais').value;
@@ -3205,12 +3202,29 @@
                 err.style.display = 'block';
                 return;
             }
+            const sesion = window.SesionModel ? window.SesionModel.getSesion() : null;
+            if (!sesion || !window.ContactoModel) {
+                err.textContent = 'No hay sesión activa.';
+                err.style.display = 'block';
+                return;
+            }
+
             const telefono = codigo + ' ' + numero;
-            const lista = cargarContactos();
-            lista.push({ nombre, telefono, relacion });
-            guardarContactos(lista);
+            const btnGuardar = document.querySelector('#frmContacto button[type="submit"]');
+            if (btnGuardar) btnGuardar.disabled = true;
+
+            const res = await window.ContactoModel.crear(sesion.id, { nombre, telefono, relacion });
+
+            if (btnGuardar) btnGuardar.disabled = false;
+
+            if (!res.ok) {
+                err.textContent = 'No se pudo guardar: ' + res.error;
+                err.style.display = 'block';
+                return;
+            }
+
             cerrarModalContacto();
-            renderContactos();
+            await renderContactos();
             showToast('Contacto agregado correctamente');
         }
 
