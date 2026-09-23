@@ -56,12 +56,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const clavesVistas = new Set();
         activos.forEach(t => {
-            if (!t.ruta || !t.numero_bus) return;
+            if (!t.ruta || !t.numero_bus) {
+                console.warn('[PasajeroViewModel] Turno activo sin ruta o numero_bus, no se puede resaltar. ' +
+                    'Si numero_bus falta, probablemente falta correr en Supabase: ' +
+                    'ALTER TABLE turnos ADD COLUMN numero_bus integer;', t);
+                return;
+            }
             const clave = t.ruta + '|' + t.numero_bus;
             clavesVistas.add(clave);
             const conductor = nombresPorId[t.conductor_id];
             const nombre = conductor ? `${conductor.nombres || ''} ${conductor.apellidos || ''}`.trim() : undefined;
-            window.WayRoute.resaltarBusActivo(t.ruta, t.numero_bus, { nombre, horaInicio: t.hora_inicio });
+            const resaltado = window.WayRoute.resaltarBusActivo(t.ruta, t.numero_bus, { nombre, horaInicio: t.hora_inicio });
+            if (!resaltado) {
+                console.warn('[PasajeroViewModel] No se pudo resaltar el bus, revisa que "' + t.ruta +
+                    '" coincida exactamente con una clave de MapaService y que el mapa ya se haya abierto una vez.');
+            }
             _busesResaltados.add(clave);
         });
 
