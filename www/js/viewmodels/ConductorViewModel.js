@@ -85,8 +85,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ? window.TurnoModel.obtenerPorConductor(sesion.id)
             : Promise.resolve([]));
 
-        // Si no hay registros reales, usar datos de ejemplo
-        if (!turnos.length && window.TurnoModel) {
+        // Si no hay registros reales, usar datos de ejemplo (dejando claro que NO son reales)
+        const avisoEjemplo = document.getElementById('avisoTurnosEjemplo');
+        const sonDatosEjemplo = !turnos.length && !!window.TurnoModel;
+        if (avisoEjemplo) avisoEjemplo.style.display = sonDatosEjemplo ? 'block' : 'none';
+        if (sonDatosEjemplo) {
             turnos = window.TurnoModel._datosFallback();
         }
 
