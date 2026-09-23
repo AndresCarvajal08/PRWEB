@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayRoute — Panel Conductor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/panel-conductor.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <!-- TOP NAV -->
+        <nav class="topnav">
+            <a class="nav-brand" href="#">
+                <div class="nav-logo"><i data-lucide="bus" style="width:18px;height:18px;color:#fff;"></i></div>
+                <div class="nav-brand-text">Way<span>Route</span></div>
+            </a>
+            <span class="nav-role-badge">Conductor</span>
+            <div class="nav-spacer"></div>
+            <div class="nav-actions">
+                <button class="nav-btn" onclick="showToast('Sin nuevas notificaciones')">
+                    <i data-lucide="bell" style="width:16px;height:16px;"></i> <span class="badge" id="notifCountBadge">0</span>
+                </button>
+                <div class="user-info-bar">
+                    <span class="user-name-nav" id="navUserName">...</span>
+                    <div class="nav-avatar" id="navAvatar">?</div>
+                </div>
+                <button class="logout-btn" onclick="logoutUsuario()">
+                    <span>Salir</span>
+                    <i data-lucide="log-out" style="width:14px;height:14px;"></i>
+                </button>
+            </div>
+        </nav>
+
+        <div class="main-wrapper">
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-label">Principal</div>
+                    <div class="nav-item active" id="nav-inicio" onclick="navigate('inicio')">
+                        <span class="nav-icon"><i data-lucide="home" style="width:18px;height:18px;"></i></span><span>Inicio</span>
+                    </div>
+                    <div class="nav-item" id="nav-miRuta" onclick="navigate('miRuta')">
+                        <span class="nav-icon"><i data-lucide="route" style="width:18px;height:18px;"></i></span><span>Mi Ruta Activa</span>
+                    </div>
+                    <div class="nav-item" id="nav-alertas" onclick="navigate('alertas')">
+                        <span class="nav-icon"><i data-lucide="bell" style="width:18px;height:18px;"></i></span><span>Alertas</span>
+                        <span class="nav-chip" id="alertsCountBadge">0</span>
+                    </div>
+                </div>
+                <div class="sidebar-section">
+                    <div class="sidebar-section-label">Gestión</div>
+                    <div class="nav-item" id="nav-reportes" onclick="navigate('reportes')">
+                        <span class="nav-icon"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i></span><span>Reportar Incidencia</span>
+                    </div>
+                    <div class="nav-item" id="nav-historial" onclick="navigate('historial')">
+                        <span class="nav-icon"><i data-lucide="bar-chart-2" style="width:18px;height:18px;"></i></span><span>Historial de Turnos</span>
+                    </div>
+                    <div class="nav-item" id="nav-perfil" onclick="navigate('perfil')">
+                        <span class="nav-icon"><i data-lucide="user" style="width:18px;height:18px;"></i></span><span>Mi Perfil</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CONTENT -->
+            <main class="content-area" id="contentArea">
+
+                <!-- ====== INICIO ====== -->
+                <div class="view active" id="view-inicio">
+                    <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                        <div>
+                            <h1 id="welcomeGreeting">¡Buenos días, Conductor! 🚌</h1>
+                            <p id="shiftInfo">Cargando información del turno...</p>
+                        </div>
+                        <div style="display:flex;gap:10px;align-items:center;">
+                            <button id="btnIniciarTurno" onclick="abrirModalTurno()"
+                                style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-weight:600;font-size:.9rem;cursor:pointer;">
+                                <i data-lucide="play-circle" style="width:18px;height:18px;"></i> Iniciar Turno
+                            </button>
+                            <button id="btnFinalizarTurno" onclick="confirmarFinTurno()"
+                                style="display:none;align-items:center;gap:8px;padding:10px 20px;background:#dc2626;color:#fff;border:none;border-radius:var(--radius-sm);font-weight:600;font-size:.9rem;cursor:pointer;">
+                                <i data-lucide="stop-circle" style="width:18px;height:18px;"></i> Finalizar Turno
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="status-header">
+                        <div class="status-kpi">
+                            <div class="kpi">
+                                <div class="kpi-value" id="kpiEstadoDot"><span class="status-dot status-offline"></span></div>
+                                <div class="kpi-label">Estado</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value" id="kpiRuta">—</div>
+                                <div class="kpi-label">Ruta asignada</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value" id="kpiVueltas">—</div>
+                                <div class="kpi-label">Vueltas hoy</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value" id="kpiTiempo">—</div>
+                                <div class="kpi-label">Tiempo activo</div>
+                            </div>
+                            <div class="kpi-divider"></div>
+                            <div class="kpi">
+                                <div class="kpi-value" id="kpiAlertas">0</div>
+                                <div class="kpi-label">Alertas activas</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado sin turno activo -->
+                    <div id="estadoSinTurno" class="card mb-4" style="text-align:center;padding:40px 24px;">
+                        <i data-lucide="clock-4" style="width:48px;height:48px;color:var(--gray-300);margin-bottom:16px;"></i>
+                        <div style="font-size:1.1rem;font-weight:600;color:var(--gray-600);margin-bottom:8px;">Sin turno activo</div>
+                        <div class="text-sm text-gray" style="margin-bottom:20px;">Iniciá tu turno para registrar tu actividad y vueltas.</div>
+                        <button onclick="abrirModalTurno()"
+                            style="padding:12px 28px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-weight:600;font-size:.95rem;cursor:pointer;">
+                            ▶ Iniciar Turno ahora
+                        </button>
+                    </div>
+
+                    <div class="grid-2 mb-4" id="estadoConTurno" style="display:none;">
+                        <!-- Tarjeta dinámica del turno -->
+                        <div class="driver-card">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                                <div>
+                                    <div style="font-size:1.2rem;font-weight:700;" id="turnoVehiculo">—</div>
+                                    <div class="text-sm text-gray" id="turnoRutaDesc">—</div>
+                                </div>
+                                <span class="tag tag-green">En servicio</span>
+                            </div>
+                            <div class="grid-2 mb-4">
+                                <div style="text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;" id="turnoHoraInicio">—</div>
+                                    <div class="text-xs text-gray">Hora de inicio</div>
+                                </div>
+                                <div style="text-align:center;padding:14px;background:var(--blue-light);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;color:#1d4ed8;" id="turnoVueltasCard">0</div>
+                                    <div class="text-xs text-gray">Vueltas registradas</div>
+                                </div>
+                            </div>
+                            <div style="display:flex;gap:8px;margin-top:8px;">
+                                <button onclick="registrarVuelta()"
+                                    style="flex:1;padding:10px;background:#eff6ff;color:var(--primary);border:1.5px solid #bfdbfe;border-radius:var(--radius-sm);font-weight:600;cursor:pointer;">
+                                    +1 Vuelta
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Feed de novedades + reporte rápido -->
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div id="inicioAlertsFeed">
+                                <div class="alert-item alert-info">
+                                    <div class="alert-icon"><i data-lucide="refresh-cw" style="width:16px;height:16px;color:var(--primary);"></i></div>
+                                    <div class="alert-content">
+                                        <div class="alert-title">Sincronizando...</div>
+                                        <div class="alert-desc">Consiguiendo novedades de vía en Supabase.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title" style="margin-bottom:12px;">Reporte rápido</div>
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    <button class="incident-btn block" style="padding:10px;margin-bottom:0;" onclick="reportar('bloqueo')">Bloqueo o Desvío</button>
+                                    <button class="incident-btn mechanic" style="padding:10px;margin-bottom:0;" onclick="reportar('falla')">Falla Mecánica</button>
+                                    <button class="incident-btn security" style="padding:10px;margin-bottom:0;" onclick="reportar('seguridad')">Incidente de Seguridad</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-3" id="statsRow" style="display:none;">
+                        <div class="stat-card">
+                            <div class="icon" style="background:#eff6ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="repeat" style="width:24px;height:24px;color:var(--primary);"></i></div>
+                            <div class="value" id="statVueltas">0</div>
+                            <div class="label">Vueltas completadas</div>
+                            <div class="trend up" id="statVueltasMeta">↑ Meta: 10</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#e6f7f1;display:flex;align-items:center;justify-content:center;"><i data-lucide="clock" style="width:24px;height:24px;color:var(--green);"></i></div>
+                            <div class="value" id="statTiempo">0h 0m</div>
+                            <div class="label">Tiempo en servicio</div>
+                            <div class="trend up">↑ En horario</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i data-lucide="file-text" style="width:24px;height:24px;color:var(--amber);"></i></div>
+                            <div class="value" id="statReportes">0</div>
+                            <div class="label">Reportes enviados</div>
+                            <div class="trend up" id="statReportesTrend">↑ Turno actual</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL INICIAR TURNO -->
+                <div id="modalIniciarTurno" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+                    <div style="background:#fff;border-radius:12px;padding:32px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.18);">
+                        <div style="font-size:1.25rem;font-weight:700;margin-bottom:6px;">Iniciar Turno</div>
+                        <div class="text-sm text-gray" style="margin-bottom:20px;">Seleccioná la ruta para registrar tu turno de hoy.</div>
+                        <label style="font-size:.85rem;font-weight:600;color:var(--gray-600);display:block;margin-bottom:6px;">Ruta asignada</label>
+                        <select id="selectRutaTurno" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.95rem;margin-bottom:20px;">
+                            <option value="">Seleccionar ruta...</option>
+                            <option value="G-07">G-07 · Gualas Oriente</option>
+                            <option value="B-22A">B-22A · Ruta Norte</option>
+                            <option value="G-12">G-12 · Especial Sur</option>
+                            <option value="B-14">B-14 · Ruta Sur Pryca</option>
+                        </select>
+                        <div style="display:flex;gap:10px;">
+                            <button onclick="cerrarModalTurno()" style="flex:1;padding:11px;background:#f1f5f9;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Cancelar</button>
+                            <button onclick="confirmarInicioTurno()" style="flex:1;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">▶ Iniciar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== MI RUTA ACTIVA ====== -->
+                <div class="view" id="view-miRuta">
+                    <div class="page-header">
+                        <h1>Mi Ruta Activa</h1>
+                        <p>Vista del conductor — Guala G-07 · Coopcencar</p>
+                    </div>
+                    <div class="grid-2">
+                        <div>
+                            <div class="driver-card mb-4">
+                                <div
+                                    style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                                    <div>
+                                        <div style="font-size:1.3rem;font-weight:700;">Guala G-07</div>
+                                        <div class="text-sm text-gray">Centenario → Unicentro</div>
+                                    </div>
+                                    <span class="tag tag-green">En servicio</span>
+                                </div>
+                                <div style="font-size:.82rem;font-weight:600;color:var(--gray-500);margin-bottom:10px;">
+                                    Recorrido completo</div>
+                                <div class="route-stop-row">
+                                    <div class="route-stop">
+                                        <div class="route-stop-dot done"></div>
+                                        <div class="route-stop-name">Centenario</div>
+                                    </div>
+                                    <div class="route-stop-line"></div>
+                                    <div class="route-stop">
+                                        <div class="route-stop-dot done"></div>
+                                        <div class="route-stop-name">Av.6N Cll34</div>
+                                    </div>
+                                    <div class="route-stop-line"></div>
+                                    <div class="route-stop">
+                                        <div class="route-stop-dot current"></div>
+                                        <div class="route-stop-name" style="font-weight:700;color:var(--amber);">◀ Aquí
+                                        </div>
+                                    </div>
+                                    <div class="route-stop-line pending"></div>
+                                    <div class="route-stop">
+                                        <div class="route-stop-dot"></div>
+                                        <div class="route-stop-name">Parque Perro</div>
+                                    </div>
+                                    <div class="route-stop-line pending"></div>
+                                    <div class="route-stop">
+                                        <div class="route-stop-dot"></div>
+                                        <div class="route-stop-name">Unicentro</div>
+                                    </div>
+                                </div>
+                                <div style="margin-top:16px;">
+                                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span
+                                            class="text-sm">Progreso del recorrido</span><span
+                                            class="text-sm text-gray">3 de 5 paradas</span></div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width:60%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-title">Estadísticas del turno</div>
+                                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                                    <div
+                                        style="flex:1;text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm);">
+                                        <div style="font-size:1.4rem;font-weight:700;">7</div>
+                                        <div class="text-xs text-gray">Vueltas</div>
+                                    </div>
+                                    <div
+                                        style="flex:1;text-align:center;padding:14px;background:var(--blue-light);border-radius:var(--radius-sm);">
+                                        <div style="font-size:1.4rem;font-weight:700;color:#1d4ed8;">4h 20m</div>
+                                        <div class="text-xs text-gray">Tiempo activo</div>
+                                    </div>
+                                    <div
+                                        style="flex:1;text-align:center;padding:14px;background:var(--green-light);border-radius:var(--radius-sm);">
+                                        <div style="font-size:1.4rem;font-weight:700;color:var(--green-dark);">28 km/h
+                                        </div>
+                                        <div class="text-xs text-gray">Vel. promedio</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                            <div class="alert-item alert-warning">
+                                <div class="alert-icon"><i data-lucide="alert-triangle" style="width:18px;height:18px;color:var(--amber);"></i></div>
+                                <div class="alert-content">
+                                    <div class="alert-title">Congestión moderada adelante</div>
+                                    <div class="alert-desc">Tráfico detectado en Parque del Perro. Tiempo adicional: +8
+                                        min.</div>
+                                    <button class="btn btn-secondary btn-sm mt-2"
+                                        onclick="showToast('Ruta alternativa activada')">Ver ruta alternativa</button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title" style="margin-bottom:12px;">Reportar incidencia</div>
+                                <div style="display:flex;flex-direction:column;gap:10px;">
+                                    <button class="incident-btn block" onclick="reportar('bloqueo')">Reportar Bloqueo
+                                        o Desvío</button>
+                                    <button class="incident-btn mechanic" onclick="reportar('falla')">Reportar Falla
+                                        Mecánica</button>
+                                    <button class="incident-btn security" onclick="reportar('seguridad')">Reportar
+                                        Incidente de Seguridad</button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title" style="margin-bottom:12px;">Próximas salidas desde Centenario
+                                </div>
+                                <div class="timeline">
+                                    <div class="timeline-item">
+                                        <div class="timeline-left">
+                                            <div class="timeline-dot filled"></div>
+                                            <div class="timeline-line"></div>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Vuelta 8 — 8:42 AM</div>
+                                            <div class="timeline-desc">Centenario → Unicentro</div>
+                                            <div class="timeline-time">En 14 minutos</div>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-left">
+                                            <div class="timeline-dot"></div>
+                                            <div class="timeline-line"></div>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Vuelta 9 — 9:10 AM</div>
+                                            <div class="timeline-desc">Centenario → Unicentro</div>
+                                            <div class="timeline-time">En 42 minutos</div>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-left">
+                                            <div class="timeline-dot"></div>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Vuelta 10 — 9:38 AM</div>
+                                            <div class="timeline-desc">Centenario → Unicentro</div>
+                                            <div class="timeline-time">En 1h 10 min</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== REPORTES ====== -->
+                <div class="view" id="view-reportes">
+                    <div class="page-header">
+                        <h1>Reportar Incidencia</h1>
+                        <p>Reporte de novedades en ruta para conductores</p>
+                    </div>
+                    <div class="grid-2">
+                        <div>
+                            <div class="card mb-4">
+                                <div class="card-title">Reporte rápido</div>
+                                <div style="display:flex;flex-direction:column;gap:10px;">
+                                    <button class="incident-btn block" onclick="reportar('bloqueo')">Reportar Bloqueo
+                                        o Desvío</button>
+                                    <button class="incident-btn mechanic" onclick="reportar('falla')">Reportar Falla
+                                        Mecánica</button>
+                                    <button class="incident-btn security" onclick="reportar('seguridad')">Reportar
+                                        Incidente de Seguridad</button>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-title">Reporte detallado</div>
+                                <div class="form-group">
+                                    <label class="form-label">Tipo de incidencia</label>
+                                    <select class="form-control" id="formTipoIncidencia">
+                                        <option value="bloqueo">🚧 Bloqueo vial</option>
+                                        <option value="congestion">🚦 Congestión inusual</option>
+                                        <option value="falla">🔧 Falla mecánica del vehículo</option>
+                                        <option value="seguridad">🚨 Incidente de seguridad</option>
+                                        <option value="clima">⛈️ Daño por clima</option>
+                                        <option value="otro">📢 Otro</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Ubicación del incidente</label>
+                                    <div class="input-icon-wrap">
+                                        <span class="input-icon"><i data-lucide="map-pin" style="width:15px;height:15px;"></i></span>
+                                        <input class="form-control" id="formUbicacionIncidencia" placeholder="Ej: Av. 6N con Calle 34"
+                                            value="Av. 6N con Calle 34, Cali">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="formDescIncidencia" rows="3"
+                                        placeholder="Describe el incidente…">Semáforo dañado en la intersección. Genera congestión de aprox. 10 vehículos.</textarea>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Ruta afectada</label>
+                                        <select class="form-control" id="formRutaIncidencia">
+                                            <option value="G-07">G-07</option>
+                                            <option value="B-22A">B-22A</option>
+                                            <option value="B-05">B-05</option>
+                                            <option value="G-12">G-12</option>
+                                            <option value="B-14">B-14</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Severidad</label>
+                                        <select class="form-control" id="formSeveridadIncidencia">
+                                            <option value="moderada">🟡 Moderada</option>
+                                            <option value="alta">🔴 Alta</option>
+                                            <option value="baja">🟢 Baja</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:10px;margin-top:4px;">
+                                    <button class="btn btn-primary" id="btnEnviarReporteDetalle" style="flex:1;"
+                                        onclick="enviarReporteForm()">Enviar Reporte →</button>
+                                    <button class="btn btn-secondary" id="btnCompartirReporte" style="flex:0 0 auto;"
+                                        onclick="compartirReporteActual()" title="Compartir reporte">
+                                        📤 Compartir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">Mis reportes recientes</div>
+                            <div class="table-wrap">
+                                <table id="tablaReportesRecientes">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Ubicación</th>
+                                            <th>Ruta</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bodyReportesRecientes">
+                                        <tr>
+                                            <td colspan="4" class="text-center p-4">Cargando reportes de hoy...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="display:flex;gap:12px;margin-top:16px;">
+                                <div
+                                    style="flex:1;text-align:center;padding:12px;background:var(--green-light);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;color:var(--green-dark);">12</div>
+                                    <div class="text-xs text-gray">Este mes</div>
+                                </div>
+                                <div
+                                    style="flex:1;text-align:center;padding:12px;background:var(--blue-light);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;color:#1d4ed8;">9</div>
+                                    <div class="text-xs text-gray">Validados</div>
+                                </div>
+                                <div
+                                    style="flex:1;text-align:center;padding:12px;background:var(--amber-light);border-radius:var(--radius-sm);">
+                                    <div style="font-size:1.4rem;font-weight:700;color:#b45309;">3</div>
+                                    <div class="text-xs text-gray">Pendientes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== ALERTAS ====== -->
+                <div class="view" id="view-alertas">
+                    <div class="page-header">
+                        <h1>Alertas de Ruta</h1>
+                        <p>Notificaciones activas para tu turno</p>
+                    </div>
+                    <div class="grid-2">
+                        <div style="display:flex;flex-direction:column;gap:10px;" id="alertsListDisplay">
+                            <div class="alert-item alert-info">
+                                <div class="alert-icon"><i data-lucide="clock" style="width:16px;height:16px;color:var(--primary);"></i></div>
+                                <div class="alert-content">
+                                    <div class="alert-title">Sincronizando alertas...</div>
+                                    <div class="alert-desc">Obteniendo reportes del sistema en tiempo real.</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Mapa de alertas Real -->
+                        <div class="card p-0" style="overflow:hidden;">
+                            <div id="alertsMap" style="height:480px; width:100%; z-index:1;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== HISTORIAL (C-HU-04) ====== -->
+                <div class="view" id="view-historial">
+                    <div class="page-header">
+                        <h1>Historial de Turnos</h1>
+                        <p>Registro de actividad cargado desde Supabase</p>
+                    </div>
+                    <div class="grid-3 mb-4">
+                        <div class="stat-card">
+                            <div class="icon" style="background:#eff6ff;display:flex;align-items:center;justify-content:center;"><i data-lucide="calendar" style="width:24px;height:24px;color:var(--primary);"></i></div>
+                            <div class="value" id="statTurnosMes">—</div>
+                            <div class="label">Turnos este mes</div>
+                            <div class="trend up" id="statTurnosMesTrend">Cargando...</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#e6f7f1;display:flex;align-items:center;justify-content:center;"><i data-lucide="repeat" style="width:24px;height:24px;color:var(--green);"></i></div>
+                            <div class="value" id="statVueltasTotales">—</div>
+                            <div class="label">Vueltas totales</div>
+                            <div class="trend up">↑ Acumulado</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i data-lucide="file-text" style="width:24px;height:24px;color:var(--amber);"></i></div>
+                            <div class="value" id="statReportesEnv">—</div>
+                            <div class="label">Reportes enviados</div>
+                            <div class="trend up">↑ Desde Supabase</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+                            Últimos turnos
+                            <button onclick="cargarHistorialTurnos()" style="font-size:.8rem;padding:4px 12px;border-radius:6px;border:1px solid #2563eb;background:#eff6ff;color:#2563eb;cursor:pointer;">↻ Actualizar</button>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Ruta</th>
+                                        <th>Inicio</th>
+                                        <th>Fin</th>
+                                        <th>Vueltas</th>
+                                        <th>Reportes</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodyTurnosDinamico">
+                                    <tr><td colspan="7" style="text-align:center;padding:16px;color:#94a3b8;">⏳ Cargando desde Supabase...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== PERFIL ====== -->
+                <div class="view" id="view-perfil">
+                    <div class="page-header">
+                        <h1>Mi Perfil</h1>
+                        <p>Información y configuración del conductor</p>
+                    </div>
+                    <div
+                        style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);border-radius:var(--radius);padding:32px;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:24px;">
+                        <div id="profileAvatarLg"
+                            style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;">
+                            ...</div>
+                        <div>
+                            <h2 id="profileName" style="font-size:1.4rem;font-weight:700;">Cargando...</h2>
+                            <p id="profileSub" style="opacity:.85;">Conductor · Buscando empresa...</p>
+                            <div style="display:flex;gap:24px;margin-top:12px;">
+                                <div style="text-align:center;">
+                                    <div style="font-size:1.2rem;font-weight:700;">68</div>
+                                    <div style="font-size:.72rem;opacity:.8;">Turnos</div>
+                                </div>
+                                <div style="text-align:center;">
+                                    <div style="font-size:1.2rem;font-weight:700;">476</div>
+                                    <div style="font-size:.72rem;opacity:.8;">Vueltas</div>
+                                </div>
+                                <div style="text-align:center;">
+                                    <div style="font-size:1.2rem;font-weight:700;">4.8★</div>
+                                    <div style="font-size:.72rem;opacity:.8;">Calificación</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-title">Información personal</div>
+                            <div class="form-group"><label class="form-label">Nombre completo</label><input
+                                    class="form-control" id="profileInputNombre" value="Carlos Rodríguez"></div>
+                            <div class="form-group"><label class="form-label">Correo electrónico</label><input
+                                    class="form-control" id="profileInputEmail" value="carlos@coopcencar.com"></div>
+                            <div class="form-group"><label class="form-label">Teléfono</label><input
+                                    class="form-control" id="profileInputTelefono" value="+57 310 555 0192"></div>
+                            <div class="form-group"><label class="form-label">Licencia de conducción</label><input
+                                    class="form-control" id="profileInputLicencia" value="C2 — Vence: 2026-08-15"></div>
+                            <button class="btn btn-primary" id="btnGuardarPerfil" onclick="guardarPerfil()">Guardar
+                                cambios en base de datos</button>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">Información vehicular</div>
+                            <div class="form-group"><label class="form-label">Placa del vehículo</label><input
+                                    class="form-control" id="profileInputPlaca" value="UVX-348"></div>
+                            <div class="form-group"><label class="form-label">Empresa operadora</label><input
+                                    class="form-control" value="Coopcencar" readonly></div>
+                            <div class="form-group"><label class="form-label">Ruta asignada</label><input
+                                    class="form-control" value="G-07 · Centenario → Unicentro" readonly></div>
+                            <div class="form-group"><label class="form-label">Tipo de vehículo</label><input
+                                    class="form-control" value="Campero (Guala)" readonly></div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"><span id="toastMsg">Mensaje</span></div>
+
+    <!-- ── CORE ── -->
+    <script src="../js/core/Toast.js"></script>
+    <script src="../js/core/Router.js"></script>
+    <script src="../js/core/EventBus.js"></script>
+
+    <!-- ── MODELS ── -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/services/supabase.js"></script>
+    <script src="../js/models/SesionModel.js"></script>
+    <script src="../js/models/UsuarioModel.js"></script>
+    <script src="../js/models/AlertaModel.js"></script>
+    <script src="../js/models/ConductorModel.js"></script>
+    <script src="../js/models/TurnoModel.js"></script>
+
+    <!-- ── VIEWS ── -->
+    <script src="../js/views/NavView.js"></script>
+    <script src="../js/views/AlertaView.js"></script>
+
+    <!-- ── CONTROLLERS ── -->
+    <script src="../js/viewmodels/AuthViewModel.js"></script>
+    <script src="../js/viewmodels/AlertaViewModel.js"></script>
+    
+    <!-- Lógica de Retrocompatibilidad (se mantienen para no romper logins/mapas) -->
+    <script src="../js/services/AuthService.js"></script>
+    <script src="../js/services/AlertaService.js"></script>
+
+    <!-- ── INIT CONDUCTOR ── -->
+    <script src="../js/viewmodels/ConductorViewModel.js"></script>
+    <script>
+        // Inicializar Lucide Icons
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        // Cargar historial / reparar mapa al navegar
+        const _origNavigate = window.navigate;
+        window.navigate = function(view) {
+            if (typeof _origNavigate === 'function') _origNavigate(view);
+
+            if (view === 'historial' && typeof window.cargarHistorialTurnos === 'function') {
+                setTimeout(window.cargarHistorialTurnos, 150);
+            }
+
+            // Reparar mapa de alertas: invalidateSize() después de que el contenedor sea visible
+            if (view === 'alertas') {
+                setTimeout(() => {
+                    const av = window.AlertaView;
+                    if (!av) return;
+                    if (av._map) {
+                        av._map.invalidateSize();
+                    } else {
+                        // El mapa aún no se creó (primera vez): forzar renderizado
+                        av.actualizarMapa(av._ultimasAlertas || []);
+                        setTimeout(() => av._map && av._map.invalidateSize(), 300);
+                    }
+                }, 200);
+            }
+        };
+
+        // C-HU-07: Compartir reporte con los datos actuales del formulario
+        window.compartirReporteActual = function() {
+            const tipo   = document.getElementById('formTipoIncidencia')?.options[document.getElementById('formTipoIncidencia')?.selectedIndex]?.text || '—';
+            const desc   = document.getElementById('formDescIncidencia')?.value || '—';
+            const ubic   = document.getElementById('formUbicacionIncidencia')?.value || '—';
+            const fecha  = new Date().toLocaleString('es-CO');
+            if (typeof window.compartirIncidente === 'function') {
+                window.compartirIncidente(tipo, desc, ubic, fecha);
+            }
+        };
+
+        // ── GESTIÓN DE TURNO ──
+        let _turnoActivo = null;
+        let _vueltasActuales = 0;
+        let _reportesActuales = 0;
+        let _timerTurno = null;
+        let _inicioTurnoMs = null;
+
+        window.abrirModalTurno = function() {
+            document.getElementById('modalIniciarTurno').style.display = 'flex';
+        };
+        window.cerrarModalTurno = function() {
+            document.getElementById('modalIniciarTurno').style.display = 'none';
+        };
+
+        window.confirmarInicioTurno = async function() {
+            const ruta = document.getElementById('selectRutaTurno').value;
+            if (!ruta) { showToast('⚠️ Seleccioná una ruta primero.'); return; }
+
+            cerrarModalTurno();
+
+            // Intentar guardar en Supabase via TurnoModel
+            const sesionStr = sessionStorage.getItem('movicali_sesion') || sessionStorage.getItem('movicali_sesion_conductor');
+            const sesion = sesionStr ? JSON.parse(sesionStr) : null;
+            if (window.TurnoModel && sesion?.id) {
+                const res = await window.TurnoModel.iniciarTurno(sesion.id, ruta);
+                if (res.ok) _turnoActivo = res.turno;
+            }
+
+            _vueltasActuales = 0;
+            _reportesActuales = 0;
+            _inicioTurnoMs = Date.now();
+
+            // Actualizar UI
+            const horaInicio = new Date().toTimeString().slice(0, 5);
+            document.getElementById('kpiRuta').textContent = ruta;
+            document.getElementById('kpiVueltas').textContent = '0';
+            document.getElementById('kpiTiempo').textContent = '0h 0m';
+            document.getElementById('kpiEstadoDot').innerHTML = '<span class="status-dot status-online"></span>';
+            document.getElementById('turnoVehiculo').textContent = ruta;
+            document.getElementById('turnoRutaDesc').textContent = 'Turno iniciado hoy · ' + horaInicio;
+            document.getElementById('turnoHoraInicio').textContent = horaInicio;
+            document.getElementById('turnoVueltasCard').textContent = '0';
+            document.getElementById('statVueltas').textContent = '0';
+            document.getElementById('statTiempo').textContent = '0h 0m';
+            document.getElementById('statReportes').textContent = '0';
+
+            document.getElementById('estadoSinTurno').style.display = 'none';
+            document.getElementById('estadoConTurno').style.display = 'grid';
+            document.getElementById('statsRow').style.display = 'grid';
+            document.getElementById('btnIniciarTurno').style.display = 'none';
+            document.getElementById('btnFinalizarTurno').style.display = 'flex';
+
+            // Timer de tiempo activo
+            _timerTurno = setInterval(() => {
+                const mins = Math.floor((Date.now() - _inicioTurnoMs) / 60000);
+                const h = Math.floor(mins / 60);
+                const m = mins % 60;
+                const str = `${h}h ${m}m`;
+                document.getElementById('kpiTiempo').textContent = str;
+                document.getElementById('statTiempo').textContent = str;
+            }, 30000);
+
+            showToast('✅ Turno iniciado correctamente — ruta ' + ruta);
+        };
+
+        window.registrarVuelta = function() {
+            _vueltasActuales++;
+            document.getElementById('kpiVueltas').textContent = _vueltasActuales;
+            document.getElementById('turnoVueltasCard').textContent = _vueltasActuales;
+            document.getElementById('statVueltas').textContent = _vueltasActuales;
+            showToast('🔄 Vuelta #' + _vueltasActuales + ' registrada.');
+        };
+
+        window.confirmarFinTurno = async function() {
+            if (!confirm('¿Seguro que querés finalizar el turno?')) return;
+            if (_timerTurno) clearInterval(_timerTurno);
+
+            if (window.TurnoModel && _turnoActivo?.id) {
+                await window.TurnoModel.finalizarTurno(_turnoActivo.id);
+            }
+
+            _turnoActivo = null;
+            document.getElementById('estadoSinTurno').style.display = 'block';
+            document.getElementById('estadoConTurno').style.display = 'none';
+            document.getElementById('statsRow').style.display = 'none';
+            document.getElementById('btnIniciarTurno').style.display = 'flex';
+            document.getElementById('btnFinalizarTurno').style.display = 'none';
+            document.getElementById('kpiEstadoDot').innerHTML = '<span class="status-dot status-offline"></span>';
+            document.getElementById('kpiRuta').textContent = '—';
+            document.getElementById('kpiVueltas').textContent = '—';
+            document.getElementById('kpiTiempo').textContent = '—';
+
+            showToast('🏁 Turno finalizado. ¡Buen descanso!');
+        };
+
+        // Incrementar contador de reportes cuando se envía un reporte
+        const _origEnviarReporteForm = window.enviarReporteForm;
+        window.enviarReporteForm = async function() {
+            if (typeof _origEnviarReporteForm === 'function') await _origEnviarReporteForm();
+            if (_turnoActivo !== null) {
+                _reportesActuales++;
+                document.getElementById('statReportes').textContent = _reportesActuales;
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrador — WayRoute</title>
+    <link rel="stylesheet" href="../css/panel-admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+
+<body>
+<div class="app-shell">
+
+    <!-- TOP NAV -->
+    <nav class="topnav">
+        <button class="hamburger" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Menú">
+            <i data-lucide="menu"></i>
+        </button>
+        <a class="nav-brand" href="#">
+            <div class="nav-logo"><i data-lucide="bus"></i></div>
+            <div class="nav-brand-text">Way<span>Route</span></div>
+        </a>
+        <span class="nav-role-badge"><i data-lucide="shield-check" style="width:12px;height:12px;"></i> Administrador</span>
+        <div class="nav-spacer"></div>
+        <div class="nav-search">
+            <span><i data-lucide="search"></i></span>
+            <input id="globalSearch" placeholder="Buscar usuario, empresa…" oninput="handleGlobalSearch(this.value)">
+        </div>
+        <div class="nav-actions">
+            <button class="nav-btn" title="Reportes pendientes" onclick="navigate('reportesPend')">
+                <i data-lucide="bell"></i>
+                <span class="badge" id="adminTopNotifBadge">0</span>
+            </button>
+            <div class="user-info-bar">
+                <span class="user-name-nav" id="navUserName">Admin</span>
+                <div class="nav-avatar" id="navAvatar">A</div>
+            </div>
+            <button class="logout-btn" onclick="logoutUsuario()">
+                <i data-lucide="log-out"></i> <span>Salir</span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-wrapper">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Principal</div>
+                <div class="nav-item active" id="nav-dashboard" onclick="navigate('dashboard')">
+                    <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span><span>Dashboard</span>
+                </div>
+                <div class="nav-item" id="nav-reportesPend" onclick="navigate('reportesPend')">
+                    <span class="nav-icon"><i data-lucide="clipboard-list"></i></span><span>Reportes</span>
+                    <span class="nav-chip" id="adminSidebarReportsChip">0</span>
+                </div>
+                <div class="nav-item" id="nav-alertas" onclick="navigate('alertas')">
+                    <span class="nav-icon"><i data-lucide="siren"></i></span><span>Alertas Activas</span>
+                    <span class="nav-chip" id="adminSidebarAlertsChip">0</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Gestión</div>
+                <div class="nav-item" id="nav-usuarios" onclick="navigate('usuarios')">
+                    <span class="nav-icon"><i data-lucide="users"></i></span><span>Usuarios</span>
+                </div>
+                <div class="nav-item" id="nav-conductores" onclick="navigate('conductores')">
+                    <span class="nav-icon"><i data-lucide="bus"></i></span><span>Conductores</span>
+                </div>
+                <div class="nav-item" id="nav-empresas" onclick="navigate('empresas')">
+                    <span class="nav-icon"><i data-lucide="building-2"></i></span><span>Empresas</span>
+                </div>
+                <div class="nav-item" id="nav-rutas" onclick="navigate('rutas')">
+                    <span class="nav-icon"><i data-lucide="route"></i></span><span>Rutas</span>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-label">Sistema</div>
+                <div class="nav-item" id="nav-config" onclick="navigate('config')">
+                    <span class="nav-icon"><i data-lucide="settings"></i></span><span>Configuración</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENT -->
+        <main class="content-area" id="contentArea">
+
+            <!-- ====== DASHBOARD ====== -->
+            <div class="view active" id="view-dashboard">
+                <div class="page-header">
+                    <h1><i data-lucide="layout-dashboard" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;"></i>Dashboard</h1>
+                    <p>Resumen del sistema de transporte público de Cali</p>
+                </div>
+
+                <!-- KPI BAR -->
+                <div class="admin-header">
+                    <div class="admin-kpi">
+                        <div class="kpi">
+                            <div class="kpi-value" id="kpiTotalUsuarios"><div class="loading-spinner"></div></div>
+                            <div class="kpi-label">Usuarios registrados</div>
+                        </div>
+                        <div class="kpi-divider"></div>
+                        <div class="kpi">
+                            <div class="kpi-value" id="kpiConductores"><div class="loading-spinner"></div></div>
+                            <div class="kpi-label">Conductores</div>
+                        </div>
+                        <div class="kpi-divider"></div>
+                        <div class="kpi">
+                            <div class="kpi-value" id="kpiEmpresasActivas"><div class="loading-spinner"></div></div>
+                            <div class="kpi-label">Empresas activas</div>
+                        </div>
+                        <div class="kpi-divider"></div>
+                        <div class="kpi">
+                            <div class="kpi-value" id="kpiReportesHoy"><div class="loading-spinner"></div></div>
+                            <div class="kpi-label">Reportes activos</div>
+                        </div>
+                        <div class="kpi-divider"></div>
+                        <div class="kpi">
+                            <div class="kpi-value" id="kpiUrgentes"><div class="loading-spinner"></div></div>
+                            <div class="kpi-label">Urgentes</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STAT CARDS -->
+                <div class="grid-4 mb-4">
+                    <div class="stat-card">
+                        <div class="icon" style="background:#e6f7f1;color:#0DCCA0;"><i data-lucide="users" style="width:24px;height:24px;"></i></div>
+                        <div class="value" id="statTotalUsuarios">—</div>
+                        <div class="label">Total usuarios</div>
+                        <div class="trend up" id="trendUsuarios">Cargando...</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon" style="background:#eff6ff;color:#1EA0D8;"><i data-lucide="bus" style="width:24px;height:24px;"></i></div>
+                        <div class="value" id="statConductoresDash">—</div>
+                        <div class="label">Conductores activos</div>
+                        <div class="trend up" id="trendConductores">Cargando...</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon" style="background:#fef3c7;color:#f59e0b;"><i data-lucide="clipboard-list" style="width:24px;height:24px;"></i></div>
+                        <div class="value" id="statReportesDash">—</div>
+                        <div class="label">Reportes pendientes</div>
+                        <div class="trend" id="trendReportes">Cargando...</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon" style="background:#f5f3ff;color:#8b5cf6;"><i data-lucide="building-2" style="width:24px;height:24px;"></i></div>
+                        <div class="value" id="statEmpresasDash">—</div>
+                        <div class="label">Empresas activas</div>
+                        <div class="trend up" id="trendEmpresas">Cargando...</div>
+                    </div>
+                </div>
+
+                <!-- GRID: Reportes recientes + Alertas de vencimiento -->
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-title">
+                            <i data-lucide="clipboard-list" style="width:16px;height:16px;color:var(--primary);"></i>
+                            Reportes recientes
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Ruta</th>
+                                        <th>Severidad</th>
+                                        <th>Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashRecentReports">
+                                    <tr><td colspan="4" style="text-align:center;padding:20px;"><div class="loading-spinner"></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">
+                            <i data-lucide="alert-triangle" style="width:16px;height:16px;color:#f59e0b;"></i>
+                            Alertas de vencimiento
+                        </div>
+                        <div id="dashExpiryAlerts">
+                            <div style="text-align:center;padding:20px;"><div class="loading-spinner"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== REPORTES ====== -->
+            <div class="view" id="view-reportesPend">
+                <div class="page-header-row">
+                    <div class="page-header" style="margin-bottom:0;">
+                        <h1><i data-lucide="clipboard-list" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"></i>Reportes</h1>
+                        <p>Incidencias reportadas por conductores y pasajeros</p>
+                    </div>
+                </div>
+
+                <div class="tabs mt-2">
+                    <button class="tab-btn active" id="tabTodos" onclick="switchReporteTab('todos', this)">Todos</button>
+                    <button class="tab-btn" id="tabUrgentes" onclick="switchReporteTab('urgentes', this)">Urgentes</button>
+                    <button class="tab-btn" id="tabValidados" onclick="switchReporteTab('validados', this)">Validados</button>
+                </div>
+
+                <div class="card">
+                    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+                        <div class="nav-search" style="width:260px;">
+                            <span><i data-lucide="search"></i></span>
+                            <input id="searchReportes" placeholder="Buscar por tipo, ruta, ubicación…" oninput="AdminPanel.filtrarReportes(this.value)">
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Ubicación</th>
+                                    <th>Ruta</th>
+                                    <th>Descripción</th>
+                                    <th>Severidad</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminReportsBody">
+                                <tr><td colspan="7" style="text-align:center;padding:24px;"><div class="loading-spinner"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== ALERTAS ====== -->
+            <div class="view" id="view-alertas">
+                <div class="page-header">
+                    <h1><i data-lucide="siren" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"></i>Alertas Activas</h1>
+                    <p>Incidencias urgentes en tiempo real</p>
+                </div>
+                <div id="alertasContainer">
+                    <div style="text-align:center;padding:32px;"><div class="loading-spinner"></div></div>
+                </div>
+            </div>
+
+            <!-- ====== USUARIOS ====== -->
+            <div class="view" id="view-usuarios">
+                <div class="page-header-row">
+                    <div class="page-header" style="margin-bottom:0;">
+                        <h1><i data-lucide="users" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"></i>Gestión de Usuarios</h1>
+                        <p>Todos los usuarios registrados en el sistema</p>
+                    </div>
+                </div>
+
+                <div class="grid-4 mb-4">
+                    <div class="stat-card"><div class="icon" style="background:#eff6ff;"><i data-lucide="users" style="width:20px;height:20px;color:#1EA0D8;"></i></div><div class="value" id="statTotalU">—</div><div class="label">Total usuarios</div></div>
+                    <div class="stat-card"><div class="icon" style="background:#f0fdf4;"><i data-lucide="user" style="width:20px;height:20px;color:#16a34a;"></i></div><div class="value" id="statPasajerosU">—</div><div class="label">Pasajeros</div></div>
+                    <div class="stat-card"><div class="icon" style="background:#fef3c7;"><i data-lucide="bus" style="width:20px;height:20px;color:#d97706;"></i></div><div class="value" id="statConductoresU">—</div><div class="label">Conductores</div></div>
+                    <div class="stat-card"><div class="icon" style="background:#f5f3ff;"><i data-lucide="shield-check" style="width:20px;height:20px;color:#7c3aed;"></i></div><div class="value" id="statAdminsU">—</div><div class="label">Administradores</div></div>
+                </div>
+
+                <div class="card">
+                    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+                        <div class="nav-search" style="width:260px;">
+                            <span><i data-lucide="search"></i></span>
+                            <input id="searchUsuarios" placeholder="Nombre, correo, cédula…" oninput="AdminPanel.loadUsuarios(AdminPanel._rolActivo, this.value)">
+                        </div>
+                        <div class="tabs" style="margin-bottom:0;">
+                            <button class="tab-btn active" onclick="AdminPanel.setRolFiltro('',this)">Todos</button>
+                            <button class="tab-btn" onclick="AdminPanel.setRolFiltro('pasajero',this)">Pasajeros</button>
+                            <button class="tab-btn" onclick="AdminPanel.setRolFiltro('conductor',this)">Conductores</button>
+                            <button class="tab-btn" onclick="AdminPanel.setRolFiltro('admin',this)">Admins</button>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Rol</th>
+                                    <th>Cédula</th>
+                                    <th>Celular</th>
+                                    <th>Barrio</th>
+                                    <th>Registro</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usuariosTableBody">
+                                <tr><td colspan="7" style="text-align:center;padding:24px;"><div class="loading-spinner"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== CONDUCTORES ====== -->
+            <div class="view" id="view-conductores">
+                <div class="page-header-row">
+                    <div class="page-header" style="margin-bottom:0;">
+                        <h1><i data-lucide="bus" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"></i>Conductores</h1>
+                        <p>Conductores registrados con datos de vehículo y licencia</p>
+                    </div>
+                </div>
+
+                <!-- Alertas de vencimiento próximo -->
+                <div id="conductoresExpiryBanner" style="margin-bottom:16px;"></div>
+
+                <div class="card">
+                    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+                        <div class="nav-search" style="width:280px;">
+                            <span><i data-lucide="search"></i></span>
+                            <input id="searchConductores" placeholder="Nombre, placa, empresa…" oninput="AdminPanel.loadConductores(this.value)">
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Conductor</th>
+                                    <th>Empresa / Ruta</th>
+                                    <th>Vehículo</th>
+                                    <th>SOAT</th>
+                                    <th>Tecnomecánica</th>
+                                    <th>Licencia vence</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="conductoresTableBody">
+                                <tr><td colspan="7" style="text-align:center;padding:24px;"><div class="loading-spinner"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== EMPRESAS ====== -->
+            <div class="view" id="view-empresas">
+                <div class="page-header-row">
+                    <div class="page-header" style="margin-bottom:0;">
+                        <h1><i data-lucide="building-2" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"></i>Empresas de Transporte</h1>
+                        <p>Empresas operadoras registradas en el sistema</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="AdminPanel.abrirModalEmpresa()">
+                        <i data-lucide="plus" style="width:16px;height:16px;"></i> Nueva empresa
+                    </button>
+                </div>
+
+                <div class="card mt-2">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Empresa</th>
+                                    <th>Dirección</th>
+                                    <th>Teléfono</th>
+                                    <th>Registro</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="empresasTableBody">
+                                <tr><td colspan="6" style="text-align:center;padding:24px;"><div class="loading-spinner"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== RUTAS ====== -->
+            <div class="view" id="view-rutas">
+                <div class="page-header">
+                    <h1><i data-lucide="route" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"></i>Gestión de Rutas</h1>
+                    <p>Rutas del sistema de transporte público de Cali</p>
+                </div>
+
+                <div class="card">
+                    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+                        <div class="nav-search" style="width:260px;">
+                            <span><i data-lucide="search"></i></span>
+                            <input id="searchRutas" placeholder="Buscar ruta, empresa…" oninput="filtrarRutas(this.value)">
+                        </div>
+                        <select class="form-control" style="width:auto;" onchange="filtrarRutasTipo(this.value)">
+                            <option value="">Todos los tipos</option>
+                            <option value="bus">Bus urbano</option>
+                            <option value="guala">Guala / Campero</option>
+                        </select>
+                    </div>
+                    <div class="table-wrap">
+                        <table id="rutasTable">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre / Recorrido</th>
+                                    <th>Tipo</th>
+                                    <th>Empresa</th>
+                                    <th>Paradas</th>
+                                    <th>Tarifa</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rutasTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== CONFIG ====== -->
+            <div class="view" id="view-config">
+                <div class="page-header">
+                    <h1><i data-lucide="settings" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;"></i>Configuración del Sistema</h1>
+                    <p>Parámetros operativos de WayRoute</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-title"><i data-lucide="bell" style="width:16px;height:16px;color:var(--primary);"></i> Notificaciones</div>
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <div>
+                                    <div style="font-size:.875rem;font-weight:600;color:var(--gray-800);">Alertas automáticas</div>
+                                    <div class="text-xs text-gray">Publicar alertas urgentes automáticamente</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="cfgAlertasAuto" checked onchange="saveConfig()">
+                                    <span class="toggle-track"></span>
+                                </label>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <div>
+                                    <div style="font-size:.875rem;font-weight:600;color:var(--gray-800);">Notificar reportes nuevos</div>
+                                    <div class="text-xs text-gray">Mostrar badge en campana al recibir reporte</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="cfgNotifReportes" checked onchange="saveConfig()">
+                                    <span class="toggle-track"></span>
+                                </label>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <div>
+                                    <div style="font-size:.875rem;font-weight:600;color:var(--gray-800);">Alertas de vencimiento</div>
+                                    <div class="text-xs text-gray">Avisar 30 días antes de SOAT/tecnomecánica</div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="cfgVencimientos" checked onchange="saveConfig()">
+                                    <span class="toggle-track"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i data-lucide="sliders-horizontal" style="width:16px;height:16px;color:var(--primary);"></i> Parámetros operativos</div>
+                        <div style="display:flex;flex-direction:column;gap:14px;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Radio de búsqueda de paradas (metros)</label>
+                                <input type="number" class="form-control" id="cfgRadio" value="500" min="100" max="2000" onchange="saveConfig()">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Frecuencia de actualización (minutos)</label>
+                                <input type="number" class="form-control" id="cfgFrecuencia" value="15" min="1" max="60" onchange="saveConfig()">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Alerta de inactividad de conductor (minutos)</label>
+                                <input type="number" class="form-control" id="cfgInactividad" value="30" min="5" max="120" onchange="saveConfig()">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label">Días de alerta antes de vencimiento</label>
+                                <input type="number" class="form-control" id="cfgDiasVence" value="30" min="7" max="90" onchange="saveConfig()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i data-lucide="database" style="width:16px;height:16px;color:var(--primary);"></i> Estado de la base de datos</div>
+                        <div id="dbStatus" style="display:flex;flex-direction:column;gap:10px;">
+                            <div style="text-align:center;padding:16px;"><div class="loading-spinner"></div></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i data-lucide="info" style="width:16px;height:16px;color:var(--primary);"></i> Información del sistema</div>
+                        <div style="display:flex;flex-direction:column;gap:8px;font-size:.875rem;color:var(--gray-700);">
+                            <div style="display:flex;justify-content:space-between;"><span>Aplicación</span><strong>WayRoute v1.0</strong></div>
+                            <div style="display:flex;justify-content:space-between;"><span>Entorno</span><strong>Producción</strong></div>
+                            <div style="display:flex;justify-content:space-between;"><span>Base de datos</span><strong>Supabase</strong></div>
+                            <div style="display:flex;justify-content:space-between;"><span>Proyecto</span><strong>Tesis — Ing. Sistemas</strong></div>
+                            <div style="display:flex;justify-content:space-between;"><span>Entidad</span><strong>Secretaría de Movilidad de Cali</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div><!-- end main-wrapper -->
+</div><!-- end app-shell -->
+
+<!-- ====== MODAL: DETALLE CONDUCTOR ====== -->
+<div class="modal-overlay" id="modalConductor">
+    <div class="modal-box" style="max-width:700px;">
+        <div class="modal-header">
+            <h3><i data-lucide="bus" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;"></i>Detalle del Conductor</h3>
+            <button class="modal-close" onclick="cerrarModal('modalConductor')">&times;</button>
+        </div>
+        <div class="modal-body" id="modalConductorBody">
+            <div style="text-align:center;padding:32px;"><div class="loading-spinner"></div></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="cerrarModal('modalConductor')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ====== MODAL: NUEVA / EDITAR EMPRESA ====== -->
+<div class="modal-overlay" id="modalEmpresa">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="modalEmpresaTitle">Nueva Empresa</h3>
+            <button class="modal-close" onclick="cerrarModal('modalEmpresa')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="modalEmpresaId">
+            <div class="form-group">
+                <label class="form-label">Nombre de la empresa <span style="color:var(--red)">*</span></label>
+                <input class="form-control" id="empNombre" placeholder="Ej: Empresa de Transporte Cali S.A.">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">NIT</label>
+                    <input class="form-control" id="empNit" placeholder="000.000.000-0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input class="form-control" id="empTelefono" placeholder="602 000 0000">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Dirección</label>
+                <input class="form-control" id="empDireccion" placeholder="Carrera 00 # 00-00, Cali">
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="empActivo" checked>
+                    <span class="toggle-track"></span>
+                </label>
+                <span style="font-size:.875rem;color:var(--gray-700);">Empresa activa</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="cerrarModal('modalEmpresa')">Cancelar</button>
+            <button class="btn btn-primary" onclick="AdminPanel.guardarEmpresa()">
+                <i data-lucide="save" style="width:14px;height:14px;"></i> Guardar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM NAV (móvil) -->
+<nav class="bottom-nav" id="bottomNav">
+    <button class="bottom-nav-item active" id="bn-dashboard" onclick="navigate('dashboard');setBottomNav('bn-dashboard')">
+        <i data-lucide="layout-dashboard" style="width:20px;height:20px;"></i>
+        <span class="bn-label">Dashboard</span>
+    </button>
+    <button class="bottom-nav-item" id="bn-reportesPend" onclick="navigate('reportesPend');setBottomNav('bn-reportesPend')">
+        <i data-lucide="clipboard-list" style="width:20px;height:20px;"></i>
+        <span class="bn-label">Reportes</span>
+    </button>
+    <button class="bottom-nav-item" id="bn-usuarios" onclick="navigate('usuarios');setBottomNav('bn-usuarios')">
+        <i data-lucide="users" style="width:20px;height:20px;"></i>
+        <span class="bn-label">Usuarios</span>
+    </button>
+    <button class="bottom-nav-item" id="bn-empresas" onclick="navigate('empresas');setBottomNav('bn-empresas')">
+        <i data-lucide="building-2" style="width:20px;height:20px;"></i>
+        <span class="bn-label">Empresas</span>
+    </button>
+    <button class="bottom-nav-item" id="bn-config" onclick="navigate('config');setBottomNav('bn-config')">
+        <i data-lucide="settings" style="width:20px;height:20px;"></i>
+        <span class="bn-label">Config</span>
+    </button>
+</nav>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/services/supabase.js"></script>
+<script src="../js/services/AuthService.js"></script>
+<script src="../js/services/AlertaService.js"></script>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATOS DE RUTAS (hardcoded hasta tener tabla en BD)
+// ══════════════════════════════════════════════════
+const RUTAS_DATA = [
+    { codigo:'G-07', nombre:'Ladera Occidental ↔ Alfonso López',      tipo:'guala',  empresa:'Cooperativa Montebello',  paradas:18, tarifa:3500, activa:true  },
+    { codigo:'B-22A',nombre:'Ciudad Córdoba ↔ Terminal del Sur',       tipo:'bus',    empresa:'Empresa Coopcencar S.A.', paradas:34, tarifa:3500, activa:true  },
+    { codigo:'G-12', nombre:'Siloé ↔ San Fernando',                    tipo:'guala',  empresa:'Cootranscali Ltda.',      paradas:15, tarifa:3500, activa:true  },
+    { codigo:'B-14', nombre:'Aguablanca ↔ Universidades',              tipo:'bus',    empresa:'Transurbano S.A.',        paradas:29, tarifa:3500, activa:true  },
+    { codigo:'B-05', nombre:'El Poblado ↔ Centro',                     tipo:'bus',    empresa:'La Ermita S.A.',          paradas:22, tarifa:3500, activa:false },
+    { codigo:'G-18', nombre:'Pance ↔ Bochalema',                       tipo:'guala',  empresa:'Unitransco S.A.',         paradas:12, tarifa:3500, activa:true  },
+    { codigo:'B-03', nombre:'Floralía ↔ Chipichape',                   tipo:'bus',    empresa:'Riocali S.A.',            paradas:27, tarifa:3500, activa:true  },
+    { codigo:'B-31', nombre:'Petecuy ↔ Centenario',                    tipo:'bus',    empresa:'Empresa Coopcencar S.A.', paradas:31, tarifa:3500, activa:true  },
+    { codigo:'G-03', nombre:'Terrón Colorado ↔ Santa Librada',         tipo:'guala',  empresa:'Cooperativa Montebello',  paradas:14, tarifa:3500, activa:true  },
+];
+
+// ══════════════════════════════════════════════════
+// NAVEGACIÓN
+// ══════════════════════════════════════════════════
+let currentView = 'dashboard';
+
+function navigate(view) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('view-' + view)?.classList.add('active');
+    document.getElementById('nav-' + view)?.classList.add('active');
+    document.getElementById('contentArea').scrollTo(0, 0);
+    currentView = view;
+    closeSidebar();
+
+    // Cargar datos según vista
+    if (view === 'dashboard')    AdminPanel.loadDashboard();
+    if (view === 'reportesPend') AdminPanel.loadReportes('todos');
+    if (view === 'alertas')      AdminPanel.loadAlertas();
+    if (view === 'usuarios')     AdminPanel.loadUsuarios();
+    if (view === 'conductores')  AdminPanel.loadConductores();
+    if (view === 'empresas')     AdminPanel.loadEmpresas();
+    if (view === 'rutas')        renderRutas(RUTAS_DATA);
+    if (view === 'config')       { loadConfig(); AdminPanel.checkDbStatus(); }
+}
+
+function setTabActive(btn) {
+    btn.closest('.tabs')?.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+function showToast(msg, duration = 2800) {
+    let t = document.getElementById('_toast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = '_toast';
+        t.className = 'toast';
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._to);
+    t._to = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ══════════════════════════════════════════════════
+// SIDEBAR / MOBILE
+// ══════════════════════════════════════════════════
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+}
+function setBottomNav(id) {
+    document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById(id)?.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════
+// MODALES
+// ══════════════════════════════════════════════════
+function cerrarModal(id) {
+    document.getElementById(id).classList.remove('show');
+}
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+});
+
+// ══════════════════════════════════════════════════
+// BÚSQUEDA GLOBAL
+// ══════════════════════════════════════════════════
+function handleGlobalSearch(val) {
+    if (!val.trim()) return;
+    navigate('usuarios');
+    document.getElementById('searchUsuarios').value = val;
+    AdminPanel.loadUsuarios('', val);
+}
+
+// ══════════════════════════════════════════════════
+// RUTAS (hardcoded)
+// ══════════════════════════════════════════════════
+function renderRutas(data) {
+    const tbody = document.getElementById('rutasTableBody');
+    if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--gray-400);">No se encontraron rutas.</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = data.map(r => `
+        <tr>
+            <td><strong>${r.codigo}</strong></td>
+            <td style="font-size:.82rem;">${r.nombre}</td>
+            <td><span class="tag ${r.tipo==='bus'?'tag-blue':'tag-amber'}">${r.tipo==='bus'?'Bus urbano':'Guala'}</span></td>
+            <td style="font-size:.82rem;">${r.empresa}</td>
+            <td>${r.paradas}</td>
+            <td>$${r.tarifa.toLocaleString('es-CO')}</td>
+            <td><span class="tag ${r.activa?'tag-green':'tag-gray'}">${r.activa?'Activa':'Inactiva'}</span></td>
+        </tr>`).join('');
+}
+function filtrarRutas(val) {
+    const lower = val.toLowerCase();
+    renderRutas(RUTAS_DATA.filter(r =>
+        r.codigo.toLowerCase().includes(lower) ||
+        r.nombre.toLowerCase().includes(lower) ||
+        r.empresa.toLowerCase().includes(lower)
+    ));
+}
+function filtrarRutasTipo(tipo) {
+    renderRutas(tipo ? RUTAS_DATA.filter(r => r.tipo === tipo) : RUTAS_DATA);
+}
+
+// ══════════════════════════════════════════════════
+// CONFIGURACIÓN (localStorage)
+// ══════════════════════════════════════════════════
+function saveConfig() {
+    const cfg = {
+        alertasAuto:    document.getElementById('cfgAlertasAuto')?.checked,
+        notifReportes:  document.getElementById('cfgNotifReportes')?.checked,
+        vencimientos:   document.getElementById('cfgVencimientos')?.checked,
+        radio:          document.getElementById('cfgRadio')?.value,
+        frecuencia:     document.getElementById('cfgFrecuencia')?.value,
+        inactividad:    document.getElementById('cfgInactividad')?.value,
+        diasVence:      document.getElementById('cfgDiasVence')?.value,
+    };
+    localStorage.setItem('wayroute_admin_config', JSON.stringify(cfg));
+    showToast('Configuración guardada');
+}
+function loadConfig() {
+    const raw = localStorage.getItem('wayroute_admin_config');
+    if (!raw) return;
+    const cfg = JSON.parse(raw);
+    if (cfg.alertasAuto   !== undefined) document.getElementById('cfgAlertasAuto').checked    = cfg.alertasAuto;
+    if (cfg.notifReportes !== undefined) document.getElementById('cfgNotifReportes').checked   = cfg.notifReportes;
+    if (cfg.vencimientos  !== undefined) document.getElementById('cfgVencimientos').checked    = cfg.vencimientos;
+    if (cfg.radio)       document.getElementById('cfgRadio').value       = cfg.radio;
+    if (cfg.frecuencia)  document.getElementById('cfgFrecuencia').value  = cfg.frecuencia;
+    if (cfg.inactividad) document.getElementById('cfgInactividad').value = cfg.inactividad;
+    if (cfg.diasVence)   document.getElementById('cfgDiasVence').value   = cfg.diasVence;
+}
+
+// ══════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════
+function expiryTag(fechaStr) {
+    if (!fechaStr) return '<span style="color:var(--gray-400)">—</span>';
+    const dias = Math.ceil((new Date(fechaStr) - new Date()) / 86400000);
+    if (dias < 0)   return `<span class="expiry-danger">Vencido (${Math.abs(dias)}d)</span>`;
+    if (dias <= 30) return `<span class="expiry-warn">Vence en ${dias}d</span>`;
+    return `<span class="expiry-ok">${fechaStr}</span>`;
+}
+
+function switchReporteTab(filtro, btn) {
+    setTabActive(btn);
+    AdminPanel.loadReportes(filtro);
+}
+
+// ══════════════════════════════════════════════════
+// ADMIN PANEL — lógica principal
+// ══════════════════════════════════════════════════
+const AdminPanel = {
+    _reportes: [],
+    _empresas: [],
+    _rolActivo: '',
+
+    setRolFiltro(rol, btn) {
+        this._rolActivo = rol;
+        setTabActive(btn);
+        const search = document.getElementById('searchUsuarios')?.value || '';
+        this.loadUsuarios(rol, search);
+    },
+
+    // ─── DASHBOARD ───
+    async loadDashboard() {
+        await Promise.all([this.loadKPIs(), this.loadReportesRecientes(), this.loadExpiryAlerts()]);
+    },
+
+    async loadKPIs() {
+        if (!window.supabaseClient) return;
+        const sc = window.supabaseClient;
+        const hoy = new Date().toISOString().split('T')[0];
+        try {
+            const [
+                { count: total },
+                { count: pasajeros },
+                { count: conductores },
+                { count: reportesHoy },
+                { count: urgentes },
+                { count: empresas },
+                { count: reportesActivos }
+            ] = await Promise.all([
+                sc.from('usuarios').select('*', { count:'exact', head:true }),
+                sc.from('usuarios').select('*', { count:'exact', head:true }).eq('rol','pasajero'),
+                sc.from('usuarios').select('*', { count:'exact', head:true }).eq('rol','conductor'),
+                sc.from('reportes').select('*', { count:'exact', head:true }).gte('fecha', hoy),
+                sc.from('reportes').select('*', { count:'exact', head:true }).eq('severidad','alta').or('estatus.eq.activo,estatus.eq.pendiente,estatus.is.null'),
+                sc.from('empresas').select('*', { count:'exact', head:true }).eq('activo', true),
+                sc.from('reportes').select('*', { count:'exact', head:true }).or('estatus.eq.activo,estatus.eq.pendiente,estatus.is.null')
+            ]);
+
+            const set = (id, val) => { const el = document.getElementById(id); if(el) el.innerHTML = val ?? 0; };
+            set('kpiTotalUsuarios',   total ?? 0);
+            set('kpiConductores',     conductores ?? 0);
+            set('kpiEmpresasActivas', empresas ?? 0);
+            set('kpiReportesHoy',     reportesActivos ?? 0);
+            set('kpiUrgentes',        urgentes ?? 0);
+            set('statTotalUsuarios',  (total??0).toLocaleString('es-CO'));
+            set('statConductoresDash',conductores ?? 0);
+            set('statReportesDash',   reportesActivos ?? 0);
+            set('statEmpresasDash',   empresas ?? 0);
+
+            const elTrU = document.getElementById('trendUsuarios');
+            if (elTrU) elTrU.innerHTML = `${pasajeros??0} pasajeros · ${conductores??0} conductores`;
+
+            document.getElementById('adminTopNotifBadge').textContent        = reportesActivos ?? 0;
+            document.getElementById('adminSidebarReportsChip').textContent   = reportesActivos ?? 0;
+            document.getElementById('adminSidebarAlertsChip').textContent    = urgentes ?? 0;
+        } catch(e) {
+            console.error('Error KPIs:', e);
+        }
+    },
+
+    async loadReportesRecientes() {
+        const tbody = document.getElementById('dashRecentReports');
+        if (!tbody || !window.supabaseClient) return;
+        try {
+            const { data } = await window.supabaseClient
+                .from('reportes').select('tipo,titulo,ruta,severidad,fecha,estatus')
+                .order('fecha', { ascending:false }).limit(6);
+
+            if (!data?.length) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--gray-400);">Sin reportes recientes</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map(r => {
+                const c = r.severidad==='alta'?'red':r.severidad==='media'||r.severidad==='moderada'?'amber':'blue';
+                const h = new Date(r.fecha).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+                return `<tr>
+                    <td><span class="tag tag-${c}" style="font-size:.72rem;">${(r.tipo||r.titulo||'—').substring(0,22)}</span></td>
+                    <td style="font-size:.8rem;">${r.ruta||'—'}</td>
+                    <td><span class="tag tag-${c}" style="font-size:.68rem;">${(r.severidad||'—').toUpperCase()}</span></td>
+                    <td style="font-size:.75rem;color:var(--gray-400);">${h}</td>
+                </tr>`;
+            }).join('');
+        } catch(e) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--red);">Error al cargar</td></tr>`; }
+    },
+
+    async loadExpiryAlerts() {
+        const el = document.getElementById('dashExpiryAlerts');
+        if (!el || !window.supabaseClient) return;
+        const diasAviso = parseInt(localStorage.getItem('wayroute_diasVence') || '30');
+        const limite = new Date();
+        limite.setDate(limite.getDate() + 60);
+        const limiteStr = limite.toISOString().split('T')[0];
+        const hoy = new Date().toISOString().split('T')[0];
+        try {
+            const { data } = await window.supabaseClient
+                .from('conductores')
+                .select('vehiculo_placa, vehiculo_soat_vence, vehiculo_tecnomecanica_vence, licencia_vencimiento, usuarios!conductores_id_fkey(nombres, apellidos)')
+                .or(`vehiculo_soat_vence.lte.${limiteStr},vehiculo_tecnomecanica_vence.lte.${limiteStr},licencia_vencimiento.lte.${limiteStr}`)
+                .limit(8);
+
+            if (!data?.length) {
+                el.innerHTML = `<div class="empty-state"><i data-lucide="check-circle" style="width:32px;height:32px;color:var(--green);display:block;margin:0 auto 8px;"></i><p>Sin vencimientos próximos. Todo en regla.</p></div>`;
+                lucide.createIcons();
+                return;
+            }
+            el.innerHTML = data.map(c => {
+                const nombre = c.usuarios ? `${c.usuarios.nombres} ${c.usuarios.apellidos||''}`.trim() : c.vehiculo_placa;
+                const items = [
+                    { label:'SOAT',       fecha:c.vehiculo_soat_vence },
+                    { label:'Tecno.',     fecha:c.vehiculo_tecnomecanica_vence },
+                    { label:'Licencia',   fecha:c.licencia_vencimiento }
+                ].filter(i => i.fecha && i.fecha <= limiteStr);
+                return items.map(i => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-100);">
+                        <div>
+                            <div style="font-size:.82rem;font-weight:600;">${nombre}</div>
+                            <div class="text-xs text-gray">Placa: ${c.vehiculo_placa} · ${i.label}</div>
+                        </div>
+                        ${expiryTag(i.fecha)}
+                    </div>`).join('');
+            }).join('');
+        } catch(e) { el.innerHTML = `<div style="color:var(--red);font-size:.82rem;padding:12px;">Error al cargar vencimientos</div>`; }
+    },
+
+    // ─── REPORTES ───
+    async loadReportes(filtro = 'todos') {
+        const tbody = document.getElementById('adminReportsBody');
+        if (!tbody || !window.supabaseClient) return;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;"><div class="loading-spinner"></div></td></tr>`;
+        try {
+            let q = window.supabaseClient.from('reportes').select('*').order('fecha', { ascending:false }).limit(100);
+            if (filtro === 'urgentes')  q = q.eq('severidad','alta');
+            if (filtro === 'validados') q = q.eq('estatus','validado');
+            if (filtro === 'todos')     q = q.order('fecha', { ascending:false });
+
+            const { data, error } = await q;
+            this._reportes = data || [];
+
+            const pendientes = (data||[]).filter(r => !r.estatus || r.estatus === 'pendiente' || r.estatus === 'activo');
+            const urgList    = (data||[]).filter(r => r.severidad === 'alta');
+
+            document.getElementById('adminTopNotifBadge').textContent     = pendientes.length;
+            document.getElementById('adminSidebarReportsChip').textContent = pendientes.length;
+            document.getElementById('adminSidebarAlertsChip').textContent  = urgList.length;
+            document.getElementById('tabTodos').textContent    = `Todos (${pendientes.length})`;
+            document.getElementById('tabUrgentes').textContent = `Urgentes (${urgList.length})`;
+
+            this._renderReportesRows(data || []);
+        } catch(e) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red);">Error al cargar reportes</td></tr>`;
+        }
+    },
+
+    filtrarReportes(val) {
+        const lower = val.toLowerCase();
+        const filtrado = this._reportes.filter(r =>
+            (r.tipo||'').toLowerCase().includes(lower) ||
+            (r.titulo||'').toLowerCase().includes(lower) ||
+            (r.ruta||'').toLowerCase().includes(lower) ||
+            (r.ubicacion||'').toLowerCase().includes(lower)
+        );
+        this._renderReportesRows(filtrado);
+    },
+
+    _renderReportesRows(data) {
+        const tbody = document.getElementById('adminReportsBody');
+        if (!data.length) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--gray-400);">No hay reportes en esta categoría.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = data.map(r => {
+            const c = r.severidad==='alta'?'red':r.severidad==='media'||r.severidad==='moderada'?'amber':'blue';
+            const fecha = new Date(r.fecha);
+            const hora  = fecha.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+            const dia   = fecha.toLocaleDateString('es-CO',{day:'2-digit',month:'short'});
+            const est   = r.estatus || 'activo';
+            const esPendiente = est === 'pendiente' || est === 'activo' || !r.estatus;
+            const acciones = esPendiente
+                ? `<div style="display:flex;gap:4px;">
+                     <button class="btn btn-sm" style="background:#dcfce7;color:#166534;border:1px solid #bbf7d0;" title="Validar" onclick="AdminPanel.validarReporte('${r.id}',this)">
+                       <i data-lucide="check" style="width:12px;height:12px;"></i>
+                     </button>
+                     <button class="btn btn-sm btn-danger" title="Rechazar" onclick="AdminPanel.rechazarReporte('${r.id}',this)">
+                       <i data-lucide="x" style="width:12px;height:12px;"></i>
+                     </button>
+                   </div>`
+                : `<span class="tag ${est==='validado'?'tag-green':'tag-red'}">${est==='validado'?'Validado':'Rechazado'}</span>`;
+            return `<tr id="rep-${r.id}">
+                <td><span class="tag tag-${c}" style="font-size:.72rem;">${(r.tipo||r.titulo||'Reporte').substring(0,28)}</span></td>
+                <td style="font-size:.8rem;">${r.ubicacion||'—'}</td>
+                <td style="font-size:.82rem;font-weight:600;">${r.ruta||'—'}</td>
+                <td style="font-size:.78rem;color:var(--gray-600);">${r.descripcion?(r.descripcion.substring(0,55)+'…'):'—'}</td>
+                <td><span class="tag tag-${c}" style="font-size:.68rem;">${(r.severidad||'—').toUpperCase()}</span></td>
+                <td style="font-size:.75rem;color:var(--gray-400);">${dia} ${hora}</td>
+                <td>${acciones}</td>
+            </tr>`;
+        }).join('');
+        lucide.createIcons();
+    },
+
+    async validarReporte(id, btn) {
+        btn.disabled = true;
+        try {
+            const { error } = await window.supabaseClient.from('reportes').update({ estatus:'validado' }).eq('id', id);
+            if (error) throw error;
+            const row = document.getElementById(`rep-${id}`);
+            if (row) row.cells[6].innerHTML = `<span class="tag tag-green">Validado</span>`;
+            showToast('Reporte validado');
+            this.loadKPIs();
+        } catch(e) { showToast('Error: ' + e.message); btn.disabled = false; }
+    },
+
+    async rechazarReporte(id, btn) {
+        btn.disabled = true;
+        try {
+            const { error } = await window.supabaseClient.from('reportes').update({ estatus:'rechazado' }).eq('id', id);
+            if (error) throw error;
+            const row = document.getElementById(`rep-${id}`);
+            if (row) { row.style.opacity='.4'; row.cells[6].innerHTML = `<span class="tag tag-gray">Rechazado</span>`; }
+            showToast('Reporte rechazado');
+            this.loadKPIs();
+        } catch(e) { showToast('Error: ' + e.message); btn.disabled = false; }
+    },
+
+    // ─── ALERTAS ───
+    async loadAlertas() {
+        const el = document.getElementById('alertasContainer');
+        if (!el || !window.supabaseClient) return;
+        el.innerHTML = `<div style="text-align:center;padding:32px;"><div class="loading-spinner"></div></div>`;
+        try {
+            const { data } = await window.supabaseClient
+                .from('reportes').select('*')
+                .in('severidad',['alta','media','moderada'])
+                .or('estatus.eq.activo,estatus.eq.pendiente,estatus.is.null')
+                .order('fecha', { ascending:false }).limit(30);
+
+            if (!data?.length) {
+                el.innerHTML = `<div class="empty-state"><i data-lucide="check-circle" style="width:40px;height:40px;color:var(--green);display:block;margin:0 auto 12px;"></i><p>No hay alertas activas en este momento.</p></div>`;
+                lucide.createIcons();
+                return;
+            }
+            el.innerHTML = `<div style="display:flex;flex-direction:column;gap:12px;">` +
+                data.map(r => {
+                    const c = r.severidad==='alta'?'red':'amber';
+                    const bg = r.severidad==='alta'?'#fee2e2':'#fef3c7';
+                    const border = r.severidad==='alta'?'#fca5a5':'#fde68a';
+                    const hora = new Date(r.fecha).toLocaleString('es-CO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+                    return `<div style="background:${bg};border:1px solid ${border};border-radius:12px;padding:16px 20px;display:flex;gap:16px;align-items:flex-start;">
+                        <div style="width:40px;height:40px;border-radius:10px;background:${r.severidad==='alta'?'#ef4444':'#f59e0b'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i data-lucide="${r.severidad==='alta'?'siren':'alert-triangle'}" style="width:20px;height:20px;color:#fff;"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                                <strong style="font-size:.9rem;">${r.tipo||r.titulo||'Alerta'}</strong>
+                                <span class="tag tag-${c}" style="font-size:.68rem;">${(r.severidad||'').toUpperCase()}</span>
+                            </div>
+                            <div style="font-size:.82rem;color:var(--gray-700);margin-bottom:4px;">${r.descripcion||'Sin descripción'}</div>
+                            <div style="font-size:.75rem;color:var(--gray-500);">
+                                ${r.ubicacion?'<i data-lucide="map-pin" style="width:11px;height:11px;vertical-align:middle;"></i> '+r.ubicacion+' · ':''}
+                                ${r.ruta?'Ruta '+r.ruta+' · ':''} ${hora}
+                            </div>
+                        </div>
+                        <button class="btn btn-sm" style="background:#dcfce7;color:#166534;border:1px solid #bbf7d0;flex-shrink:0;" onclick="AdminPanel.validarReporte('${r.id}',this)">
+                            <i data-lucide="check" style="width:12px;height:12px;"></i> Atender
+                        </button>
+                    </div>`;
+                }).join('') + '</div>';
+            lucide.createIcons();
+        } catch(e) { el.innerHTML = `<div style="color:var(--red);padding:16px;">Error al cargar alertas</div>`; }
+    },
+
+    // ─── USUARIOS ───
+    async loadUsuarios(rol = '', search = '') {
+        const tbody = document.getElementById('usuariosTableBody');
+        if (!tbody || !window.supabaseClient) return;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;"><div class="loading-spinner"></div></td></tr>`;
+        try {
+            let q = window.supabaseClient.from('usuarios').select('*').order('fecha_registro', { ascending:false });
+            if (rol)    q = q.eq('rol', rol);
+            if (search) q = q.or(`nombres.ilike.%${search}%,apellidos.ilike.%${search}%,correo.ilike.%${search}%,cedula.ilike.%${search}%`);
+
+            const { data, error } = await q;
+            if (error) throw error;
+
+            const total      = data?.length || 0;
+            const pasajeros  = data?.filter(u => u.rol==='pasajero').length || 0;
+            const conductores= data?.filter(u => u.rol==='conductor').length || 0;
+            const admins     = data?.filter(u => u.rol==='admin'||u.rol==='administrador').length || 0;
+
+            const s = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+            s('statTotalU',     total.toLocaleString('es-CO'));
+            s('statPasajerosU', pasajeros.toLocaleString('es-CO'));
+            s('statConductoresU',conductores.toLocaleString('es-CO'));
+            s('statAdminsU',    admins);
+
+            if (!total) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--gray-400);">No se encontraron usuarios.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map(u => {
+                const nombre = `${u.nombres||''} ${u.apellidos||''}`.trim();
+                const ini    = (u.nombres?.[0]||'') + (u.apellidos?.[0]||'');
+                const rc = u.rol==='admin'||u.rol==='administrador'?'#8b5cf6':u.rol==='conductor'?'#f59e0b':'#1EA0D8';
+                const rt = u.rol==='admin'||u.rol==='administrador'?'Admin':u.rol==='conductor'?'Conductor':'Pasajero';
+                const rTag = u.rol==='admin'||u.rol==='administrador'?'tag-purple':u.rol==='conductor'?'tag-amber':'tag-blue';
+                const fecha = u.fecha_registro ? new Date(u.fecha_registro).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+                return `<tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="user-avatar-sm" style="background:${rc};">${ini.toUpperCase()}</div>
+                            <div>
+                                <div class="font-bold" style="font-size:.875rem;">${nombre}</div>
+                                <div class="text-xs text-gray">${u.correo||'—'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="tag ${rTag}">${rt}</span></td>
+                    <td class="text-sm">${u.cedula||'—'}</td>
+                    <td class="text-sm">${u.celular||'—'}</td>
+                    <td class="text-sm">${u.barrio||'—'}</td>
+                    <td class="text-xs text-gray">${fecha}</td>
+                    <td>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <label class="toggle-switch" title="${u.activo?'Desactivar':'Activar'} cuenta">
+                                <input type="checkbox" ${u.activo?'checked':''} onchange="AdminPanel.toggleUsuario('${u.id}',this.checked)">
+                                <span class="toggle-track"></span>
+                            </label>
+                            ${u.rol==='conductor'?`<button class="btn-icon" title="Ver conductor" onclick="AdminPanel.verConductor('${u.id}')"><i data-lucide="eye" style="width:14px;height:14px;"></i></button>`:''}
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+        } catch(e) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red);">Error al cargar usuarios: ${e.message}</td></tr>`;
+        }
+    },
+
+    async toggleUsuario(id, activo) {
+        try {
+            const { error } = await window.supabaseClient.from('usuarios').update({ activo }).eq('id', id);
+            if (error) throw error;
+            showToast(`Cuenta ${activo?'activada':'desactivada'} correctamente`);
+        } catch(e) { showToast('Error: ' + e.message); }
+    },
+
+    // ─── CONDUCTORES ───
+    async loadConductores(search = '') {
+        const tbody = document.getElementById('conductoresTableBody');
+        if (!tbody || !window.supabaseClient) return;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;"><div class="loading-spinner"></div></td></tr>`;
+        try {
+            const { data, error } = await window.supabaseClient
+                .from('conductores')
+                .select('*, usuarios!conductores_id_fkey(nombres, apellidos, correo, cedula, celular, activo)')
+                .order('created_at', { ascending:false });
+
+            if (error) throw error;
+
+            let lista = data || [];
+            if (search) {
+                const s = search.toLowerCase();
+                lista = lista.filter(c => {
+                    const u = c.usuarios||{};
+                    return (`${u.nombres||''} ${u.apellidos||''}`).toLowerCase().includes(s)
+                        || (c.vehiculo_placa||'').toLowerCase().includes(s)
+                        || (c.empresa||'').toLowerCase().includes(s)
+                        || (c.codigo_ruta||'').toLowerCase().includes(s);
+                });
+            }
+
+            // Banner de vencimientos urgentes
+            const hoy = new Date();
+            const urgentes = lista.filter(c =>
+                [c.vehiculo_soat_vence, c.vehiculo_tecnomecanica_vence, c.licencia_vencimiento]
+                    .some(f => f && Math.ceil((new Date(f)-hoy)/86400000) <= 30)
+            );
+            const banner = document.getElementById('conductoresExpiryBanner');
+            if (banner && urgentes.length) {
+                banner.innerHTML = `<div style="background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.85rem;color:#92400e;">
+                    <i data-lucide="alert-triangle" style="width:18px;height:18px;color:#f59e0b;flex-shrink:0;"></i>
+                    <strong>${urgentes.length} conductor${urgentes.length>1?'es tienen':'tiene'} SOAT, tecnomecánica o licencia próximos a vencer.</strong>
+                </div>`;
+                lucide.createIcons();
+            } else if (banner) banner.innerHTML = '';
+
+            if (!lista.length) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--gray-400);">No se encontraron conductores.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = lista.map(c => {
+                const u = c.usuarios || {};
+                const nombre = `${u.nombres||''} ${u.apellidos||''}`.trim() || '—';
+                const ini = ((u.nombres?.[0]||'')+(u.apellidos?.[0]||'')).toUpperCase();
+                return `<tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="user-avatar-sm" style="background:#f59e0b;">${ini}</div>
+                            <div>
+                                <div class="font-bold" style="font-size:.875rem;">${nombre}</div>
+                                <div class="text-xs text-gray">${u.cedula||'—'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:.8rem;">${c.empresa||'—'}<br><span class="text-xs text-gray">${c.codigo_ruta||''} ${c.ruta_asignada?'· '+c.ruta_asignada.substring(0,20)+'…':''}</span></td>
+                    <td style="font-size:.82rem;"><strong>${c.vehiculo_placa||'—'}</strong><br><span class="text-xs text-gray">${c.vehiculo_tipo||''} ${c.vehiculo_marca||''} ${c.vehiculo_anio||''}</span></td>
+                    <td>${expiryTag(c.vehiculo_soat_vence)}</td>
+                    <td>${expiryTag(c.vehiculo_tecnomecanica_vence)}</td>
+                    <td>${expiryTag(c.licencia_vencimiento)}</td>
+                    <td>
+                        <button class="btn-icon" title="Ver detalles completos" onclick="AdminPanel.verConductor('${c.id}')">
+                            <i data-lucide="eye" style="width:14px;height:14px;"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+        } catch(e) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red);">Error: ${e.message}</td></tr>`;
+        }
+    },
+
+    async verConductor(id) {
+        document.getElementById('modalConductorBody').innerHTML = `<div style="text-align:center;padding:32px;"><div class="loading-spinner"></div></div>`;
+        document.getElementById('modalConductor').classList.add('show');
+        try {
+            // Dos consultas separadas para evitar errores de join
+            const [{ data: u, error: errU }, { data: c, error: errC }] = await Promise.all([
+                window.supabaseClient.from('usuarios').select('*').eq('id', id).single(),
+                window.supabaseClient.from('conductores').select('*').eq('id', id).single()
+            ]);
+
+            if (errU || !u) throw new Error('No se encontraron datos del usuario');
+
+            // Si no tiene registro en conductores, mostrar solo datos básicos
+            if (errC || !c) {
+                document.getElementById('modalConductorBody').innerHTML = `
+                    <div class="modal-section-title"><i data-lucide="user" style="width:14px;height:14px;"></i> Datos personales</div>
+                    <div class="modal-grid">
+                        <div class="modal-field"><span class="modal-label">Nombre completo</span><span>${u.nombres||''} ${u.apellidos||''}</span></div>
+                        <div class="modal-field"><span class="modal-label">Cédula</span><span>${u.cedula||'—'}</span></div>
+                        <div class="modal-field"><span class="modal-label">Correo</span><span>${u.correo||'—'}</span></div>
+                        <div class="modal-field"><span class="modal-label">Celular</span><span>${u.celular||'—'}</span></div>
+                    </div>
+                    <div style="margin-top:20px;padding:14px;background:#fef3c7;border-radius:10px;font-size:.85rem;color:#92400e;">
+                        <i data-lucide="alert-triangle" style="width:14px;height:14px;vertical-align:middle;margin-right:6px;"></i>
+                        Este conductor no ha completado su perfil de vehículo y licencia en el sistema.
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            document.getElementById('modalConductorBody').innerHTML = `
+                <div class="modal-section-title"><i data-lucide="user" style="width:14px;height:14px;"></i> Datos personales</div>
+                <div class="modal-grid">
+                    <div class="modal-field"><span class="modal-label">Nombre completo</span><span>${u.nombres||''} ${u.apellidos||''}</span></div>
+                    <div class="modal-field"><span class="modal-label">Cédula</span><span>${u.cedula||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Correo</span><span>${u.correo||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Celular</span><span>${u.celular||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Empresa</span><span>${c.empresa||'—'} ${c.nit_empresa?'('+c.nit_empresa+')':''}</span></div>
+                    <div class="modal-field"><span class="modal-label">Ruta asignada</span><span>${c.ruta_asignada||'—'} ${c.codigo_ruta?'('+c.codigo_ruta+')':''}</span></div>
+                    <div class="modal-field"><span class="modal-label">Turno</span><span>${c.turno||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Fecha ingreso</span><span>${c.fecha_ingreso||'—'}</span></div>
+                </div>
+                <div class="modal-section-title" style="margin-top:18px;"><i data-lucide="truck" style="width:14px;height:14px;"></i> Vehículo</div>
+                <div class="modal-grid">
+                    <div class="modal-field"><span class="modal-label">Placa</span><span class="font-bold">${c.vehiculo_placa||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Tipo</span><span>${c.vehiculo_tipo||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Marca / Modelo</span><span>${c.vehiculo_marca||'—'} ${c.vehiculo_modelo||''}</span></div>
+                    <div class="modal-field"><span class="modal-label">Año / Color</span><span>${c.vehiculo_anio||'—'} · ${c.vehiculo_color||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Capacidad</span><span>${c.vehiculo_capacidad||'—'} pasajeros</span></div>
+                    <div class="modal-field"><span class="modal-label">T. Operación</span><span>${c.vehiculo_tarjeta_operacion||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">SOAT vence</span><span>${expiryTag(c.vehiculo_soat_vence)}</span></div>
+                    <div class="modal-field"><span class="modal-label">Tecnomecánica</span><span>${expiryTag(c.vehiculo_tecnomecanica_vence)}</span></div>
+                </div>
+                <div class="modal-section-title" style="margin-top:18px;"><i data-lucide="credit-card" style="width:14px;height:14px;"></i> Licencia de conducción</div>
+                <div class="modal-grid">
+                    <div class="modal-field"><span class="modal-label">Número</span><span>${c.licencia_numero||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Categoría</span><span>${c.licencia_categoria||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Expedición</span><span>${c.licencia_expedicion||'—'}</span></div>
+                    <div class="modal-field"><span class="modal-label">Vencimiento</span><span>${expiryTag(c.licencia_vencimiento)}</span></div>
+                    <div class="modal-field" style="grid-column:span 2;"><span class="modal-label">Restricciones</span><span>${c.licencia_restricciones||'Ninguna'}</span></div>
+                </div>
+            `;
+            lucide.createIcons();
+        } catch(e) {
+            document.getElementById('modalConductorBody').innerHTML = `<div style="color:var(--red);padding:16px;text-align:center;">${e.message}</div>`;
+        }
+    },
+
+    // ─── EMPRESAS ───
+    async loadEmpresas() {
+        const tbody = document.getElementById('empresasTableBody');
+        if (!tbody || !window.supabaseClient) return;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;"><div class="loading-spinner"></div></td></tr>`;
+        try {
+            const { data, error } = await window.supabaseClient.from('empresas').select('*').order('nombre');
+            if (error) throw error;
+            this._empresas = data || [];
+
+            if (!data?.length) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-400);">
+                    No hay empresas registradas. <button class="btn btn-primary btn-sm" style="margin-left:10px;" onclick="AdminPanel.abrirModalEmpresa()">Agregar empresa</button>
+                </td></tr>`;
+                return;
+            }
+            tbody.innerHTML = data.map(e => {
+                const ini = e.nombre.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+                const fecha = new Date(e.created_at).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'});
+                return `<tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="user-avatar-sm" style="background:#1EA0D8;">${ini}</div>
+                            <div>
+                                <div class="font-bold" style="font-size:.875rem;">${e.nombre}</div>
+                                <div class="text-xs text-gray">NIT: ${e.nit||'—'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="text-sm">${e.direccion||'—'}</td>
+                    <td class="text-sm">${e.telefono||'—'}</td>
+                    <td class="text-xs text-gray">${fecha}</td>
+                    <td><span class="tag ${e.activo?'tag-green':'tag-gray'}">${e.activo?'Activa':'Inactiva'}</span></td>
+                    <td>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <button class="btn-icon" title="Editar" onclick="AdminPanel.abrirModalEmpresa(${e.id})">
+                                <i data-lucide="pencil" style="width:14px;height:14px;"></i>
+                            </button>
+                            <label class="toggle-switch" title="${e.activo?'Desactivar':'Activar'}">
+                                <input type="checkbox" ${e.activo?'checked':''} onchange="AdminPanel.toggleEmpresa(${e.id},this.checked)">
+                                <span class="toggle-track"></span>
+                            </label>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+        } catch(e) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--red);">Error: ${e.message}</td></tr>`;
+        }
+    },
+
+    async toggleEmpresa(id, activo) {
+        try {
+            const { error } = await window.supabaseClient.from('empresas').update({ activo }).eq('id', id);
+            if (error) throw error;
+            showToast(`Empresa ${activo?'activada':'desactivada'}`);
+            this.loadEmpresas();
+        } catch(e) { showToast('Error: ' + e.message); }
+    },
+
+    abrirModalEmpresa(id = null) {
+        const e = id ? this._empresas.find(x => x.id === id) : null;
+        document.getElementById('modalEmpresaTitle').textContent = e ? 'Editar empresa' : 'Nueva empresa';
+        document.getElementById('modalEmpresaId').value    = e?.id || '';
+        document.getElementById('empNombre').value         = e?.nombre || '';
+        document.getElementById('empNit').value            = e?.nit || '';
+        document.getElementById('empDireccion').value      = e?.direccion || '';
+        document.getElementById('empTelefono').value       = e?.telefono || '';
+        document.getElementById('empActivo').checked       = e ? e.activo : true;
+        document.getElementById('modalEmpresa').classList.add('show');
+        lucide.createIcons();
+    },
+
+    async guardarEmpresa() {
+        const id     = document.getElementById('modalEmpresaId').value;
+        const nombre = document.getElementById('empNombre').value.trim();
+        if (!nombre) { showToast('El nombre es obligatorio'); return; }
+
+        const datos = {
+            nombre,
+            nit:      document.getElementById('empNit').value.trim()      || null,
+            direccion:document.getElementById('empDireccion').value.trim() || null,
+            telefono: document.getElementById('empTelefono').value.trim()  || null,
+            activo:   document.getElementById('empActivo').checked
+        };
+        try {
+            const { error } = id
+                ? await window.supabaseClient.from('empresas').update(datos).eq('id', parseInt(id))
+                : await window.supabaseClient.from('empresas').insert([datos]);
+            if (error) throw error;
+            showToast(id ? 'Empresa actualizada' : 'Empresa creada correctamente');
+            cerrarModal('modalEmpresa');
+            this.loadEmpresas();
+        } catch(e) { showToast('Error: ' + e.message); }
+    },
+
+    // ─── CONFIG: estado DB ───
+    async checkDbStatus() {
+        const el = document.getElementById('dbStatus');
+        if (!el || !window.supabaseClient) return;
+        const tablas = ['usuarios','conductores','reportes','empresas'];
+        const results = await Promise.all(tablas.map(async t => {
+            try {
+                const { count, error } = await window.supabaseClient.from(t).select('*',{count:'exact',head:true});
+                return { tabla:t, count: error ? null : count, ok: !error };
+            } catch { return { tabla:t, count:null, ok:false }; }
+        }));
+        el.innerHTML = results.map(r => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray-100);">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:8px;height:8px;border-radius:50%;background:${r.ok?'#22c55e':'#ef4444'};"></div>
+                    <span style="font-size:.875rem;font-weight:600;">${r.tabla}</span>
+                </div>
+                <span style="font-size:.82rem;color:var(--gray-500);">${r.ok ? r.count+' registros' : 'Sin conexión'}</span>
+            </div>`).join('');
+    }
+};
+
+// ══════════════════════════════════════════════════
+// INICIALIZACIÓN
+// ══════════════════════════════════════════════════
+(function init() {
+    const sesion = requireAuth(['admin', 'administrador']);
+    if (!sesion) return;
+
+    document.getElementById('navUserName').textContent = sesion.nombre?.split(' ')[0] || 'Admin';
+    document.getElementById('navAvatar').textContent   = sesion.avatar || sesion.nombre?.slice(0,2).toUpperCase() || 'A';
+
+    lucide.createIcons();
+    AdminPanel.loadDashboard();
+    renderRutas(RUTAS_DATA);
+
+    // Auto-refresh reportes cada 30 segundos
+    setInterval(() => {
+        if (currentView === 'reportesPend') AdminPanel.loadReportes('todos');
+        if (currentView === 'alertas')      AdminPanel.loadAlertas();
+        if (currentView === 'dashboard')    AdminPanel.loadDashboard();
+    }, 30000);
+})();
+</script>
+</body>
+</html>
