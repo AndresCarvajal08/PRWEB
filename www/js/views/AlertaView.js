@@ -98,22 +98,36 @@ const AlertaView = {
     /* ----------------------------------------------------------------
        TABLA REPORTES CONDUCTOR
     ---------------------------------------------------------------- */
-    renderTablaReportes(reportes, tbodyId = 'bodyReportesRecientes') {
+    renderTablaReportes(reportes, tbodyId = 'bodyReportesRecientes', reportesParaStats = null) {
         const body = document.getElementById(tbodyId);
-        if (!body) return;
-
-        if (reportes.length === 0) {
-            body.innerHTML = '<tr><td colspan="4" class="text-center p-4">No has enviado reportes hoy.</td></tr>';
-            return;
+        if (body) {
+            if (reportes.length === 0) {
+                body.innerHTML = '<tr><td colspan="4" class="text-center p-4">No has enviado reportes hoy.</td></tr>';
+            } else {
+                body.innerHTML = reportes.map(al => `
+                    <tr>
+                        <td>${al.titulo}</td>
+                        <td class="text-xs">${al.ubicacion}</td>
+                        <td class="font-bold">${al.ruta}</td>
+                        <td><span class="tag tag-green">Enviado</span></td>
+                    </tr>`).join('');
+            }
         }
 
-        body.innerHTML = reportes.map(al => `
-            <tr>
-                <td>${al.titulo}</td>
-                <td class="text-xs">${al.ubicacion}</td>
-                <td class="font-bold">${al.ruta}</td>
-                <td><span class="tag tag-green">Enviado</span></td>
-            </tr>`).join('');
+        // Contadores reales — no hay un campo de "validado" en el modelo de datos,
+        // así que se muestran métricas que sí se pueden calcular de verdad. Se usa
+        // el historial completo del conductor (reportesParaStats) si está disponible,
+        // ya que `reportes` puede venir acotado a las últimas 24h.
+        const paraStats = reportesParaStats || reportes;
+        const hoyISO = new Date().toISOString().slice(0, 10);
+        const mesActual = hoyISO.slice(0, 7);
+        const hoy = paraStats.filter(al => (al.fecha || '').startsWith(hoyISO)).length;
+        const esteMes = paraStats.filter(al => (al.fecha || '').startsWith(mesActual)).length;
+
+        const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setEl('statReportesHoy', hoy);
+        setEl('statReportesEsteMes', esteMes);
+        setEl('statReportesTotal', paraStats.length);
     },
 
     /* ----------------------------------------------------------------

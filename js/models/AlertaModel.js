@@ -65,6 +65,32 @@ const AlertaModel = {
     },
 
     /**
+     * Obtiene TODOS los reportes de un conductor (sin el límite de 24h de obtener()),
+     * para poder calcular estadísticas reales como "este mes" o el total histórico.
+     * @param {string} conductorId
+     * @returns {Promise<Array>}
+     */
+    async obtenerPorConductor(conductorId) {
+        if (!window.supabaseClient || !conductorId) return [];
+        try {
+            const { data, error } = await window.supabaseClient
+                .from('reportes')
+                .select('*')
+                .eq('conductor_id', conductorId)
+                .order('fecha', { ascending: false });
+
+            if (error) {
+                console.error('[AlertaModel] Error al obtener reportes del conductor:', error.message);
+                return [];
+            }
+            return data || [];
+        } catch (err) {
+            console.error('[AlertaModel] Error inesperado:', err);
+            return [];
+        }
+    },
+
+    /**
      * Crea un nuevo reporte en Supabase.
      * @param {object} datos - { tipo, titulo, descripcion, ubicacion, ruta, severidad, conductorId }
      * @returns {Promise<boolean>} true si fue exitoso

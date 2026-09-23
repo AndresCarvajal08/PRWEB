@@ -50,8 +50,11 @@ const AlertaViewModel = {
         if (esConductor) {
             const sesion = window.SesionModel ? window.SesionModel.getSesion() : null;
             if (sesion) {
-                const misReportes = window.AlertaModel.filtrarPorConductor(alertas, sesion.id);
-                window.AlertaView.renderTablaReportes(misReportes, 'bodyReportesRecientes');
+                const misReportesRecientes = window.AlertaModel.filtrarPorConductor(alertas, sesion.id);
+                // Para las estadísticas (Hoy/Este mes/Total) se necesita el historial
+                // completo del conductor, no solo las alertas activas de las últimas 24h.
+                const misReportesTotal = await window.AlertaModel.obtenerPorConductor(sesion.id);
+                window.AlertaView.renderTablaReportes(misReportesRecientes, 'bodyReportesRecientes', misReportesTotal);
             }
         }
     },
