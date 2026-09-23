@@ -187,6 +187,29 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card mt-2">
+                    <div class="card-title">
+                        <i data-lucide="radio" style="width:16px;height:16px;color:#16a34a;"></i>
+                        Turnos activos ahora
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Conductor</th>
+                                    <th>Ruta</th>
+                                    <th>Bus</th>
+                                    <th>Hora de inicio</th>
+                                    <th>Tiempo en turno</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashTurnosActivos">
+                                <tr><td colspan="5" style="text-align:center;padding:16px;"><div class="loading-spinner"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- ====== REPORTES ====== -->
@@ -583,6 +606,8 @@
 <script src="../js/services/supabase.js"></script>
 <script src="../js/services/AuthService.js"></script>
 <script src="../js/services/AlertaService.js"></script>
+<script src="../js/models/TurnoModel.js"></script>
+<script src="../js/models/UsuarioModel.js"></script>
 
 <script>
 // ══════════════════════════════════════════════════
@@ -777,7 +802,37 @@ const AdminPanel = {
 
     // ─── DASHBOARD ───
     async loadDashboard() {
-        await Promise.all([this.loadKPIs(), this.loadReportesRecientes(), this.loadExpiryAlerts()]);
+        await Promise.all([this.loadKPIs(), this.loadReportesRecientes(), this.loadExpiryAlerts(), this.loadTurnosActivos()]);
+    },
+
+    async loadTurnosActivos() {
+        const tbody = document.getElementById('dashTurnosActivos');
+        if (!tbody || !window.TurnoModel) return;
+        try {
+            const activos = await window.TurnoModel.obtenerActivos();
+            if (!activos.length) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--gray-400);">Sin turnos activos en este momento.</td></tr>`;
+                return;
+            }
+            const nombresPorId = window.UsuarioModel
+                ? await window.UsuarioModel.obtenerNombresPorIds(activos.map(t => t.conductor_id))
+                : {};
+            tbody.innerHTML = activos.map(t => {
+                const u = nombresPorId[t.conductor_id];
+                const nombre = u ? `${u.nombres || ''} ${u.apellidos || ''}`.trim() : t.conductor_id;
+                const inicio = new Date(`${t.fecha}T${t.hora_inicio}`);
+                const minutos = Math.max(0, Math.round((Date.now() - inicio.getTime()) / 60000));
+                return `<tr>
+                    <td class="font-bold" style="font-size:.875rem;">${nombre || '—'}</td>
+                    <td style="font-size:.82rem;">${t.ruta || '—'}</td>
+                    <td>${t.numero_bus ?? '—'}</td>
+                    <td style="font-size:.8rem;">${t.hora_inicio || '—'}</td>
+                    <td style="font-size:.8rem;">${minutos} min</td>
+                </tr>`;
+            }).join('');
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--red);">Error al cargar turnos activos</td></tr>`;
+        }
     },
 
     async loadKPIs() {

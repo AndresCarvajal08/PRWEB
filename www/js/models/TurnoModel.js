@@ -3,7 +3,7 @@
  * MODEL — TurnoModel
  * js/models/TurnoModel.js
  * CRUD de turnos de conductores contra Supabase.
- * Tabla: turnos (conductor_id, fecha, hora_inicio, hora_fin, ruta, vueltas, estado)
+ * Tabla: turnos (conductor_id, fecha, hora_inicio, hora_fin, ruta, numero_bus, vueltas, estado)
  * ============================================================
  */
 
@@ -26,25 +26,54 @@ const TurnoModel = {
         return data || [];
     },
 
-    async iniciarTurno(conductorId, ruta) {
+    async iniciarTurno(conductorId, ruta, numeroBus = null) {
         if (!window.supabaseClient) return { ok: false, error: 'Sin conexión.' };
 
-        const { data, error } = await window.supabaseClient
-            .from('turnos')
-            .insert([{
-                conductor_id: conductorId,
-                fecha: new Date().toISOString().split('T')[0],
-                hora_inicio: new Date().toTimeString().slice(0, 5),
-                hora_fin: null,
-                ruta: ruta || 'N/A',
-                vueltas: 0,
-                estado: 'activo'
-            }])
-            .select()
-            .single();
+        const nuevoTurno = {
+            conductor_id: conductorId,
+            fecha: new Date().toISOString().split('T')[0],
+            hora_inicio: new Date().toTimeString().slice(0, 5),
+            hora_fin: null,
+            ruta: ruta || 'N/A',
+            numero_bus: numeroBus,
+            vueltas: 0,
+            estado: 'activo'
+        };
 
-        if (error) return { ok: false, error: error.message };
-        return { ok: true, turno: data };
+        let response = await window.supabaseClient.from('turnos').insert([nuevoTurno]).select().single();
+
+        // Si la tabla aun no tiene la columna numero_bus, reintentar sin ella
+        // para no bloquear el inicio de turno por un desfase de esquema.
+        if (response.error && response.error.message.toLowerCase().includes('numero_bus')) {
+            console.warn('[TurnoModel] Tabla turnos no tiene columna numero_bus. Reintentando sin ella...');
+            delete nuevoTurno.numero_bus;
+            response = await window.supabaseClient.from('turnos').insert([nuevoTurno]).select().single();
+        }
+
+        if (response.error) return { ok: false, error: response.error.message };
+        return { ok: true, turno: response.data };
+    },
+
+    /* Turnos activos ahora mismo (cualquier conductor). Usado por el
+       pasajero para resaltar en el mapa el bus que tiene conductor real,
+       y por el admin para la tarjeta "Turnos activos ahora". */
+    async obtenerActivos() {
+        if (!window.supabaseClient) return [];
+        try {
+            const { data, error } = await window.supabaseClient
+                .from('turnos')
+                .select('*')
+                .eq('estado', 'activo');
+
+            if (error) {
+                console.warn('[TurnoModel] Error obteniendo turnos activos:', error.message);
+                return [];
+            }
+            return data || [];
+        } catch (err) {
+            console.error('[TurnoModel] Error inesperado:', err);
+            return [];
+        }
     },
 
     async finalizarTurno(turnoId) {

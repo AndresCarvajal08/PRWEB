@@ -11,7 +11,6 @@
 
   let mapaIniciado = false;
   let leafletMap = null;
-  let lastTs = null;
   let busesRuta1 = [];
   let busesRuta2 = [];
   let busesRuta3 = [];
@@ -119,11 +118,13 @@
   ================================================================ */
   const VELOCIDAD_MS = 25 * 1000 / 3600;
 
-  function tick(ts) {
-    const dt = Math.min((ts - lastTs) / 1000, 0.1);
-    lastTs = ts;
+  /* La posición de cada bus es una función pura del reloj real (Date.now()),
+     no del tiempo transcurrido desde que esta pestaña cargó. Así, dos
+     dispositivos distintos que calculen la posición en el mismo instante
+     real llegan al mismo punto de la ruta, sin sincronizar nada por red. */
+  function tick() {
     [...busesRuta1, ...busesRuta2, ...busesRuta3, ...busesRuta4].forEach(bus => {
-      bus.metros += VELOCIDAD_MS * dt;
+      bus.metros = bus.offsetMetros + VELOCIDAD_MS * (Date.now() / 1000);
       if (bus.marker) bus.marker.setLatLng(posicionEnMetros(bus.puntos, bus.distAcum, bus.metros));
     });
     requestAnimationFrame(tick);
@@ -149,11 +150,10 @@
       const distAcum = calcularDistanciasAcumuladas(puntos);
       const total = distAcum[distAcum.length - 1];
       for (let i = 0; i < numV; i++) {
-        arr.push({ metros: (total / numV) * i, puntos, distAcum, marker: null });
+        arr.push({ offsetMetros: (total / numV) * i, metros: 0, puntos, distAcum, marker: null });
       }
     });
 
-    lastTs = performance.now();
     requestAnimationFrame(tick);
   }
 
@@ -282,6 +282,42 @@
 
     // Ordenar por menor tiempo de llegada
     return resultados.sort((a, b) => a.minutos - b.minutos);
+  };
+
+  /* Configuración pública de rutas (clave + cuántos buses simula cada una).
+     La usa el conductor para poblar el selector de número de bus al iniciar turno. */
+  window.WayRoute.getConfigRutas = function () {
+    return RUTAS_CONFIG.map(cfg => ({ clave: cfg.clave, numV: cfg.numV, label: cfg.label, esGuala: cfg.esGuala }));
+  };
+
+  /* Resalta en el mapa el bus que tiene un turno real activo, con los datos
+     del conductor. No mueve el bus ni cambia su ruta, solo cambia su ícono
+     y su popup. Si el mapa aun no se ha abierto (marker null), no hace nada
+     y se reintenta en el siguiente sondeo del lado del pasajero. */
+  window.WayRoute.resaltarBusActivo = function (clave, numeroBus, infoConductor = {}) {
+    const cfg = RUTAS_CONFIG.find(c => c.clave === clave);
+    const bus = cfg && cfg.arr[numeroBus - 1];
+    if (!bus || !bus.marker) return false;
+
+    const html = cfg.esGuala
+      ? `<div style="background:#22c55e;border:3px solid #fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(34,197,94,.35),0 2px 8px rgba(0,0,0,.5);font-size:11px;font-weight:700;color:#fff;font-family:sans-serif;">G${numeroBus}</div>`
+      : `<div style="background:#22c55e;border:3px solid #fff;border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(34,197,94,.35),0 2px 8px rgba(0,0,0,.5);font-size:12px;font-weight:700;color:#fff;font-family:sans-serif;">${numeroBus}</div>`;
+    bus.marker.setIcon(L.divIcon({ className: '', html, iconSize: [36, 36], iconAnchor: [18, 18] }));
+    bus.marker.setPopupContent(
+      `<b>${infoConductor.nombre || 'Conductor en turno'}</b><br>` +
+      `${cfg.label} ${numeroBus} en vivo<br>` +
+      `Turno iniciado: ${infoConductor.horaInicio || ''}`
+    );
+    return true;
+  };
+
+  /* Devuelve el marcador a su apariencia genérica de flota simulada. */
+  window.WayRoute.quitarResaltadoBus = function (clave, numeroBus) {
+    const cfg = RUTAS_CONFIG.find(c => c.clave === clave);
+    const bus = cfg && cfg.arr[numeroBus - 1];
+    if (!bus || !bus.marker) return;
+    bus.marker.setIcon(cfg.esGuala ? crearIconoGuala(numeroBus) : crearIconoBus(numeroBus, cfg.color));
+    bus.marker.setPopupContent(`<b>${cfg.label} ${numeroBus}</b>`);
   };
 
 })();

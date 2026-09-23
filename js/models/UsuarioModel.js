@@ -68,6 +68,30 @@ const UsuarioModel = {
     },
 
     /**
+     * Trae nombres/apellidos de varios usuarios por id, en una sola consulta.
+     * Usado por el pasajero para mostrar el nombre real del conductor de un
+     * turno activo, sin depender de un join embebido (evita adivinar el
+     * nombre exacto de la foreign key en PostgREST).
+     * @param {string[]} ids
+     * @returns {Promise<Object<string,{nombres:string, apellidos:string}>>} mapa id -> datos
+     */
+    async obtenerNombresPorIds(ids) {
+        if (!window.supabaseClient || !ids?.length) return {};
+        const { data, error } = await window.supabaseClient
+            .from('usuarios')
+            .select('id, nombres, apellidos')
+            .in('id', ids);
+
+        if (error) {
+            console.warn('[UsuarioModel] obtenerNombresPorIds error:', error.message);
+            return {};
+        }
+        const mapa = {};
+        (data || []).forEach(u => { mapa[u.id] = u; });
+        return mapa;
+    },
+
+    /**
      * Actualiza perfil del conductor en Supabase (tabla usuarios).
      * @param {string} usuarioId
      * @param {object} datos - { nombre, correo }

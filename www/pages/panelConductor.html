@@ -210,14 +210,22 @@
                 <div id="modalIniciarTurno" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
                     <div style="background:#fff;border-radius:12px;padding:32px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.18);">
                         <div style="font-size:1.25rem;font-weight:700;margin-bottom:6px;">Iniciar Turno</div>
-                        <div class="text-sm text-gray" style="margin-bottom:20px;">Seleccioná la ruta para registrar tu turno de hoy.</div>
+                        <div class="text-sm text-gray" style="margin-bottom:10px;">Seleccioná la ruta y el número de bus para registrar tu turno de hoy.</div>
+                        <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:16px;font-size:.78rem;color:#92400e;">
+                            <i data-lucide="info" style="width:14px;height:14px;flex-shrink:0;margin-top:1px;"></i>
+                            <span>Modo demostración: la posición del bus en el mapa avanza de forma simulada sobre el trazado real de la ruta, mientras se integra la telemetría GPS de las unidades.</span>
+                        </div>
                         <label style="font-size:.85rem;font-weight:600;color:var(--gray-600);display:block;margin-bottom:6px;">Ruta asignada</label>
-                        <select id="selectRutaTurno" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.95rem;margin-bottom:20px;">
+                        <select id="selectRutaTurno" onchange="actualizarSelectorBus()" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.95rem;margin-bottom:16px;">
                             <option value="">Seleccionar ruta...</option>
-                            <option value="G-07">G-07 · Gualas Oriente</option>
-                            <option value="B-22A">B-22A · Ruta Norte</option>
-                            <option value="G-12">G-12 · Especial Sur</option>
-                            <option value="B-14">B-14 · Ruta Sur Pryca</option>
+                            <option value="Gualas Oriente">G-07 · Gualas Oriente</option>
+                            <option value="Norte">B-22A · Ruta Norte</option>
+                            <option value="Especial Sur">G-12 · Especial Sur</option>
+                            <option value="Sur — Pryca/U.Nariño">B-14 · Ruta Sur Pryca</option>
+                        </select>
+                        <label style="font-size:.85rem;font-weight:600;color:var(--gray-600);display:block;margin-bottom:6px;">Número de bus</label>
+                        <select id="selectBusTurno" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.95rem;margin-bottom:20px;">
+                            <option value="">Selecciona primero una ruta</option>
                         </select>
                         <div style="display:flex;gap:10px;">
                             <button onclick="cerrarModalTurno()" style="flex:1;padding:11px;background:#f1f5f9;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Cancelar</button>
@@ -708,14 +716,37 @@
 
         window.abrirModalTurno = function() {
             document.getElementById('modalIniciarTurno').style.display = 'flex';
+            actualizarSelectorBus();
         };
         window.cerrarModalTurno = function() {
             document.getElementById('modalIniciarTurno').style.display = 'none';
         };
 
+        // Puebla el selector de numero de bus segun cuantos buses simula la ruta elegida.
+        window.actualizarSelectorBus = function() {
+            const clave = document.getElementById('selectRutaTurno').value;
+            const selectBus = document.getElementById('selectBusTurno');
+            if (!clave) {
+                selectBus.innerHTML = '<option value="">Selecciona primero una ruta</option>';
+                return;
+            }
+            const config = (window.WayRoute?.getConfigRutas?.() || []).find(r => r.clave === clave);
+            const totalBuses = config ? config.numV : 3;
+            const etiqueta = config?.esGuala ? 'Guala' : 'Bus';
+            let opciones = '<option value="">Seleccionar numero de bus...</option>';
+            for (let i = 1; i <= totalBuses; i++) opciones += `<option value="${i}">${etiqueta} ${i}</option>`;
+            selectBus.innerHTML = opciones;
+        };
+
+        // Expuesto globalmente para que AlertaViewModel etiquete los reportes
+        // con la ruta y el bus del turno realmente activo (no el registrado al crear la cuenta).
+        window.WayRouteTurnoActivo = null;
+
         window.confirmarInicioTurno = async function() {
             const ruta = document.getElementById('selectRutaTurno').value;
+            const numeroBus = parseInt(document.getElementById('selectBusTurno').value, 10);
             if (!ruta) { showToast('Seleccioná una ruta primero.'); return; }
+            if (!numeroBus) { showToast('Seleccioná el número de bus.'); return; }
 
             cerrarModalTurno();
 
@@ -724,7 +755,7 @@
             const sesion = sesionStr ? JSON.parse(sesionStr) : null;
             let turnoGuardado = false;
             if (window.TurnoModel && sesion?.id) {
-                const res = await window.TurnoModel.iniciarTurno(sesion.id, ruta);
+                const res = await window.TurnoModel.iniciarTurno(sesion.id, ruta, numeroBus);
                 if (res.ok) {
                     _turnoActivo = res.turno;
                     turnoGuardado = true;
@@ -733,17 +764,20 @@
                 }
             }
 
+            window.WayRouteTurnoActivo = { ruta, numeroBus };
+
             _vueltasActuales = 0;
             _reportesActuales = 0;
             _inicioTurnoMs = Date.now();
 
             // Actualizar UI
             const horaInicio = new Date().toTimeString().slice(0, 5);
-            document.getElementById('kpiRuta').textContent = ruta;
+            const rutaConBus = ruta + ' · Bus ' + numeroBus;
+            document.getElementById('kpiRuta').textContent = rutaConBus;
             document.getElementById('kpiVueltas').textContent = '0';
             document.getElementById('kpiTiempo').textContent = '0h 0m';
             document.getElementById('kpiEstadoDot').innerHTML = '<span class="status-dot status-online"></span>';
-            document.getElementById('turnoVehiculo').textContent = ruta;
+            document.getElementById('turnoVehiculo').textContent = rutaConBus;
             document.getElementById('turnoRutaDesc').textContent = 'Turno iniciado hoy · ' + horaInicio;
             document.getElementById('turnoHoraInicio').textContent = horaInicio;
             document.getElementById('turnoVueltasCard').textContent = '0';
@@ -768,7 +802,7 @@
             }, 30000);
 
             showToast(turnoGuardado
-                ? 'Turno iniciado correctamente — ruta ' + ruta
+                ? 'Turno iniciado correctamente, ' + rutaConBus
                 : 'Turno iniciado localmente, pero no se pudo guardar en la base de datos. Contacta a soporte si esto persiste.');
         };
 
@@ -789,6 +823,7 @@
             }
 
             _turnoActivo = null;
+            window.WayRouteTurnoActivo = null;
             document.getElementById('estadoSinTurno').style.display = 'block';
             document.getElementById('estadoConTurno').style.display = 'none';
             document.getElementById('statsRow').style.display = 'none';

@@ -41,6 +41,46 @@ document.addEventListener('DOMContentLoaded', () => {
         _alertas.init(false);
     }
 
+    // ── Seguimiento de turnos activos: resalta en el mapa el bus que tiene
+    // un conductor real en turno, y fija el contexto del asistente de IA
+    // en esa ruta. Antes de que exista un turno activo, el bus se ve igual
+    // que el resto de la flota simulada (ver MapaService.resaltarBusActivo). ──
+    let _busesResaltados = new Set();
+    async function sincronizarTurnosActivos() {
+        if (!window.TurnoModel || !window.WayRoute) return;
+        const activos = await window.TurnoModel.obtenerActivos();
+
+        const nombresPorId = activos.length && window.UsuarioModel
+            ? await window.UsuarioModel.obtenerNombresPorIds(activos.map(t => t.conductor_id))
+            : {};
+
+        const clavesVistas = new Set();
+        activos.forEach(t => {
+            if (!t.ruta || !t.numero_bus) return;
+            const clave = t.ruta + '|' + t.numero_bus;
+            clavesVistas.add(clave);
+            const conductor = nombresPorId[t.conductor_id];
+            const nombre = conductor ? `${conductor.nombres || ''} ${conductor.apellidos || ''}`.trim() : undefined;
+            window.WayRoute.resaltarBusActivo(t.ruta, t.numero_bus, { nombre, horaInicio: t.hora_inicio });
+            _busesResaltados.add(clave);
+        });
+
+        // Quitar el resalte de turnos que ya no están activos
+        _busesResaltados.forEach(clave => {
+            if (clavesVistas.has(clave)) return;
+            const [ruta, numeroBus] = clave.split('|');
+            window.WayRoute.quitarResaltadoBus(ruta, parseInt(numeroBus, 10));
+        });
+        _busesResaltados = clavesVistas;
+
+        // El asistente de IA prioriza la ruta del primer turno activo
+        if (typeof window.fijarContextoRutaIA === 'function') {
+            window.fijarContextoRutaIA(activos[0]?.ruta || null);
+        }
+    }
+    sincronizarTurnosActivos();
+    setInterval(sincronizarTurnosActivos, 7000);
+
     // 3. ── LÓGICA ESPECÍFICA DE PASAJERO (Migrada del HTML) ──
     const userFirstName = sesion.nombre ? sesion.nombre.split(' ')[0] : 'Pasajero';
 

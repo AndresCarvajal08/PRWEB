@@ -502,3 +502,12 @@ function formatText(t) {
     return t.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
         .replace(/\n/g, "<br>");
 }
+
+/* Fija de antemano la ruta activa para el asistente (ej. la del turno de
+   conductor que el pasajero está siguiendo en el mapa), para que preguntas
+   como "cuánto cuesta" o "cuándo llega" respondan sobre esa ruta sin que el
+   usuario tenga que nombrarla. No afecta si el usuario menciona otra ruta
+   explícitamente: detectarRutasMencionadas() sigue teniendo prioridad. */
+window.fijarContextoRutaIA = function (clave) {
+    contextoRutaActiva = clave ? [clave] : [];
+};

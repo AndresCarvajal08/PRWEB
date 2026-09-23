@@ -15,10 +15,33 @@ const AlertaViewModel = {
      */
     init(esConductor = false) {
         this.sincronizar(esConductor);
-        
-        // Polling cada 15s Pasajero, 10s Conductor
+
+        // Polling cada 15s Pasajero, 10s Conductor. Se mantiene siempre activo
+        // como respaldo, aunque exista suscripción en tiempo real (ver abajo).
         const tiempoSync = esConductor ? 10000 : 15000;
         this._interval = setInterval(() => this.sincronizar(esConductor), tiempoSync);
+
+        this._suscribirRealtime(esConductor);
+    },
+
+    /* Complementa (no reemplaza) el polling: si Supabase Realtime está
+       disponible y las políticas RLS lo permiten, las alertas nuevas llegan
+       en 1-2s en vez de esperar al siguiente sondeo. Si falla por cualquier
+       motivo (Realtime no habilitado, RLS, conexión), el polling de arriba
+       sigue funcionando igual que hoy. */
+    _suscribirRealtime(esConductor) {
+        if (!window.supabaseClient?.channel) return;
+        try {
+            if (this._channel) window.supabaseClient.removeChannel(this._channel);
+            this._channel = window.supabaseClient
+                .channel('reportes-realtime')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'reportes' }, () => {
+                    this.sincronizar(esConductor);
+                })
+                .subscribe();
+        } catch (err) {
+            console.warn('[AlertaViewModel] Realtime no disponible, se sigue usando polling:', err.message);
+        }
     },
 
     /**
@@ -69,13 +92,18 @@ const AlertaViewModel = {
         
         let datos = {};
 
+        // Si hay un turno realmente activo (con ruta y bus elegidos al iniciar turno),
+        // el reporte se etiqueta con esa ruta en vez de la asignada al registrarse,
+        // para que el pasajero vea la alerta ligada al bus que está viendo en el mapa.
+        const rutaActiva = window.WayRouteTurnoActivo?.ruta || (usuarioFull ? usuarioFull.codigo_ruta : 'N/A');
+
         if (tipoRapido) {
             datos = {
                 tipo: tipoRapido,
                 titulo: window.AlertaModel.getEtiquetaTipo(tipoRapido),
                 descripcion: 'Reporte rápido vía UI de conductor.',
                 ubicacion: "Ubicación actual",
-                ruta: usuarioFull ? usuarioFull.codigo_ruta : 'N/A',
+                ruta: rutaActiva,
                 conductorId: sesion.id,
                 severidad: (tipoRapido === 'seguridad' || tipoRapido === 'bloqueo') ? 'alta' : 'moderada'
             };
@@ -95,7 +123,7 @@ const AlertaViewModel = {
                 titulo: document.getElementById('formTipoIncidencia').options[document.getElementById('formTipoIncidencia').selectedIndex].text,
                 descripcion: vDesc,
                 ubicacion: vUbic,
-                ruta: document.getElementById('formRutaIncidencia').value,
+                ruta: rutaActiva || document.getElementById('formRutaIncidencia').value,
                 severidad: document.getElementById('formSeveridadIncidencia').value,
                 conductorId: sesion.id
             };
