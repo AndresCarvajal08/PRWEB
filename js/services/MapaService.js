@@ -124,29 +124,53 @@
     lastTs = ts;
     [...busesRuta1, ...busesRuta2, ...busesRuta3, ...busesRuta4].forEach(bus => {
       bus.metros += VELOCIDAD_MS * dt;
-      bus.marker.setLatLng(posicionEnMetros(bus.puntos, bus.distAcum, bus.metros));
+      if (bus.marker) bus.marker.setLatLng(posicionEnMetros(bus.puntos, bus.distAcum, bus.metros));
     });
     requestAnimationFrame(tick);
   }
 
   /* ================================================================
-     DIBUJAR RUTA
+     CONFIG DE RUTAS + SIMULACIÓN DE FLOTA (independiente del mapa)
   ================================================================ */
-  function dibujarRuta(puntos, paradas, color, numV, arrayBuses, label, esGuala) {
-    const distAcum = calcularDistanciasAcumuladas(puntos);
-    const total = distAcum[distAcum.length - 1];
+  const RUTAS_CONFIG = [
+    { puntos: RUTA1_PUNTOS, paradas: RUTA1_PARADAS, color: '#ef4444', numV: 4, arr: busesRuta1, label: 'Bus Sur', esGuala: false },
+    { puntos: RUTA2_PUNTOS, paradas: RUTA2_PARADAS, color: '#3b82f6', numV: 3, arr: busesRuta2, label: 'Bus Norte', esGuala: false },
+    { puntos: RUTA3_PUNTOS, paradas: RUTA3_PARADAS, color: '#16a34a', numV: 3, arr: busesRuta3, label: 'Guala', esGuala: true },
+    { puntos: RUTA4_PUNTOS, paradas: RUTA4_PARADAS, color: '#f97316', numV: 3, arr: busesRuta4, label: 'Bus Sur2', esGuala: false },
+  ];
+
+  let flotaIniciada = false;
+
+  function iniciarFlota() {
+    if (flotaIniciada) return;
+    flotaIniciada = true;
+
+    RUTAS_CONFIG.forEach(({ puntos, numV, arr }) => {
+      const distAcum = calcularDistanciasAcumuladas(puntos);
+      const total = distAcum[distAcum.length - 1];
+      for (let i = 0; i < numV; i++) {
+        arr.push({ metros: (total / numV) * i, puntos, distAcum, marker: null });
+      }
+    });
+
+    lastTs = performance.now();
+    requestAnimationFrame(tick);
+  }
+
+  /* ================================================================
+     DIBUJAR RUTA — usa la flota ya simulada, solo agrega visuales
+  ================================================================ */
+  function dibujarRuta({ puntos, paradas, color, arr, label, esGuala }) {
     L.polyline(puntos, { color, weight: esGuala ? 3 : 4, opacity: 0.85, dashArray: esGuala ? '8,5' : null }).addTo(leafletMap);
     paradas.forEach((p, i) => {
       L.circleMarker(p.latlng, { radius: i === 0 ? 8 : 5, color: '#fff', weight: 2, fillColor: color, fillOpacity: 1 })
         .addTo(leafletMap).bindPopup(`<b>${p.nombre}</b>`);
     });
-    for (let i = 0; i < numV; i++) {
-      const metro = (total / numV) * i;
+    arr.forEach((bus, i) => {
       const icon = esGuala ? crearIconoGuala(i + 1) : crearIconoBus(i + 1, color);
-      const marker = L.marker(posicionEnMetros(puntos, distAcum, metro), { icon, zIndexOffset: 1000 })
+      bus.marker = L.marker(posicionEnMetros(bus.puntos, bus.distAcum, bus.metros), { icon, zIndexOffset: 1000 })
         .addTo(leafletMap).bindPopup(`<b>${label} ${i + 1}</b>`);
-      arrayBuses.push({ metros: metro, puntos, distAcum, marker });
-    }
+    });
   }
 
   /* ================================================================
@@ -156,18 +180,15 @@
     if (mapaIniciado) return;
     mapaIniciado = true;
 
+    iniciarFlota();
+
     leafletMap = L.map('leafletMap', { center: [3.4200, -76.5150], zoom: 12 });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19, attribution: '© OpenStreetMap | WayRoute'
     }).addTo(leafletMap);
 
-    dibujarRuta(RUTA1_PUNTOS, RUTA1_PARADAS, '#ef4444', 4, busesRuta1, 'Bus Sur', false);
-    dibujarRuta(RUTA2_PUNTOS, RUTA2_PARADAS, '#3b82f6', 3, busesRuta2, 'Bus Norte', false);
-    dibujarRuta(RUTA3_PUNTOS, RUTA3_PARADAS, '#16a34a', 3, busesRuta3, 'Guala', true);
-    dibujarRuta(RUTA4_PUNTOS, RUTA4_PARADAS, '#f97316', 3, busesRuta4, 'Bus Sur2', false);
+    RUTAS_CONFIG.forEach(dibujarRuta);
 
-    lastTs = performance.now();
-    requestAnimationFrame(tick);
     setTimeout(() => leafletMap.invalidateSize(), 200);
   }
 
@@ -175,6 +196,9 @@
      ENGANCHE
   ================================================================ */
   document.addEventListener('DOMContentLoaded', () => {
+    // La flota se simula desde el arranque, sin esperar a que se abra el mapa
+    iniciarFlota();
+
     if (typeof window.navigate === 'function') {
       const _orig = window.navigate;
       window.navigate = function (view) { _orig(view); if (view === 'mapa') setTimeout(iniciarMapa, 120); };
