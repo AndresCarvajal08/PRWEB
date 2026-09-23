@@ -246,10 +246,56 @@ async function simulateAIResponse(mensaje) {
         return respuesta;
     }
 
+    /* ── 1.5 PRECIO + TIEMPO EN LA MISMA PREGUNTA ── */
+    const TARIFAS_RUTA = {
+        'Especial Sur': { emoji: '🔴', label: 'Ruta Especial Sur', precio: '$2.950' },
+        'Norte': { emoji: '🔵', label: 'Ruta Norte', precio: '$3.100' },
+        'Gualas Oriente': { emoji: '🟢', label: 'Gualas Oriente', precio: '$2.800' },
+        'Sur — Pryca/U.Nariño': { emoji: '🟠', label: 'Ruta Sur (Pryca)', precio: '$3.200' },
+    };
+    const esPreguntaPrecio = msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") ||
+        msg.includes("valor") || msg.includes("tarifa") || msg.includes("cobr") || msg.includes("plata");
+    const esPreguntaTiempo = msg.includes("falta") || msg.includes("llega") || msg.includes("minutos") ||
+        msg.includes("tiempo") || msg.includes("demora") || msg.includes("tarda") ||
+        msg.includes("cuando llega") || msg.includes("cuándo llega");
+
+    if (esPreguntaPrecio && esPreguntaTiempo) {
+        const rutasMencionadas = resolverRutasContexto(msg);
+        const listaRutas = rutasMencionadas.length ? rutasMencionadas : Object.keys(TARIFAS_RUTA);
+
+        let respuesta = "💰 **Tarifas:**\n\n";
+        listaRutas.forEach(r => {
+            const t = TARIFAS_RUTA[r];
+            if (t) respuesta += `${t.emoji} ${t.label} — **${t.precio}**\n`;
+        });
+
+        const pos = obtenerPosiciones();
+        if (!pos) {
+            respuesta += "\n⏱️ Para el tiempo exacto de llegada, abrí la vista **Mapa** y volvé a preguntarme.";
+        } else {
+            const porRuta = {};
+            pos.forEach(b => { if (!porRuta[b.ruta]) porRuta[b.ruta] = []; porRuta[b.ruta].push(b); });
+            const VEL_MS = 25 * 1000 / 3600;
+            const entradas = Object.entries(porRuta).filter(([r]) => listaRutas.includes(r));
+
+            if (entradas.length) {
+                respuesta += "\n⏱️ **Tiempo estimado de llegada:**\n\n";
+                entradas.forEach(([ruta, buses]) => {
+                    const info = TARIFAS_RUTA[ruta] || { emoji: '⚫', label: ruta };
+                    const masProx = buses.reduce((min, b) => b.distanciaMetros < min.distanciaMetros ? b : min, buses[0]);
+                    const minutos = Math.max(1, Math.round(masProx.distanciaMetros / VEL_MS / 60));
+                    const vehiculo = ruta === 'Gualas Oriente' ? `Guala ${masProx.numero}` : `Bus ${masProx.numero}`;
+                    respuesta += `${info.emoji} ${info.label} — próxima unidad **${vehiculo}** en **${minutos} min** (parada: ${masProx.paradaCercana})\n`;
+                });
+            }
+        }
+
+        respuesta += "\nEl pago es en efectivo al conductor. ¡Buen viaje!";
+        return respuesta;
+    }
+
     /* ── 2. TIEMPO DE LLEGADA ── */
-    if (msg.includes("falta") || msg.includes("llega") || msg.includes("minutos") ||
-        msg.includes("tiempo") || msg.includes("cuánto falta") || msg.includes("cuanto falta") ||
-        msg.includes("cuando llega") || msg.includes("cuándo llega") ||
+    if (esPreguntaTiempo ||
         msg === "si" || msg === "sí" || msg.includes("claro") || msg.includes("por favor")) {
 
         const pos = obtenerPosiciones();
