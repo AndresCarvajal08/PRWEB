@@ -149,18 +149,10 @@ body {
 .sidebar {
     width: var(--sidebar-w); min-width: var(--sidebar-w);
     background: var(--white); border-right: 1px solid var(--gray-200);
-    display: flex; flex-direction: column;
+    display: flex; flex-direction: column; padding-top: 12px;
     overflow-y: auto; overflow-x: hidden; transition: width .3s ease;
 }
 .sidebar.collapsed { width: 68px; min-width: 68px; }
-.sidebar-toggle { display: flex; align-items: center; justify-content: flex-end; padding: 12px 14px 4px; }
-.toggle-btn {
-    width: 28px; height: 28px; border-radius: 8px;
-    border: 1px solid var(--gray-200); background: #fff;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; color: var(--gray-500); transition: all .15s;
-}
-.toggle-btn:hover { background: var(--primary-light); }
 .sidebar-section { padding: 8px 12px 4px; }
 .sidebar-section-label {
     font-size: .68rem; font-weight: 600; text-transform: uppercase;
