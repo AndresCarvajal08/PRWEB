@@ -2349,24 +2349,32 @@
         };
 
         const RUTAS_DISPONIBLES = [
-            { color: '#ef4444', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Especial Sur', empresa: 'Coopcencar', origen: 'La Ermita', destino: 'Circuito Sur', buses: 4, duracion: '~35 min', tarifa: '$2.950', tipo: 'bus', keywords: ['ermita', 'especial', 'centro', 'calle 5', 'parada', 'unicentro', 'hospital', 'caicedo', 'plaza'] },
-            { color: '#3b82f6', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Norte', empresa: 'Transurbano', origen: 'Granada', destino: 'Santa Mónica', buses: 3, duracion: '~45 min', tarifa: '$3.100', tipo: 'bus', keywords: ['granada', 'chipichape', 'menga', 'norte', 'santa monica', 'circunvalar', 'unicentro', 'terminal', 'perro', 'parque'] },
-            { color: '#16a34a', icono: '<i data-lucide="car" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Gualas Oriente', empresa: 'Cooptransoriente', origen: 'Carrera 22', destino: 'Calle 92', buses: 3, duracion: '~30 min', tarifa: '$2.800', tipo: 'guala', keywords: ['oriente', 'aguablanca', 'guala', 'campero', 'calle 53', 'calle 72', 'calle 92', 'americas', 'américas'] },
-            { color: '#f97316', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Sur — Pryca / U. Nariño', empresa: 'Unitransco', origen: 'Pryca', destino: 'U. Antonio Nariño', buses: 3, duracion: '~40 min', tarifa: '$3.200', tipo: 'bus', keywords: ['pryca', 'nariño', 'antonio nariño', 'universidad', 'carrera 86', 'carrera 108', 'univalle', 'valle'] },
+            { color: '#ef4444', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Especial Sur', empresa: 'Coopcencar', origen: 'La Ermita', destino: 'Circuito Sur', buses: 4, duracion: '~35 min', tarifa: '$2.950', tipo: 'bus',
+                keywords: ['ermita', 'especial', 'centro', 'calle 5', 'parada', 'unicentro', 'hospital', 'hospital universitario', 'caicedo', 'plaza de caicedo', 'plaza', 'san nicolas', 'san nicolás', 'san antonio', 'la merced', 'merced', 'junin', 'junín', 'tequendama', 'san fernando', 'miraflores', 'templete', 'alameda', 'obrero', 'sucre'] },
+            { color: '#3b82f6', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Norte', empresa: 'Transurbano', origen: 'Granada', destino: 'Santa Mónica', buses: 3, duracion: '~45 min', tarifa: '$3.100', tipo: 'bus',
+                keywords: ['granada', 'chipichape', 'menga', 'norte', 'santa monica', 'santa mónica', 'circunvalar', 'unicentro', 'terminal', 'terminal de transportes', 'parque del perro', 'parque perro', 'perro', 'parque', 'vipasa', 'flora industrial', 'la flora', 'normandia', 'normandía', 'versalles', 'bellavista', 'cristales', 'la campiña', 'ciudad 2000', 'guadalupe', 'aguacatal', 'avenida sexta', 'av 6', 'av. sexta', 'sexta'] },
+            { color: '#16a34a', icono: '<i data-lucide="car" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Gualas Oriente', empresa: 'Cooptransoriente', origen: 'Carrera 22', destino: 'Calle 92', buses: 3, duracion: '~30 min', tarifa: '$2.800', tipo: 'guala',
+                keywords: ['oriente', 'aguablanca', 'distrito de aguablanca', 'guala', 'campero', 'calle 53', 'calle 72', 'calle 92', 'americas', 'américas', 'las americas', 'las américas', 'marroquin', 'marroquín', 'potrero grande', 'mojica', 'calipso', 'manuela beltran', 'manuela beltrán', 'alfonso lopez', 'alfonso lópez', 'el retiro', 'comuna 13', 'comuna 14', 'comuna 15', 'floralia', 'poblado'] },
+            { color: '#f97316', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Sur — Pryca / U. Nariño', empresa: 'Unitransco', origen: 'Pryca', destino: 'U. Antonio Nariño', buses: 3, duracion: '~40 min', tarifa: '$3.200', tipo: 'bus',
+                keywords: ['pryca', 'nariño', 'antonio nariño', 'universidad', 'carrera 86', 'carrera 108', 'univalle', 'universidad del valle', 'valle', 'autonoma', 'autónoma', 'universidad autonoma', 'icesi', 'santiago de cali', 'melendez', 'meléndez', 'pance', 'valle del lili', 'ciudad jardin', 'ciudad jardín', 'jamundi', 'jamundí', 'bochalema', 'cañaveralejo', 'cañaveral', 'san buenaventura'] },
         ];
 
         function filtrarRutasPorDestino(destino) {
             const dest = (destino || '').toLowerCase().trim();
-            let resultados = dest
-                ? RUTAS_DISPONIBLES.filter(r => r.keywords.some(k => dest.includes(k) || k.includes(dest)))
-                : RUTAS_DISPONIBLES;
-            if (resultados.length === 0) resultados = RUTAS_DISPONIBLES;
-            return resultados;
+            if (!dest) return { resultados: RUTAS_DISPONIBLES, coincidenciaDirecta: true };
+
+            const resultados = RUTAS_DISPONIBLES.filter(r => r.keywords.some(k => dest.includes(k) || k.includes(dest)));
+            if (resultados.length > 0) return { resultados, coincidenciaDirecta: true };
+            return { resultados: RUTAS_DISPONIBLES, coincidenciaDirecta: false };
         }
 
-        function pintarResultadosRuta(resultados, destinoTexto) {
+        function pintarResultadosRuta(resultados, destinoTexto, coincidenciaDirecta = true) {
             const titulo = document.getElementById('routeResultsTitle');
-            if (titulo) titulo.textContent = `Rutas encontradas (${resultados.length})`;
+            if (titulo) {
+                titulo.textContent = (destinoTexto && !coincidenciaDirecta)
+                    ? `Sin ruta directa a "${destinoTexto}" — rutas disponibles (${resultados.length})`
+                    : `Rutas encontradas (${resultados.length})`;
+            }
 
             const contenedor = document.getElementById('routeResults');
             if (!contenedor) return;
@@ -2405,18 +2413,26 @@
             if (mapaOrigen) mapaOrigen.value = origen;
             if (mapaDest) mapaDest.value = destino;
 
-            const resultados = filtrarRutasPorDestino(destino);
-            pintarResultadosRuta(resultados, destino);
+            const { resultados, coincidenciaDirecta } = filtrarRutasPorDestino(destino);
+            pintarResultadosRuta(resultados, destino, coincidenciaDirecta);
 
             navigate('mapa');
-            setTimeout(() => showToast(`${resultados.length} ruta(s) encontrada(s)${destino ? ' para "' + destino + '"' : ''}`), 300);
+            setTimeout(() => showToast(
+                coincidenciaDirecta
+                    ? `${resultados.length} ruta(s) encontrada(s)${destino ? ' para "' + destino + '"' : ''}`
+                    : `No encontramos una ruta directa a "${destino}". Te mostramos las rutas disponibles.`
+            ), 300);
         }
 
         function buscarRutasMapa() {
             const destino = document.getElementById('mapaDest').value || '';
-            const resultados = filtrarRutasPorDestino(destino);
-            pintarResultadosRuta(resultados, destino);
-            showToast(`${resultados.length} ruta(s) encontrada(s)`);
+            const { resultados, coincidenciaDirecta } = filtrarRutasPorDestino(destino);
+            pintarResultadosRuta(resultados, destino, coincidenciaDirecta);
+            showToast(
+                coincidenciaDirecta
+                    ? `${resultados.length} ruta(s) encontrada(s)`
+                    : `No encontramos una ruta directa a "${destino}". Te mostramos las rutas disponibles.`
+            );
         }
 
         function verRuta(ruta) {
