@@ -688,7 +688,7 @@
 
                         <!-- Resultados de rutas -->
                         <div>
-                            <div class="card-title mb-3">Rutas encontradas (4)</div>
+                            <div class="card-title mb-3" id="routeResultsTitle">Rutas encontradas (4)</div>
                             <div style="display:flex;flex-direction:column;gap:12px;" id="routeResults">
                                 <div class="route-card selected" onclick="selectRoute(this)">
                                     <div class="route-header">
@@ -2221,10 +2221,10 @@
                 if (ctxUbicacion) ctxUbicacion.textContent = `${barrioStr}, Cali`;
 
                 const mapaOrigen = document.getElementById('mapaOrigen');
-                if (mapaOrigen) mapaOrigen.value = `Barrio ${barrioStr}`;
+                if (mapaOrigen) mapaOrigen.value = barrioStr;
 
                 const quickOrigin = document.getElementById('quickOrigin');
-                if (quickOrigin) quickOrigin.value = `Barrio ${barrioStr}`;
+                if (quickOrigin) quickOrigin.value = barrioStr;
 
                 const aiMessages = document.getElementById('aiMessages');
                 if (aiMessages) {
@@ -2309,62 +2309,75 @@
         }
 
         // ===== ROUTE ACTIONS =====
-        function buscarRutas() {
-            const dest = (document.getElementById('quickDest').value || '').toLowerCase().trim();
+        const RUTAS_DISPONIBLES = [
+            { color: '#ef4444', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Especial Sur', empresa: 'Coopcencar', origen: 'La Ermita', destino: 'Circuito Sur', buses: 4, duracion: '~35 min', tarifa: '$2.950', tipo: 'bus', keywords: ['ermita', 'especial', 'centro', 'calle 5', 'parada', 'unicentro', 'hospital', 'caicedo', 'plaza'] },
+            { color: '#3b82f6', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Norte', empresa: 'Transurbano', origen: 'Granada', destino: 'Santa Mónica', buses: 3, duracion: '~45 min', tarifa: '$3.100', tipo: 'bus', keywords: ['granada', 'chipichape', 'menga', 'norte', 'santa monica', 'circunvalar', 'unicentro', 'terminal', 'perro', 'parque'] },
+            { color: '#16a34a', icono: '<i data-lucide="car" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Gualas Oriente', empresa: 'Cooptransoriente', origen: 'Carrera 22', destino: 'Calle 92', buses: 3, duracion: '~30 min', tarifa: '$2.800', tipo: 'guala', keywords: ['oriente', 'aguablanca', 'guala', 'campero', 'calle 53', 'calle 72', 'calle 92', 'americas', 'américas'] },
+            { color: '#f97316', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Sur — Pryca / U. Nariño', empresa: 'Unitransco', origen: 'Pryca', destino: 'U. Antonio Nariño', buses: 3, duracion: '~40 min', tarifa: '$3.200', tipo: 'bus', keywords: ['pryca', 'nariño', 'antonio nariño', 'universidad', 'carrera 86', 'carrera 108', 'univalle', 'valle'] },
+        ];
 
-            const RUTAS = [
-                { color: '#ef4444', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Especial Sur', origen: 'La Ermita', destino: 'Circuito Sur', buses: 4, duracion: '~35 min', tipo: 'bus', keywords: ['ermita', 'sur', 'centro', 'calle 5', 'parada'] },
-                { color: '#3b82f6', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Norte', origen: 'Granada', destino: 'Santa Mónica', buses: 3, duracion: '~45 min', tipo: 'bus', keywords: ['granada', 'chipichape', 'menga', 'norte', 'santa monica', 'circunvalar'] },
-                { color: '#16a34a', icono: '<i data-lucide="car" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Gualas Oriente', origen: 'Carrera 22', destino: 'Calle 92', buses: 3, duracion: '~30 min', tipo: 'guala', keywords: ['oriente', 'aguablanca', 'guala', 'campero', 'calle 53', 'calle 72', 'calle 92'] },
-                { color: '#f97316', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Sur — Pryca / U. Nariño', origen: 'Pryca', destino: 'U. Antonio Nariño', buses: 3, duracion: '~40 min', tipo: 'bus', keywords: ['pryca', 'nariño', 'antonio nariño', 'universidad', 'carrera 86', 'carrera 108'] },
-            ];
-
+        function filtrarRutasPorDestino(destino) {
+            const dest = (destino || '').toLowerCase().trim();
             let resultados = dest
-                ? RUTAS.filter(r => r.keywords.some(k => dest.includes(k) || k.includes(dest)))
-                : RUTAS;
-            if (resultados.length === 0) resultados = RUTAS;
+                ? RUTAS_DISPONIBLES.filter(r => r.keywords.some(k => dest.includes(k) || k.includes(dest)))
+                : RUTAS_DISPONIBLES;
+            if (resultados.length === 0) resultados = RUTAS_DISPONIBLES;
+            return resultados;
+        }
 
-            // Mostrar resultados debajo del buscador
-            let contenedor = document.getElementById('resultadosBusqueda');
-            if (!contenedor) {
-                contenedor = document.createElement('div');
-                contenedor.id = 'resultadosBusqueda';
-                contenedor.style.cssText = 'margin-top:16px;';
-                document.querySelector('#view-inicio .card').appendChild(contenedor);
-            }
+        function pintarResultadosRuta(resultados, destinoTexto) {
+            const titulo = document.getElementById('routeResultsTitle');
+            if (titulo) titulo.textContent = `Rutas encontradas (${resultados.length})`;
 
-            contenedor.innerHTML = `
-                <div style="font-size:.875rem;font-weight:600;color:var(--gray-600);margin-bottom:10px;">
-                    ${resultados.length} ruta(s) ${dest ? `para "${document.getElementById('quickDest').value}"` : 'disponibles ahora'}
-                </div>
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                    ${resultados.map(r => `
-                        <div onclick="navigate('mapa')" class="route-card" style="cursor:pointer;">
-                            <div class="route-header">
-                                <div class="route-number">
-                                    <div class="route-dot" style="background:${r.color};"></div>
-                                    ${r.icono} ${r.nombre}
-                                </div>
-                                <span class="tag tag-green">Activa</span>
-                            </div>
-                            <div class="route-meta" style="margin:6px 0;">
-                                <span><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> ${r.origen} → ${r.destino}</span>
-                                <span>⏱️ ${r.duracion}</span>
-                                <span><i data-lucide="dollar-sign" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> $3.500</span>
-                                <span>${r.icono} ${r.buses} unidades</span>
-                            </div>
-                            ${r.tipo === 'guala' ? `<div style="margin-top:6px;background:#16a34a15;border:1px solid #16a34a30;border-radius:6px;padding:4px 8px;font-size:.72rem;color:#166534;font-weight:600;"><i data-lucide="car" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Guala/Campero 4x4 — Sector Oriente</div>` : ''}
+            const contenedor = document.getElementById('routeResults');
+            if (!contenedor) return;
+
+            contenedor.innerHTML = resultados.map((r, i) => `
+                <div onclick="selectRoute(this)" class="route-card${i === 0 ? ' selected' : ''}">
+                    <div class="route-header">
+                        <div class="route-number">
+                            <div class="route-dot" style="background:${r.color};"></div>
+                            ${r.icono} ${r.nombre}
                         </div>
-                    `).join('')}
+                        <span class="tag tag-green">${i === 0 ? '<i data-lucide="star" style="width:12px;height:12px;display:inline-block;vertical-align:-2px;"></i> Recomendada' : 'Activa'}</span>
+                    </div>
+                    <div class="route-meta mb-3">
+                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> ${r.duracion}</span>
+                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> ${r.tarifa}</span>
+                        <span>${r.icono} ${r.tipo === 'guala' ? 'Guala' : 'Bus'}</span>
+                    </div>
+                    <div class="text-sm text-gray mb-3">Empresa: ${r.empresa} · ${r.origen} → ${destinoTexto || r.destino} · ${r.buses} unidades</div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <span class="tag tag-green">Operando</span>
+                    </div>
                 </div>
-            `;
+            `).join('');
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function buscarRutas() {
+            const destino = document.getElementById('quickDest').value || '';
+            const origen = document.getElementById('quickOrigin').value || '';
+
+            // Reflejar la búsqueda en los campos del panel Mapa & Rutas antes de mostrarlo
+            const mapaOrigen = document.getElementById('mapaOrigen');
+            const mapaDest = document.getElementById('mapaDest');
+            if (mapaOrigen) mapaOrigen.value = origen;
+            if (mapaDest) mapaDest.value = destino;
+
+            const resultados = filtrarRutasPorDestino(destino);
+            pintarResultadosRuta(resultados, destino);
 
             navigate('mapa');
-            setTimeout(() => showToast(`${resultados.length} ruta(s) encontrada(s)`), 300);
+            setTimeout(() => showToast(`${resultados.length} ruta(s) encontrada(s)${destino ? ' para "' + destino + '"' : ''}`), 300);
         }
 
         function buscarRutasMapa() {
-            showToast('Actualizando resultados de búsqueda…');
+            const destino = document.getElementById('mapaDest').value || '';
+            const resultados = filtrarRutasPorDestino(destino);
+            pintarResultadosRuta(resultados, destino);
+            showToast(`${resultados.length} ruta(s) encontrada(s)`);
         }
 
         function verRuta(ruta) {

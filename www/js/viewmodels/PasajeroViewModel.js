@@ -87,9 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function actualizarBarrioContexto(barrio) {
         if (!barrio) return;
         const mapaOrigen = document.getElementById('mapaOrigen');
-        if (mapaOrigen) mapaOrigen.value = `Barrio ${barrio}`;
+        if (mapaOrigen) mapaOrigen.value = barrio;
         const quickOrigin = document.getElementById('quickOrigin');
-        if (quickOrigin) quickOrigin.value = `Barrio ${barrio}`;
+        if (quickOrigin) quickOrigin.value = barrio;
         
         const ctxUbicacion = document.getElementById('ctxUbicacion');
         if (ctxUbicacion) ctxUbicacion.textContent = `${barrio}, Cali`;
