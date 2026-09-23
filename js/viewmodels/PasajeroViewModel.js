@@ -254,12 +254,12 @@ document.addEventListener('DOMContentLoaded', () => {
         nuevosDatos.apellidos = partes.length > 1 ? partes.slice(1).join(' ') : '';
 
         btn.disabled = true;
-        btn.textContent = '⏳ Guardando...';
+        btn.textContent = 'Guardando...';
 
         const result = await window.UsuarioModel.actualizar(nuevosDatos);
 
         btn.disabled = false;
-        btn.textContent = 'Guardar cambios en base de datos';
+        btn.textContent = 'Guardar cambios';
 
         if (result.ok) {
             window.Toast.show('Datos actualizados correctamente en Supabase.');
@@ -269,6 +269,17 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('perfilNombreHeader').textContent = updatedUser.nombre;
             document.getElementById('perfilContactoHeader').textContent = updatedUser.correo + ' · ' + updatedUser.celular;
             document.getElementById('perfilUbicacionHeader').textContent = updatedUser.barrio + ', Cali · Pasajero activo';
+
+            const viewNombre = document.getElementById('viewPerfilNombre');
+            if (viewNombre) viewNombre.textContent = updatedUser.nombre || '—';
+            const viewCorreo = document.getElementById('viewPerfilCorreo');
+            if (viewCorreo) viewCorreo.textContent = updatedUser.correo || '—';
+            const viewCelular = document.getElementById('viewPerfilCelular');
+            if (viewCelular) viewCelular.textContent = updatedUser.celular || '—';
+            const viewBarrio = document.getElementById('viewPerfilBarrio');
+            if (viewBarrio) viewBarrio.textContent = updatedUser.barrio || '—';
+
+            if (typeof window.cerrarModalEditarPerfil === 'function') window.cerrarModalEditarPerfil();
 
             window.NavView.actualizarUsuarioNav(window.SesionModel.getSesion());
         } else {

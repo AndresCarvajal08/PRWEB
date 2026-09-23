@@ -1176,7 +1176,34 @@
                         </div>
                         <button class="btn"
                             style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);margin-left:auto;align-self:flex-start;"
-                            onclick="showToast('Modo edición activado')"><i data-lucide="pencil" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Editar</button>
+                            onclick="abrirModalEditarPerfil()"><i data-lucide="pencil" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Editar</button>
+                    </div>
+
+                    <!-- MODAL EDITAR PERFIL -->
+                    <div id="modalEditarPerfil" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+                        <div style="background:#fff;border-radius:12px;padding:24px;width:90%;max-width:420px;max-height:90vh;overflow-y:auto;">
+                            <h3 style="margin-bottom:16px;font-size:1.05rem;font-weight:700;color:var(--gray-800);">Editar datos personales</h3>
+                            <div class="form-group">
+                                <label class="form-label">Nombre completo</label>
+                                <input class="form-control" id="inputPerfilNombre" value="">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Correo</label>
+                                <input class="form-control" id="inputPerfilCorreo" value="" type="email" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Teléfono</label>
+                                <input class="form-control" id="inputPerfilCelular" value="">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Barrio / Sector</label>
+                                <input class="form-control" id="inputPerfilBarrio" value="">
+                            </div>
+                            <div style="display:flex;gap:10px;margin-top:8px;">
+                                <button onclick="cerrarModalEditarPerfil()" style="flex:1;padding:11px;background:#f1f5f9;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Cancelar</button>
+                                <button class="btn btn-primary" id="btnGuardarPerfil" onclick="guardarPerfil()" style="flex:1;">Guardar cambios</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid-2">
@@ -1184,24 +1211,22 @@
                             <div class="card-title"><i data-lucide="clipboard" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Datos personales</div>
                             <div class="form-group">
                                 <label class="form-label">Nombre completo</label>
-                                <input class="form-control" id="inputPerfilNombre" value="">
+                                <div class="form-control" id="viewPerfilNombre" style="background:var(--gray-50, #f8f9fb);">—</div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label class="form-label">Correo</label>
-                                    <input class="form-control" id="inputPerfilCorreo" value="" type="email" readonly>
+                                    <div class="form-control" id="viewPerfilCorreo" style="background:var(--gray-50, #f8f9fb);">—</div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Teléfono</label>
-                                    <input class="form-control" id="inputPerfilCelular" value="">
+                                    <div class="form-control" id="viewPerfilCelular" style="background:var(--gray-50, #f8f9fb);">—</div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Barrio / Sector</label>
-                                <input class="form-control" id="inputPerfilBarrio" value="">
+                                <div class="form-control" id="viewPerfilBarrio" style="background:var(--gray-50, #f8f9fb);">—</div>
                             </div>
-                            <button class="btn btn-primary btn-sm" onclick="guardarPerfil()">Guardar
-                                cambios</button>
                         </div>
 
                         <div class="card">
@@ -2212,6 +2237,16 @@
             const inputBarrio = document.getElementById('inputPerfilBarrio');
             if (inputBarrio) inputBarrio.value = barrioStr;
 
+            // Vista de solo lectura de "Datos personales" (la edición real ocurre en el modal)
+            const viewNombre = document.getElementById('viewPerfilNombre');
+            if (viewNombre) viewNombre.textContent = nombre || '—';
+            const viewCorreo = document.getElementById('viewPerfilCorreo');
+            if (viewCorreo) viewCorreo.textContent = correoStr || '—';
+            const viewCelular = document.getElementById('viewPerfilCelular');
+            if (viewCelular) viewCelular.textContent = telStr || '—';
+            const viewBarrio = document.getElementById('viewPerfilBarrio');
+            if (viewBarrio) viewBarrio.textContent = barrioStr || '—';
+
             if (barrioStr) {
                 const ctxUbicacion = document.getElementById('ctxUbicacion');
                 if (ctxUbicacion) ctxUbicacion.textContent = `${barrioStr}, Cali`;
@@ -2266,6 +2301,16 @@
                 window.AlertaView.refreshMapa();
             }
         }
+
+        // ===== MODAL EDITAR PERFIL =====
+        function abrirModalEditarPerfil() {
+            document.getElementById('modalEditarPerfil').style.display = 'flex';
+        }
+        function cerrarModalEditarPerfil() {
+            document.getElementById('modalEditarPerfil').style.display = 'none';
+        }
+        window.abrirModalEditarPerfil = abrirModalEditarPerfil;
+        window.cerrarModalEditarPerfil = cerrarModalEditarPerfil;
 
         // ===== SIDEBAR TOGGLE =====
         function toggleSidebar() {
