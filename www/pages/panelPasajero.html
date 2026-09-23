@@ -2309,6 +2309,45 @@
         }
 
         // ===== ROUTE ACTIONS =====
+        window.detectarUbicacion = async function () {
+            const input = document.getElementById('quickOrigin');
+            const btn = document.getElementById('btnDetectGPS');
+            if (!navigator.geolocation) {
+                showToast('Tu navegador no soporta geolocalización.');
+                return;
+            }
+
+            btn.disabled = true;
+            input.value = 'Detectando tu ubicación...';
+
+            try {
+                const pos = await new Promise((resolve, reject) =>
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000, enableHighAccuracy: true })
+                );
+                const { latitude, longitude } = pos.coords;
+                let lugar = `Lat: ${latitude.toFixed(5)}, Lng: ${longitude.toFixed(5)}`;
+
+                try {
+                    const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=16&addressdetails=1`);
+                    const data = await resp.json();
+                    const a = data.address || {};
+                    lugar = a.neighbourhood || a.suburb || a.village || a.town || a.city_district || a.road || lugar;
+                } catch (geoErr) {
+                    // Sin geocodificación disponible: se deja el par de coordenadas como respaldo
+                }
+
+                input.value = lugar;
+                const mapaOrigen = document.getElementById('mapaOrigen');
+                if (mapaOrigen) mapaOrigen.value = lugar;
+                showToast(`Ubicación detectada: ${lugar}`);
+            } catch (e) {
+                input.value = '';
+                showToast('No se pudo detectar tu ubicación. Verifica los permisos del navegador.');
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
         const RUTAS_DISPONIBLES = [
             { color: '#ef4444', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Especial Sur', empresa: 'Coopcencar', origen: 'La Ermita', destino: 'Circuito Sur', buses: 4, duracion: '~35 min', tarifa: '$2.950', tipo: 'bus', keywords: ['ermita', 'especial', 'centro', 'calle 5', 'parada', 'unicentro', 'hospital', 'caicedo', 'plaza'] },
             { color: '#3b82f6', icono: '<i data-lucide="bus" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>', nombre: 'Ruta Norte', empresa: 'Transurbano', origen: 'Granada', destino: 'Santa Mónica', buses: 3, duracion: '~45 min', tarifa: '$3.100', tipo: 'bus', keywords: ['granada', 'chipichape', 'menga', 'norte', 'santa monica', 'circunvalar', 'unicentro', 'terminal', 'perro', 'parque'] },
