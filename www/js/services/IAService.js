@@ -72,6 +72,29 @@ function detectarRutasMencionadas(msg) {
 }
 
 // ─────────────────────────────────────────────
+//  MEMORIA DE CONTEXTO — recuerda de qué ruta(s) se habló
+//  para que un "sí" / "dale" de seguimiento no pierda el hilo
+// ─────────────────────────────────────────────
+let contextoRutaActiva = [];
+const PALABRAS_CONTINUACION = ["si", "sí", "claro", "dale", "va pues", "de una", "listo", "obvio"];
+
+function resolverRutasContexto(msg) {
+    const mencionadas = detectarRutasMencionadas(msg);
+    if (mencionadas.length) {
+        contextoRutaActiva = mencionadas;
+        return mencionadas;
+    }
+
+    const esContinuacion = PALABRAS_CONTINUACION.some(p => msg === p || msg.startsWith(p + " ") || msg.startsWith(p + ","));
+    if (esContinuacion && contextoRutaActiva.length) {
+        return contextoRutaActiva; // seguir hablando de la misma ruta que ya se mencionó
+    }
+
+    contextoRutaActiva = []; // tema nuevo sin ruta específica → mostrar todas
+    return [];
+}
+
+// ─────────────────────────────────────────────
 //  FUNCIÓN PRINCIPAL
 // ─────────────────────────────────────────────
 async function sendAI() {
@@ -194,8 +217,8 @@ async function simulateAIResponse(mensaje) {
             porRuta[b.ruta].push(b);
         });
 
-        // Filtrar solo por la(s) ruta(s) que el usuario mencionó (si mencionó alguna)
-        const rutasMencionadas = detectarRutasMencionadas(msg);
+        // Filtrar solo por la(s) ruta(s) que el usuario mencionó (o de la que veníamos hablando)
+        const rutasMencionadas = resolverRutasContexto(msg);
         const entradasRuta = rutasMencionadas.length
             ? Object.entries(porRuta).filter(([r]) => rutasMencionadas.includes(r))
             : Object.entries(porRuta);
@@ -232,8 +255,8 @@ async function simulateAIResponse(mensaje) {
         const pos = obtenerPosiciones();
         if (!pos) return "⏱️ No puedo calcular tiempos porque el mapa no está activo. ¡Abrí la vista **Mapa** y volvé a preguntarme!";
 
-        // Detectar ruta(s) específica(s) mencionada(s) en el mensaje
-        const rutasMencionadas = detectarRutasMencionadas(msg);
+        // Detectar ruta(s) específica(s) mencionada(s) (o retomar de la que veníamos hablando)
+        const rutasMencionadas = resolverRutasContexto(msg);
 
         const porRuta = {};
         pos.forEach(b => {
@@ -280,20 +303,17 @@ async function simulateAIResponse(mensaje) {
     }
 
     /* ── 3. RUTA ESPECÍFICA POR NOMBRE ── */
-    if (msg.includes("norte") || msg.includes("granada") || msg.includes("menga") || msg.includes("chipichape")) {
-        return "🔵 ¡Mirá! La **Ruta Norte** opera con 3 buses azules. Sale desde **Granada (Calle 22N)**, pasa por Chipichape, Av. Circunvalar, **Menga** y llega hasta **Santa Mónica**. Tarifa: **$3.100**. ¿Querés saber dónde están los buses ahora?";
-    }
-
-    if (msg.includes("oriente") || msg.includes("aguablanca") || msg.includes("guala") || msg.includes("campero")) {
-        return "🟢 ¡Las **Gualas del Oriente** están operando con 3 unidades! Recorren desde la **Carrera 22** hasta la **Calle 92**, pasando por Calle 53 y Calle 72W. Son camperos 4x4 ideales para el sector oriental. Tarifa: **$2.800**. ¿Te ayudo con algo más?";
-    }
-
-    if (msg.includes("pryca") || msg.includes("nariño") || msg.includes("antonio nariño") || msg.includes("sur")) {
-        return "🟠 La **Ruta Sur** conecta **Pryca (Carrera 86)** con la **Universidad Antonio Nariño (Carrera 108)**, pasando por las carreras 94, 98B y 102. Opera con 3 buses naranjas. Tarifa: **$3.200**. ¿Querés saber el tiempo estimado de llegada?";
-    }
-
-    if (msg.includes("ermita") || msg.includes("especial sur") || msg.includes("ruta 1")) {
-        return "🔴 La **Ruta Especial Sur** tiene 4 buses rojos operando. Sale de **La Ermita** y recorre 7 paradas por el centro-sur de Cali. Tarifa: **$2.950**. ¿Te digo dónde están los buses ahora mismo?";
+    const RESPUESTA_POR_RUTA = {
+        'Norte': "🔵 ¡Mirá! La **Ruta Norte** opera con 3 buses azules. Sale desde **Granada (Calle 22N)**, pasa por Chipichape, Av. Circunvalar, **Menga** y llega hasta **Santa Mónica**. Tarifa: **$3.100**. ¿Querés saber dónde están los buses ahora?",
+        'Gualas Oriente': "🟢 ¡Las **Gualas del Oriente** están operando con 3 unidades! Recorren desde la **Carrera 22** hasta la **Calle 92**, pasando por Calle 53 y Calle 72W. Son camperos 4x4 ideales para el sector oriental. Tarifa: **$2.800**. ¿Te ayudo con algo más?",
+        'Sur — Pryca/U.Nariño': "🟠 La **Ruta Sur** conecta **Pryca (Carrera 86)** con la **Universidad Antonio Nariño (Carrera 108)**, pasando por las carreras 94, 98B y 102. Opera con 3 buses naranjas. Tarifa: **$3.200**. ¿Querés saber el tiempo estimado de llegada?",
+        'Especial Sur': "🔴 La **Ruta Especial Sur** tiene 4 buses rojos operando. Sale de **La Ermita** y recorre 7 paradas por el centro-sur de Cali. Tarifa: **$2.950**. ¿Te digo dónde están los buses ahora mismo?",
+    };
+    const rutasEspecificas = detectarRutasMencionadas(msg);
+    if (rutasEspecificas.length) {
+        contextoRutaActiva = rutasEspecificas; // recordar para un "sí"/"dale" de seguimiento
+        if (rutasEspecificas.length === 1) return RESPUESTA_POR_RUTA[rutasEspecificas[0]];
+        return rutasEspecificas.map(r => RESPUESTA_POR_RUTA[r]).join("\n\n");
     }
 
     /* ── 4. PRECIO ── */
