@@ -367,6 +367,28 @@
     return distanciaMetros([lat1, lng1], [lat2, lng2]);
   };
 
+  /* Marcador "Tu ubicación" (punto azul) en el mapa, con la posición GPS
+     real del pasajero. Si el mapa aun no se ha abierto, no hace nada y el
+     que llama puede reintentar en el siguiente aviso de geolocalización. */
+  let miUbicacionMarker = null;
+  window.WayRoute.actualizarMiUbicacion = function (lat, lng, centrar = false) {
+    if (!leafletMap) return false;
+    if (!miUbicacionMarker) {
+      const icono = L.divIcon({
+        className: '',
+        html: `<div style="width:16px;height:16px;background:#2563eb;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 6px rgba(37,99,235,.3),0 2px 6px rgba(0,0,0,.45);"></div>`,
+        iconSize: [16, 16], iconAnchor: [8, 8]
+      });
+      miUbicacionMarker = L.marker([lat, lng], { icon: icono, zIndexOffset: 2000 })
+        .addTo(leafletMap).bindPopup('<b>Tu ubicación</b>');
+      centrar = true; // la primera vez, siempre centrar para que se note
+    } else {
+      miUbicacionMarker.setLatLng([lat, lng]);
+    }
+    if (centrar) leafletMap.setView([lat, lng], Math.max(leafletMap.getZoom(), 15));
+    return true;
+  };
+
   /* Resalta en el mapa el bus que tiene un turno real activo, con los datos
      del conductor. No mueve el bus ni cambia su ruta, solo cambia su ícono
      y su popup. Si el mapa aun no se ha abierto (marker null), no hace nada

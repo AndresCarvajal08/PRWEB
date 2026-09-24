@@ -2408,6 +2408,10 @@
                 const { latitude, longitude } = pos.coords;
                 let lugar = `Lat: ${latitude.toFixed(5)}, Lng: ${longitude.toFixed(5)}`;
 
+                // Marca "Tu ubicación" en el mapa (si ya está abierto) o queda
+                // lista para cuando se abra, ver activarAlertaProximidad().
+                window.WayRoute?.actualizarMiUbicacion?.(latitude, longitude, true);
+
                 try {
                     const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=16&addressdetails=1`);
                     const data = await resp.json();
@@ -2933,6 +2937,8 @@
                 pos => {
                     _miUbicacionAlerta = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                     if (estado) estado.textContent = 'Ubicación activa · siguiendo Bus ' + busObjetivo + ' de ' + claveObjetivo;
+                    // Marca "Tu ubicación" en el mapa (si ya está abierto).
+                    window.WayRoute?.actualizarMiUbicacion?.(pos.coords.latitude, pos.coords.longitude);
                 },
                 err => {
                     console.warn('[AlertaProximidad] No se pudo obtener ubicación real:', err.message);
