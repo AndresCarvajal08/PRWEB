@@ -200,13 +200,13 @@ const HabeasData = (() => {
           <div class="hd-section">
             <div class="hd-section-title"><span>🏢</span> 1. Responsable del Tratamiento</div>
             <p>
-              <strong>WayRoute – Sistema de Transporte Público MoviCali</strong>, con operación en
+              <strong>WayRoute – Sistema de Transporte Público de Cali</strong>, con operación en
               Santiago de Cali, Valle del Cauca, Colombia, es el Responsable del Tratamiento de sus
               datos personales, conforme al artículo 3° de la
               <span class="hd-law-ref">Ley 1581/2012</span>.
             </p>
             <p>
-              <strong>Contacto del responsable:</strong> contacto@wayroute.movicali.gov.co<br>
+              <strong>Contacto del responsable:</strong> contacto@wayroute.gov.co<br>
               <strong>Dirección:</strong> Cali, Valle del Cauca, Colombia
             </p>
           </div>
@@ -271,7 +271,7 @@ const HabeasData = (() => {
             </ul>
             <p>
               Para ejercer sus derechos, puede contactarnos en:
-              <strong>contacto@wayroute.movicali.gov.co</strong>
+              <strong>contacto@wayroute.gov.co</strong>
             </p>
           </div>
 

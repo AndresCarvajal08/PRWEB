@@ -18,7 +18,7 @@ const USUARIOS_DB = [
   {
     id: 'adm-001',
     nombre: 'Andrés Silva',
-    correo: 'admin@movicali.gov.co',
+    correo: 'admin@wayroute.gov.co',
     password: 'Admin2025*',
     rol: 'administrador',
     cargo: 'Administrador del Sistema',
@@ -30,7 +30,7 @@ const USUARIOS_DB = [
   {
     id: 'adm-002',
     nombre: 'María Fernanda Ospina',
-    correo: 'mospina@movicali.gov.co',
+    correo: 'mospina@wayroute.gov.co',
     password: 'Movil2025*',
     rol: 'administrador',
     cargo: 'Coordinadora de Operaciones',
