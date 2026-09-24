@@ -49,9 +49,14 @@ const AlertaViewModel = {
      * Trae alertas de Model y ordena renderizarlas en View.
      */
     async sincronizar(esConductor) {
-        if (!window.AlertaModel || !window.AlertaView) return;
+        if (!window.AlertaModel || !window.AlertaView) {
+            console.warn('[AlertaViewModel] sincronizar: falta AlertaModel o AlertaView, se detiene.',
+                { AlertaModel: !!window.AlertaModel, AlertaView: !!window.AlertaView });
+            return;
+        }
 
         const alertas = await window.AlertaModel.obtener();
+        console.log('[AlertaViewModel] sincronizar esConductor=' + esConductor + ', alertas obtenidas:', alertas.length);
 
         // Aviso en pantalla al pasajero cuando llega una alerta nueva. En la
         // primera sincronización solo se establece la línea base (para no
@@ -60,10 +65,12 @@ const AlertaViewModel = {
         // enviar el reporte.
         if (!esConductor) {
             const idsActuales = new Set(alertas.map(a => a.id));
-            if (this._idsConocidos) {
-                alertas
-                    .filter(a => !this._idsConocidos.has(a.id))
-                    .forEach(a => this._notificarAlertaNueva(a));
+            if (this._idsConocidos === null) {
+                console.log('[AlertaViewModel] Primera sincronización: se establece línea base de', idsActuales.size, 'alertas, no se notifica nada todavía.');
+            } else {
+                const nuevas = alertas.filter(a => !this._idsConocidos.has(a.id));
+                console.log('[AlertaViewModel] Alertas nuevas desde el último sondeo:', nuevas.length, nuevas);
+                nuevas.forEach(a => this._notificarAlertaNueva(a));
             }
             this._idsConocidos = idsActuales;
         }
@@ -107,8 +114,15 @@ const AlertaViewModel = {
         if (alerta.ubicacion) partes.push(alerta.ubicacion);
         const msg = 'Alerta del conductor: ' + partes.join(', ');
 
-        if (typeof window.showToast === 'function') window.showToast(msg, 6000);
-        else if (window.Toast?.show) window.Toast.show(msg);
+        if (typeof window.showToast === 'function') {
+            console.log('[AlertaViewModel] Notificando con window.showToast():', msg);
+            window.showToast(msg, 6000);
+        } else if (window.Toast?.show) {
+            console.log('[AlertaViewModel] Notificando con window.Toast.show():', msg);
+            window.Toast.show(msg);
+        } else {
+            console.warn('[AlertaViewModel] No existe window.showToast ni window.Toast.show, no se puede mostrar el aviso:', msg);
+        }
     },
 
     /**
