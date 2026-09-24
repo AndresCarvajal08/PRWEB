@@ -352,7 +352,10 @@
   /* Configuración pública de rutas (clave + cuántos buses simula cada una).
      La usa el conductor para poblar el selector de número de bus al iniciar turno. */
   window.WayRoute.getConfigRutas = function () {
-    return RUTAS_CONFIG.map(cfg => ({ clave: cfg.clave, numV: cfg.numV, label: cfg.label, esGuala: cfg.esGuala }));
+    return RUTAS_CONFIG.map(cfg => ({
+      clave: cfg.clave, numV: cfg.numV, label: cfg.label, esGuala: cfg.esGuala,
+      color: cfg.color, paradas: cfg.paradas.map(p => p.nombre)
+    }));
   };
 
   /* Posición real actual [lat,lng] de un bus específico. La usa la alerta de
