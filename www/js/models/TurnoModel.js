@@ -40,18 +40,26 @@ const TurnoModel = {
             estado: 'activo'
         };
 
-        let response = await window.supabaseClient.from('turnos').insert([nuevoTurno]).select().single();
+        // OJO: insert() sin .select() a propósito. Encadenar .select().single()
+        // exige que ademas de la politica de INSERT exista una de SELECT que
+        // deje leer de vuelta la fila recien creada bajo el rol actual (anon).
+        // Si esa segunda politica no está bien puesta, Supabase reporta como
+        // "fallo" una insercion que en realidad sí funcionó. Como no
+        // necesitamos el id que genera la base de datos para nada mas que
+        // finalizar el turno (y eso ya lo resolvemos por conductor_id, ver
+        // finalizarTurno), evitamos ese punto de falla por completo.
+        let { error } = await window.supabaseClient.from('turnos').insert([nuevoTurno]);
 
         // Si la tabla aun no tiene la columna numero_bus, reintentar sin ella
         // para no bloquear el inicio de turno por un desfase de esquema.
-        if (response.error && response.error.message.toLowerCase().includes('numero_bus')) {
+        if (error && error.message.toLowerCase().includes('numero_bus')) {
             console.warn('[TurnoModel] Tabla turnos no tiene columna numero_bus. Reintentando sin ella...');
             delete nuevoTurno.numero_bus;
-            response = await window.supabaseClient.from('turnos').insert([nuevoTurno]).select().single();
+            ({ error } = await window.supabaseClient.from('turnos').insert([nuevoTurno]));
         }
 
-        if (response.error) return { ok: false, error: response.error.message };
-        return { ok: true, turno: response.data };
+        if (error) return { ok: false, error: error.message };
+        return { ok: true, turno: nuevoTurno };
     },
 
     /* Turnos activos ahora mismo (cualquier conductor). Usado por el
@@ -76,7 +84,10 @@ const TurnoModel = {
         }
     },
 
-    async finalizarTurno(turnoId) {
+    /* Recibe el id del conductor, no el id del turno, porque ya no leemos
+       de vuelta la fila insertada (ver nota en iniciarTurno). Un conductor
+       solo tiene un turno activo a la vez, así que esto es suficiente. */
+    async finalizarTurno(conductorId) {
         if (!window.supabaseClient) return { ok: false, error: 'Sin conexión.' };
 
         const { error } = await window.supabaseClient
@@ -85,7 +96,8 @@ const TurnoModel = {
                 hora_fin: new Date().toTimeString().slice(0, 5),
                 estado: 'completado'
             })
-            .eq('id', turnoId);
+            .eq('conductor_id', conductorId)
+            .eq('estado', 'activo');
 
         return error ? { ok: false, error: error.message } : { ok: true };
     },

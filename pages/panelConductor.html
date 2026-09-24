@@ -751,9 +751,11 @@
             cerrarModalTurno();
 
             // Intentar guardar en Supabase via TurnoModel
-            const sesionStr = sessionStorage.getItem('movicali_sesion') || sessionStorage.getItem('movicali_sesion_conductor');
-            const sesion = sesionStr ? JSON.parse(sesionStr) : null;
+            const sesion = window.SesionModel ? window.SesionModel.getSesion() : null;
             let turnoGuardado = false;
+            if (!sesion?.id) {
+                console.warn('[confirmarInicioTurno] No hay sesión activa (window.SesionModel.getSesion() no devolvió id), no se intenta guardar el turno.');
+            }
             if (window.TurnoModel && sesion?.id) {
                 const res = await window.TurnoModel.iniciarTurno(sesion.id, ruta, numeroBus);
                 if (res.ok) {
@@ -818,8 +820,9 @@
             if (!confirm('¿Seguro que querés finalizar el turno?')) return;
             if (_timerTurno) clearInterval(_timerTurno);
 
-            if (window.TurnoModel && _turnoActivo?.id) {
-                await window.TurnoModel.finalizarTurno(_turnoActivo.id);
+            const sesion = window.SesionModel ? window.SesionModel.getSesion() : null;
+            if (window.TurnoModel && sesion?.id) {
+                await window.TurnoModel.finalizarTurno(sesion.id);
             }
 
             _turnoActivo = null;
