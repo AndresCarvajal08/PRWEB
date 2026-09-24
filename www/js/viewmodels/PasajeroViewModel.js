@@ -138,12 +138,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (tGuala) tGuala.innerHTML = `${proximo.minutos}<span style="font-size:1rem;font-weight:400;color:var(--gray-400)"> min</span>`;
                 if (pGuala) pGuala.textContent = `Bus ${proximo.busProximo} llegando a ${proximo.parada}`;
-                if (rActivas) rActivas.textContent = '4';
+                // Antes era un '4' fijo en el texto, se quedaba desactualizado
+                // cada vez que se agregaba o quitaba una ruta (ej. Calle 17).
+                if (rActivas && typeof window.WayRoute.getConfigRutas === 'function') {
+                    rActivas.textContent = window.WayRoute.getConfigRutas().length;
+                }
             }
         }
     }
     setTimeout(actualizarStatsBuses, 1000);
     setInterval(actualizarStatsBuses, 5000);
+
+    // B2. Tarjetas "Rutas disponibles ahora" del inicio: antes eran 4
+    // tarjetas fijas (G-07/B-22A/G-12/B-14) que nunca reflejaban las rutas
+    // reales. Ahora se generan a partir de la configuración real de rutas,
+    // así que una ruta nueva aparece sola, sin tocar este archivo de nuevo.
+    function actualizarRutasDisponiblesGrid() {
+        const grid = document.getElementById('rutasDisponiblesGrid');
+        if (!grid || !window.WayRoute?.getConfigRutas || !window.WayRoute?.tiempoLlegadaProximo) return;
+
+        const rutas = window.WayRoute.getConfigRutas();
+        const tiempos = window.WayRoute.tiempoLlegadaProximo();
+
+        grid.innerHTML = rutas.map(r => {
+            const delaRuta = tiempos.filter(t => t.ruta === r.clave);
+            const masCercano = delaRuta.length ? delaRuta.reduce((a, b) => a.minutos < b.minutos ? a : b) : null;
+            const minutos = masCercano ? masCercano.minutos : null;
+            const tagClase = minutos === null ? 'tag-gray' : (minutos <= 5 ? 'tag-green' : 'tag-amber');
+            const etiquetaTiempo = minutos === null ? 'Sin datos' : `${minutos} min`;
+            return `
+                <div class="route-card" onclick="verRuta('${r.clave}')">
+                    <div style="font-weight:800;font-size:1.1rem;margin-bottom:4px;">${r.label}</div>
+                    <div class="text-xs text-gray">${r.clave}</div>
+                    <div class="tag ${tagClase} mt-2" style="font-size:10px;">${etiquetaTiempo}</div>
+                </div>`;
+        }).join('');
+    }
+    setTimeout(actualizarRutasDisponiblesGrid, 1000);
+    setInterval(actualizarRutasDisponiblesGrid, 5000);
 
     // C. Personalizar Banner IA y Chat
     const iaHora = document.getElementById('iaRecomendacionHora');
