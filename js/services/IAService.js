@@ -56,6 +56,7 @@ const RUTA_INFO = {
     'Norte': { emoji: '🔵', label: 'Ruta Norte (Granada→Menga)', icono: '🚌' },
     'Gualas Oriente': { emoji: '🟢', label: 'Gualas Oriente', icono: '🚐' },
     'Sur — Pryca/U.Nariño': { emoji: '🟠', label: 'Ruta Sur (Pryca→U.Nariño)', icono: '🚌' },
+    'Calle 17': { emoji: '🟣', label: 'Ruta Calle 17', icono: '🚌' },
 };
 
 const RESPUESTA_POR_RUTA = {
@@ -63,6 +64,7 @@ const RESPUESTA_POR_RUTA = {
     'Gualas Oriente': "🟢 ¡Las **Gualas del Oriente** están operando con 3 unidades! Recorren desde la **Carrera 22** hasta la **Calle 92**, pasando por Calle 53 y Calle 72W. Son camperos 4x4 ideales para el sector oriental. Tarifa: **$2.800**. ¿Te ayudo con algo más?",
     'Sur — Pryca/U.Nariño': "🟠 La **Ruta Sur** conecta **Pryca (Carrera 86)** con la **Universidad Antonio Nariño (Carrera 108)**, pasando por las carreras 94, 98B y 102. Opera con 3 buses naranjas. Tarifa: **$3.200**. ¿Querés saber el tiempo estimado de llegada?",
     'Especial Sur': "🔴 La **Ruta Especial Sur** tiene 4 buses rojos operando. Sale de **La Ermita** y recorre 7 paradas por el centro-sur de Cali. Tarifa: **$2.950**. ¿Te digo dónde están los buses ahora mismo?",
+    'Calle 17': "🟣 La **Ruta Calle 17** recorre toda la Calle 17 de sur a norte, con 3 buses morados. Pasa por las carreras 34, 32, 29B y 28. Tarifa: **$3.000**. ¿Querés saber cuánto falta para que pase por tu parada?",
 };
 
 // ─────────────────────────────────────────────
@@ -75,6 +77,7 @@ function detectarRutasMencionadas(msg) {
     if (msg.includes("oriente") || msg.includes("guala") || msg.includes("aguablanca") || msg.includes("campero")) rutas.push("Gualas Oriente");
     if (msg.includes("pryca") || msg.includes("nariño") || msg.includes("narino") || msg.includes("antonio")) rutas.push("Sur — Pryca/U.Nariño");
     if (msg.includes("ermita") || msg.includes("especial") || msg.includes("sur")) rutas.push("Especial Sur");
+    if (msg.includes("calle 17") || msg.includes("cll 17") || msg.includes("29b") || msg.includes("29 b")) rutas.push("Calle 17");
     return [...new Set(rutas)];
 }
 
