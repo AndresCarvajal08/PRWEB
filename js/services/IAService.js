@@ -29,6 +29,7 @@ Eres WayAI, el asistente virtual de WayRoute — una app de transporte público 
 🔵 **Ruta Norte** — 3 buses azules · Granada (Cll 22N) → Chipichape → Menga → Santa Mónica · Tarifa: $3.100
 🟢 **Gualas Oriente** — 3 camperos verdes · Cra 22 → Cll 53 → Cll 72W → Cll 92 · Tarifa: $2.800
 🟠 **Ruta Sur** — 3 buses naranjas · Pryca (Cra 86) → Cra 94 → Cra 102 → U. Antonio Nariño · Tarifa: $3.200
+🟣 **Ruta Calle 17** — 3 buses morados · circuito de ida y vuelta por Carrera 30, Carrera 29B y Carrera 23 · Tarifa: $3.000
 
 Pago en efectivo al conductor. Cada ruta tiene tarifa diferente según distancia.
 
@@ -52,11 +53,11 @@ Pago en efectivo al conductor. Cada ruta tiene tarifa diferente según distancia
 //  NOMBRES Y EMOJIS POR RUTA
 // ─────────────────────────────────────────────
 const RUTA_INFO = {
-    'Especial Sur': { emoji: '🔴', label: 'Ruta Especial Sur', icono: '🚌' },
-    'Norte': { emoji: '🔵', label: 'Ruta Norte (Granada→Menga)', icono: '🚌' },
-    'Gualas Oriente': { emoji: '🟢', label: 'Gualas Oriente', icono: '🚐' },
-    'Sur — Pryca/U.Nariño': { emoji: '🟠', label: 'Ruta Sur (Pryca→U.Nariño)', icono: '🚌' },
-    'Calle 17': { emoji: '🟣', label: 'Ruta Calle 17', icono: '🚌' },
+    'Especial Sur': { emoji: '🔴', label: 'Ruta Especial Sur', icono: '🚌', tarifa: 2950 },
+    'Norte': { emoji: '🔵', label: 'Ruta Norte (Granada→Menga)', icono: '🚌', tarifa: 3100 },
+    'Gualas Oriente': { emoji: '🟢', label: 'Gualas Oriente', icono: '🚐', tarifa: 2800 },
+    'Sur — Pryca/U.Nariño': { emoji: '🟠', label: 'Ruta Sur (Pryca→U.Nariño)', icono: '🚌', tarifa: 3200 },
+    'Calle 17': { emoji: '🟣', label: 'Ruta Calle 17', icono: '🚌', tarifa: 3000 },
 };
 
 const RESPUESTA_POR_RUTA = {
@@ -110,11 +111,34 @@ function extraerLugarDeMensaje(msg) {
     return msg.replace(/[¿?¡!]/g, '').replace(patron, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// "cerca de mi casa" / "donde vivo" no son direcciones geocodificables tal
+// cual, pero el barrio real del pasajero sí lo es (el mismo que ya aparece
+// en el campo Origen del mapa, tomado de su perfil). En vez de fallar al
+// intentar geocodificar la frase literal, se usa ese barrio real.
+const FRASES_MI_UBICACION = [
+    "mi casa", "donde vivo", "cerca de mi", "cerca de mí", "cerca a mi", "cerca a mí",
+    "mi barrio", "cerca mio", "cerca mío", "cerca de aca", "cerca de acá",
+];
+
+function obtenerBarrioRealDelPasajero() {
+    const candidatos = [
+        document.getElementById('quickOrigin')?.value,
+        document.getElementById('mapaOrigen')?.value,
+    ];
+    return candidatos.find(v => v && !/detectando|^lat:/i.test(v)) || null;
+}
+
 async function resolverRutaPorGeocodificacion(msg) {
     if (typeof window.geocodificarEnCali !== 'function' ||
         !window.WayRoute || typeof window.WayRoute.distanciaARuta !== 'function') return [];
 
-    const lugar = extraerLugarDeMensaje(msg);
+    let lugar = extraerLugarDeMensaje(msg);
+
+    if (FRASES_MI_UBICACION.some(f => msg.includes(f))) {
+        const miBarrio = obtenerBarrioRealDelPasajero();
+        if (miBarrio) lugar = miBarrio;
+    }
+
     if (lugar.length < 3) return [];
 
     try {
@@ -416,13 +440,24 @@ async function simulateAIResponse(mensaje) {
     /* ── 4. PRECIO ── */
     if (msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") ||
         msg.includes("valor") || msg.includes("tarifa") || msg.includes("cobr") || msg.includes("plata")) {
-        return "💰 ¡A la orden! Las tarifas en WayRoute son:\n\n🔴 Ruta Especial Sur — **$2.950**\n🔵 Ruta Norte — **$3.100**\n🟢 Gualas Oriente — **$2.800**\n🟠 Ruta Sur (Pryca) — **$3.200**\n\nEl pago es en efectivo al conductor. ¡Buen viaje!";
+        // Si menciona una ruta puntual o un lugar real (incluido "mi casa"),
+        // responde solo con esa tarifa, no con las de las 5 rutas.
+        const rutasPrecio = await resolverRutasContexto(msg);
+        const claves = rutasPrecio.length ? rutasPrecio : Object.keys(RUTA_INFO);
+        const detalle = claves.map(clave => {
+            const info = RUTA_INFO[clave] || { emoji: '⚫', label: clave, tarifa: null };
+            const precio = info.tarifa != null ? `$${info.tarifa.toLocaleString('es-CO')}` : 'no disponible';
+            return `${info.emoji} ${info.label} — **${precio}**`;
+        }).join('\n');
+        const intro = rutasPrecio.length === 1 ? '¡A la orden! La tarifa de esa ruta es' : '¡A la orden! Las tarifas son';
+        return `💰 ${intro}:\n\n${detalle}\n\nEl pago es en efectivo al conductor. ¡Buen viaje!`;
     }
 
     /* ── 5. CUÁNTAS RUTAS / QUÉ RUTAS HAY ── */
     if (msg.includes("rutas") || msg.includes("cuantas") || msg.includes("cuántas") ||
         msg.includes("qué tienen") || msg.includes("que tienen") || msg.includes("opciones")) {
-        return "🗺️ WayRoute tiene **4 rutas activas** en Cali:\n\n🔴 **Ruta Especial Sur** — La Ermita, centro-sur\n🔵 **Ruta Norte** — Granada, Chipichape, Menga\n🟢 **Gualas Oriente** — Carrera 22 hasta Calle 92\n🟠 **Ruta Sur** — Pryca hasta U. Antonio Nariño\n\n¿Por cuál te puedo dar más info?";
+        const listado = Object.values(RUTA_INFO).map(info => `${info.emoji} **${info.label}**`).join('\n');
+        return `🗺️ WayRoute tiene **${Object.keys(RUTA_INFO).length} rutas activas** en Cali:\n\n${listado}\n\n¿Por cuál te puedo dar más info?`;
     }
 
     /* ── 6. SEGURIDAD ── */
@@ -433,7 +468,7 @@ async function simulateAIResponse(mensaje) {
     /* ── 7. SALUDOS ── */
     if (msg.includes("hola") || msg.includes("buenos") || msg.includes("buenas") ||
         msg.includes("qué más") || msg.includes("que mas") || msg.includes("wayai")) {
-        return "¡Hola vé! 👋 Soy **WayAI** de WayRoute. Tenemos **4 rutas activas** en Cali — buses y gualas. Puedo decirte dónde está cada unidad en tiempo real, los tiempos de llegada, paradas y tarifas. ¿En qué te ayudo?";
+        return `¡Hola vé! 👋 Soy **WayAI** de WayRoute. Tenemos **${Object.keys(RUTA_INFO).length} rutas activas** en Cali — buses y gualas. Puedo decirte dónde está cada unidad en tiempo real, los tiempos de llegada, paradas y tarifas. ¿En qué te ayudo?`;
     }
 
     /* ── 8. AGRADECIMIENTOS ── */
@@ -459,7 +494,7 @@ async function simulateAIResponse(mensaje) {
 
     /* ── 10. FALLBACK ── */
     const fallbacks = [
-        "¡Aquí estoy! 🗺️ WayRoute tiene **4 rutas activas** en Cali. Podés preguntarme dónde están los buses, cuánto tarda en llegar, el precio o las paradas. ¿Qué necesitás?",
+        `¡Aquí estoy! 🗺️ WayRoute tiene **${Object.keys(RUTA_INFO).length} rutas activas** en Cali. Podés preguntarme dónde están los buses, cuánto tarda en llegar, el precio o las paradas. ¿Qué necesitás?`,
         "Mmm, no entendí bien vé 😄. Podés preguntarme: *¿dónde están los buses?*, *¿cuánto cuesta la ruta norte?* o *¿cuánto falta para la próxima guala?*. ¿Qué querés saber?",
         "¡A la orden! Estoy aquí para ayudarte con el transporte en Cali. ¿Buscás info de alguna ruta en específico, el tiempo de llegada o las tarifas?",
     ];

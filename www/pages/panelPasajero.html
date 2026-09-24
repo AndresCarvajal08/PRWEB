@@ -316,10 +316,6 @@
                                 <select id="selectRutaCosto" onchange="actualizarCostoRuta()"
                                     style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:.9rem;background:#fff;">
                                     <option value="">-- Elige una ruta --</option>
-                                    <option value="Especial Sur">Ruta Especial Sur (Centenario → La Ermita)</option>
-                                    <option value="Norte">Ruta Norte (Granada → Menga)</option>
-                                    <option value="Gualas Oriente">Gualas Oriente (Cra 22 → Cll 92)</option>
-                                    <option value="Sur Pryca">Ruta Sur — Pryca / U. Nariño</option>
                                 </select>
                             </div>
                             <div id="costoEstimadoDisplay" style="display:none;text-align:center;padding:12px 20px;background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.08);min-width:130px;">
@@ -2635,19 +2631,26 @@
         // El mapa y sus rutas se gestionan desde js/services/MapaService.js
 
         // ===== P-HU-08: COSTO ESTIMADO POR RUTA =====
-        const TARIFAS_RUTA = {
-            'Especial Sur':  2950,
-            'Norte':         3100,
-            'Gualas Oriente':2800,
-            'Sur Pryca':     3200
-        };
+        // Antes eran dos listas fijas de 4 rutas, con una clave ("Sur Pryca")
+        // que ni siquiera coincidía con la real ("Sur — Pryca/U.Nariño"), así
+        // que la Calle 17 no podía aparecer aquí por más que existiera en el
+        // resto del sistema. Ahora se reutiliza RUTAS_DISPONIBLES (la misma
+        // fuente real que usa el buscador de destino), sin datos aparte.
+        function poblarSelectRutaCosto() {
+            const sel = document.getElementById('selectRutaCosto');
+            if (!sel || sel.options.length > 1) return; // ya poblado
+            RUTAS_DISPONIBLES.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.clave;
+                opt.textContent = `${r.nombre} (${r.origen} → ${r.destino})`;
+                sel.appendChild(opt);
+            });
+        }
+        setTimeout(poblarSelectRutaCosto, 500);
 
-        const RUTA_META = {
-            'Especial Sur':   { codigo: 'G-07', nombre: 'Ruta Especial Sur',  origen: 'La Ermita',     destino: 'Centenario'       },
-            'Norte':          { codigo: 'B-22A', nombre: 'Ruta Norte',         origen: 'Granada (Cll 22N)', destino: 'Santa Mónica' },
-            'Gualas Oriente': { codigo: 'G-12', nombre: 'Gualas Oriente',     origen: 'Cra 22',        destino: 'Cll 92'           },
-            'Sur Pryca':      { codigo: 'B-14', nombre: 'Ruta Sur',           origen: 'Pryca (Cra 86)', destino: 'U. Antonio Nariño'}
-        };
+        function tarifaNumerica(r) {
+            return r ? parseInt(String(r.tarifa).replace(/\D/g, ''), 10) || 0 : 0;
+        }
 
         function actualizarCostoRuta() {
             const sel     = document.getElementById('selectRutaCosto');
@@ -2661,9 +2664,9 @@
                 return;
             }
 
-            const tarifa = TARIFAS_RUTA[ruta] || 3500;
-            document.getElementById('costoValor').textContent = '$' + tarifa.toLocaleString('es-CO');
-            document.getElementById('costoRutaNombre').textContent = RUTA_META[ruta]?.nombre || ruta;
+            const info = RUTAS_DISPONIBLES.find(r => r.clave === ruta);
+            document.getElementById('costoValor').textContent = info ? info.tarifa : '$3.500';
+            document.getElementById('costoRutaNombre').textContent = info ? info.nombre : ruta;
             display.style.display = 'block';
             btnReg.style.display  = 'flex';
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -2923,13 +2926,12 @@
 
         function abrirModalViaje() {
             const ruta = document.getElementById('selectRutaCosto').value;
-            const meta = RUTA_META[ruta] || {};
-            const costo = TARIFAS_RUTA[ruta] || 0;
-            document.getElementById('viajeRuta').value     = meta.nombre || ruta;
-            document.getElementById('viajeRutaCod').value  = meta.codigo || ruta;
-            document.getElementById('viajeCosto').value    = costo;
-            document.getElementById('viajeOrigen').value   = document.getElementById('quickOrigin')?.value || meta.origen || '';
-            document.getElementById('viajeDestino').value  = document.getElementById('quickDest')?.value  || meta.destino || '';
+            const info = RUTAS_DISPONIBLES.find(r => r.clave === ruta) || {};
+            document.getElementById('viajeRuta').value     = info.nombre || ruta;
+            document.getElementById('viajeRutaCod').value  = info.clave || ruta;
+            document.getElementById('viajeCosto').value    = tarifaNumerica(info);
+            document.getElementById('viajeOrigen').value   = document.getElementById('quickOrigin')?.value || info.origen || '';
+            document.getElementById('viajeDestino').value  = document.getElementById('quickDest')?.value  || info.destino || '';
             document.getElementById('viajeDuracion').value = '';
             document.getElementById('errViaje').style.display = 'none';
             document.getElementById('modalViaje').style.display = 'flex';
