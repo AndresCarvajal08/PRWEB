@@ -64,7 +64,7 @@ const RESPUESTA_POR_RUTA = {
     'Gualas Oriente': "🟢 ¡Las **Gualas del Oriente** están operando con 3 unidades! Recorren desde la **Carrera 22** hasta la **Calle 92**, pasando por Calle 53 y Calle 72W. Son camperos 4x4 ideales para el sector oriental. Tarifa: **$2.800**. ¿Te ayudo con algo más?",
     'Sur — Pryca/U.Nariño': "🟠 La **Ruta Sur** conecta **Pryca (Carrera 86)** con la **Universidad Antonio Nariño (Carrera 108)**, pasando por las carreras 94, 98B y 102. Opera con 3 buses naranjas. Tarifa: **$3.200**. ¿Querés saber el tiempo estimado de llegada?",
     'Especial Sur': "🔴 La **Ruta Especial Sur** tiene 4 buses rojos operando. Sale de **La Ermita** y recorre 7 paradas por el centro-sur de Cali. Tarifa: **$2.950**. ¿Te digo dónde están los buses ahora mismo?",
-    'Calle 17': "🟣 La **Ruta Calle 17** recorre toda la Calle 17 de sur a norte, con 3 buses morados. Pasa por las carreras 34, 32, 29B y 28. Tarifa: **$3.000**. ¿Querés saber cuánto falta para que pase por tu parada?",
+    'Calle 17': "🟣 La **Ruta Calle 17** hace un circuito de ida y vuelta sobre la Calle 17, con 3 buses morados. Pasa por Carrera 30 (El Jardín), Carrera 29B y Carrera 23 (Guayaquil). Tarifa: **$3.000**. ¿Querés saber cuánto falta para que pase por tu parada?",
 };
 
 // ─────────────────────────────────────────────
