@@ -29,6 +29,17 @@ const TurnoModel = {
     async iniciarTurno(conductorId, ruta, numeroBus = null) {
         if (!window.supabaseClient) return { ok: false, error: 'Sin conexión.' };
 
+        // Cierra cualquier turno anterior de este mismo conductor que haya
+        // quedado "activo" sin finalizar (ej. si refrescó la página o cerró
+        // la pestaña sin darle a Finalizar Turno). Un conductor solo puede
+        // tener un turno activo a la vez, si no, el pasajero ve dos buses
+        // resaltados como si hubiera dos conductores reales en la ruta.
+        await window.supabaseClient
+            .from('turnos')
+            .update({ hora_fin: new Date().toTimeString().slice(0, 5), estado: 'completado' })
+            .eq('conductor_id', conductorId)
+            .eq('estado', 'activo');
+
         const nuevoTurno = {
             conductor_id: conductorId,
             fecha: new Date().toISOString().split('T')[0],
