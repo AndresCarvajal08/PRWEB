@@ -225,11 +225,16 @@
   /* ================================================================
      DIBUJAR RUTA — usa la flota ya simulada, solo agrega visuales
   ================================================================ */
-  function dibujarRuta({ puntos, paradas, color, arr, label, esGuala }) {
-    L.polyline(puntos, { color, weight: esGuala ? 3 : 4, opacity: 0.85, dashArray: esGuala ? '8,5' : null }).addTo(leafletMap);
+  function dibujarRuta(cfg) {
+    const { puntos, paradas, color, arr, label, esGuala } = cfg;
+    // Todo lo visual de esta ruta va en un mismo grupo, para poder
+    // mostrar/ocultar la ruta completa de una sola vez (ver mostrarSoloRutas).
+    const capa = L.layerGroup();
+
+    L.polyline(puntos, { color, weight: esGuala ? 3 : 4, opacity: 0.85, dashArray: esGuala ? '8,5' : null }).addTo(capa);
     paradas.forEach((p, i) => {
       L.circleMarker(p.latlng, { radius: i === 0 ? 8 : 5, color: '#fff', weight: 2, fillColor: color, fillOpacity: 1 })
-        .addTo(leafletMap)
+        .addTo(capa)
         .bindPopup(`<b>${p.nombre}</b>`)
         // bindTooltip además del popup: el nombre aparece con solo pasar el
         // mouse encima (o al tocarla en pantallas táctiles), sin necesidad
@@ -239,8 +244,11 @@
     arr.forEach((bus, i) => {
       const icon = esGuala ? crearIconoGuala(i + 1) : crearIconoBus(i + 1, color);
       bus.marker = L.marker(posicionEnMetros(bus.puntos, bus.distAcum, bus.metros), { icon, zIndexOffset: 1000 })
-        .addTo(leafletMap).bindPopup(`<b>${label} ${i + 1}</b>`);
+        .addTo(capa).bindPopup(`<b>${label} ${i + 1}</b>`);
     });
+
+    capa.addTo(leafletMap);
+    cfg.layerGroup = capa;
   }
 
   /* ================================================================
@@ -347,6 +355,23 @@
 
     // Ordenar por menor tiempo de llegada
     return resultados.sort((a, b) => a.minutos - b.minutos);
+  };
+
+  /* Muestra en el mapa solo las rutas cuya clave venga en el arreglo (las
+     que tienen un conductor real en turno en este momento). Si el arreglo
+     viene vacío, se muestran todas, para que el mapa no quede en blanco
+     cuando no hay ningún turno activo. No hace nada si el mapa aún no se
+     ha abierto (layerGroup no existe todavía). */
+  window.WayRoute.mostrarSoloRutas = function (clavesActivas) {
+    if (!leafletMap) return;
+    const mostrarTodas = !clavesActivas || clavesActivas.length === 0;
+    RUTAS_CONFIG.forEach(cfg => {
+      if (!cfg.layerGroup) return;
+      const debeMostrarse = mostrarTodas || clavesActivas.includes(cfg.clave);
+      const yaVisible = leafletMap.hasLayer(cfg.layerGroup);
+      if (debeMostrarse && !yaVisible) cfg.layerGroup.addTo(leafletMap);
+      if (!debeMostrarse && yaVisible) leafletMap.removeLayer(cfg.layerGroup);
+    });
   };
 
   /* Configuración pública de rutas (clave + cuántos buses simula cada una).

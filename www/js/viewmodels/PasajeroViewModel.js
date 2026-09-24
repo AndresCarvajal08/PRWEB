@@ -104,6 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof window.fijarContextoRutaIA === 'function') {
             window.fijarContextoRutaIA(activos[0]?.ruta || null);
         }
+
+        // El mapa muestra solo las rutas con conductor real en turno ahora
+        // mismo. Si no hay ningún turno activo, se ven todas (para no dejar
+        // el mapa vacío cuando nadie ha iniciado turno).
+        if (typeof window.WayRoute?.mostrarSoloRutas === 'function') {
+            const clavesConTurno = [...new Set(activos.filter(t => t.ruta).map(t => t.ruta))];
+            window.WayRoute.mostrarSoloRutas(clavesConTurno);
+        }
     }
     sincronizarTurnosActivos();
     setInterval(sincronizarTurnosActivos, 7000);
