@@ -244,7 +244,7 @@
                 <div class="view" id="view-miRuta">
                     <div class="page-header">
                         <h1>Mi Ruta Activa</h1>
-                        <p>Vista del conductor — Guala G-07 · Coopcencar</p>
+                        <p id="miRutaSubtitulo">Inicia un turno para ver tu recorrido en el mapa.</p>
                     </div>
                     <div class="grid-2">
                         <div>
@@ -252,47 +252,19 @@
                                 <div
                                     style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
                                     <div>
-                                        <div style="font-size:1.3rem;font-weight:700;">Guala G-07</div>
-                                        <div class="text-sm text-gray">Centenario → Unicentro</div>
+                                        <div style="font-size:1.3rem;font-weight:700;" id="miRutaNombre">Sin turno activo</div>
+                                        <div class="text-sm text-gray" id="miRutaBus">—</div>
                                     </div>
-                                    <span class="tag tag-green">En servicio</span>
+                                    <span class="tag tag-green" id="miRutaEstadoTag">En servicio</span>
                                 </div>
                                 <div style="font-size:.82rem;font-weight:600;color:var(--gray-500);margin-bottom:10px;">
-                                    Recorrido completo</div>
-                                <div class="route-stop-row">
-                                    <div class="route-stop">
-                                        <div class="route-stop-dot done"></div>
-                                        <div class="route-stop-name">Centenario</div>
-                                    </div>
-                                    <div class="route-stop-line"></div>
-                                    <div class="route-stop">
-                                        <div class="route-stop-dot done"></div>
-                                        <div class="route-stop-name">Av.6N Cll34</div>
-                                    </div>
-                                    <div class="route-stop-line"></div>
-                                    <div class="route-stop">
-                                        <div class="route-stop-dot current"></div>
-                                        <div class="route-stop-name" style="font-weight:700;color:var(--amber);">◀ Aquí
-                                        </div>
-                                    </div>
-                                    <div class="route-stop-line pending"></div>
-                                    <div class="route-stop">
-                                        <div class="route-stop-dot"></div>
-                                        <div class="route-stop-name">Parque Perro</div>
-                                    </div>
-                                    <div class="route-stop-line pending"></div>
-                                    <div class="route-stop">
-                                        <div class="route-stop-dot"></div>
-                                        <div class="route-stop-name">Unicentro</div>
-                                    </div>
+                                    Modo demostración: la posición del bus avanza simulada sobre el trazado real de la ruta.
                                 </div>
-                                <div style="margin-top:16px;">
-                                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span
-                                            class="text-sm">Progreso del recorrido</span><span
-                                            class="text-sm text-gray">3 de 5 paradas</span></div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width:60%;"></div>
-                                    </div>
+                                <div id="leafletMap" style="height:280px;border-radius:var(--radius-sm);overflow:hidden;margin-bottom:14px;"></div>
+                                <div style="font-size:.82rem;font-weight:600;color:var(--gray-500);margin-bottom:10px;">
+                                    Paradas de la ruta</div>
+                                <div class="route-stop-row" id="miRutaParadasRow">
+                                    <div class="text-sm text-gray">Sin datos todavía.</div>
                                 </div>
                             </div>
 
@@ -668,6 +640,7 @@
     <!-- Lógica de Retrocompatibilidad (se mantienen para no romper logins/mapas) -->
     <script src="../js/services/AuthService.js"></script>
     <script src="../js/services/AlertaService.js"></script>
+    <script src="../js/services/MapaService.js"></script>
 
     <!-- ── INIT CONDUCTOR ── -->
     <script src="../js/viewmodels/ConductorViewModel.js"></script>
@@ -778,6 +751,57 @@
         // con la ruta y el bus del turno realmente activo (no el registrado al crear la cuenta).
         window.WayRouteTurnoActivo = null;
 
+        // ── "Mi Ruta Activa": muestra en el mapa el recorrido simulado de la
+        // ruta que el conductor eligió al iniciar turno, con su propio bus
+        // resaltado, igual que ve el pasajero pero desde el lado del conductor. ──
+        function sincronizarMiRutaActiva() {
+            const subt = document.getElementById('miRutaSubtitulo');
+            const nombreEl = document.getElementById('miRutaNombre');
+            const busEl = document.getElementById('miRutaBus');
+            const paradasRow = document.getElementById('miRutaParadasRow');
+            const turno = window.WayRouteTurnoActivo;
+
+            if (!turno) {
+                if (subt) subt.textContent = 'Inicia un turno para ver tu recorrido en el mapa.';
+                if (nombreEl) nombreEl.textContent = 'Sin turno activo';
+                if (busEl) busEl.textContent = '—';
+                if (paradasRow) paradasRow.innerHTML = '<div class="text-sm text-gray">Sin datos todavía.</div>';
+                window.WayRoute?.mostrarSoloRutas?.([]);
+                return;
+            }
+
+            const { ruta, numeroBus } = turno;
+            if (subt) subt.textContent = 'Vista del conductor — ' + ruta;
+            if (nombreEl) nombreEl.textContent = ruta;
+            if (busEl) busEl.textContent = 'Bus ' + numeroBus;
+
+            window.WayRoute?.mostrarSoloRutas?.([ruta]);
+            const sesionActual = window.SesionModel ? window.SesionModel.getSesion() : null;
+            window.WayRoute?.resaltarBusActivo?.(ruta, numeroBus, {
+                nombre: sesionActual?.nombre || 'Tú',
+                horaInicio: _turnoActivo?.hora_inicio
+            });
+
+            const cfg = (window.WayRoute?.getConfigRutas?.() || []).find(r => r.clave === ruta);
+            if (!cfg || !paradasRow) return;
+
+            const posiciones = window.WayRoute?.obtenerPosicionBuses?.() || [];
+            const miPos = posiciones.find(p => p.ruta === ruta && p.numero === numeroBus);
+
+            paradasRow.innerHTML = cfg.paradas.map((nombreParada, i) => {
+                const esActual = miPos && miPos.paradaCercana === nombreParada;
+                const esUltima = i === cfg.paradas.length - 1;
+                return `
+                    <div class="route-stop">
+                        <div class="route-stop-dot${esActual ? ' current' : (esUltima ? '' : ' start')}"></div>
+                        <div class="route-stop-name"${esActual ? ' style="font-weight:700;color:var(--amber);"' : ''}>${nombreParada}${esActual ? ' ◀ Cerca' : ''}</div>
+                    </div>
+                    ${esUltima ? '' : '<div class="route-stop-line"></div>'}`;
+            }).join('');
+        }
+        setTimeout(sincronizarMiRutaActiva, 1000);
+        setInterval(sincronizarMiRutaActiva, 5000);
+
         window.confirmarInicioTurno = async function() {
             const ruta = document.getElementById('selectRutaTurno').value;
             const numeroBus = parseInt(document.getElementById('selectBusTurno').value, 10);
@@ -803,6 +827,7 @@
             }
 
             window.WayRouteTurnoActivo = { ruta, numeroBus };
+            sincronizarMiRutaActiva();
 
             _vueltasActuales = 0;
             _reportesActuales = 0;
@@ -863,6 +888,7 @@
 
             _turnoActivo = null;
             window.WayRouteTurnoActivo = null;
+            sincronizarMiRutaActiva();
             document.getElementById('estadoSinTurno').style.display = 'block';
             document.getElementById('estadoConTurno').style.display = 'none';
             document.getElementById('statsRow').style.display = 'none';

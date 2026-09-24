@@ -289,11 +289,12 @@
     // La flota se simula desde el arranque, sin esperar a que se abra el mapa
     iniciarFlota();
 
+    // 'mapa' es la vista del pasajero, 'miRuta' es "Mi Ruta Activa" del conductor.
     if (typeof window.navigate === 'function') {
       const _orig = window.navigate;
-      window.navigate = function (view) { _orig(view); if (view === 'mapa') setTimeout(iniciarMapa, 120); };
+      window.navigate = function (view) { _orig(view); if (view === 'mapa' || view === 'miRuta') setTimeout(iniciarMapa, 120); };
     }
-    const vm = document.getElementById('view-mapa');
+    const vm = document.getElementById('view-mapa') || document.getElementById('view-miRuta');
     if (vm?.classList.contains('active')) setTimeout(iniciarMapa, 250);
   });
 
