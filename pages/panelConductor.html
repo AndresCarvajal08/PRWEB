@@ -83,6 +83,11 @@
                             <p id="shiftInfo">Cargando información del turno...</p>
                         </div>
                         <div style="display:flex;gap:10px;align-items:center;">
+                            <button id="btnEmergenciaConductor" onclick="activarEmergenciaConductor()"
+                                title="Registra tu ubicación y notifica una emergencia de inmediato"
+                                style="display:flex;align-items:center;gap:8px;padding:10px 18px;background:#dc2626;color:#fff;border:none;border-radius:var(--radius-sm);font-weight:700;font-size:.9rem;cursor:pointer;box-shadow:0 0 0 3px rgba(220,38,38,.15);">
+                                <i data-lucide="siren" style="width:18px;height:18px;"></i> Emergencia
+                            </button>
                             <button id="btnIniciarTurno" onclick="abrirModalTurno()"
                                 style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-weight:600;font-size:.9rem;cursor:pointer;">
                                 <i data-lucide="play-circle" style="width:18px;height:18px;"></i> Iniciar Turno
@@ -699,6 +704,35 @@
         };
 
         // C-HU-07: Compartir reporte con los datos actuales del formulario
+        // ── BOTÓN DE EMERGENCIA: registra ubicación GPS y notifica de inmediato ──
+        // Reutiliza el mismo camino ya probado del reporte rápido de seguridad
+        // (captura GPS, guarda en Supabase con severidad alta, dispara la
+        // notificación push al pasajero), con un título propio para que quede
+        // identificado como emergencia y no como un incidente de seguridad más.
+        window.activarEmergenciaConductor = async function() {
+            const confirmado = confirm(
+                '¿Confirmas que quieres activar la EMERGENCIA?\n\n' +
+                'Se registrará tu ubicación y se notificará de inmediato a los pasajeros.'
+            );
+            if (!confirmado) return;
+
+            const btn = document.getElementById('btnEmergenciaConductor');
+            if (btn) { btn.disabled = true; btn.innerHTML = 'Enviando...'; }
+
+            const vm = window.AlertaViewModel || window.AlertaController;
+            if (vm) {
+                await vm.reportar('seguridad', 'Emergencia del conductor');
+            } else {
+                showToast('No se pudo enviar la emergencia. Intenta desde Reportar Incidencia.');
+            }
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="siren" style="width:18px;height:18px;"></i> Emergencia';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        };
+
         window.compartirReporteActual = function() {
             const tipo   = document.getElementById('formTipoIncidencia')?.options[document.getElementById('formTipoIncidencia')?.selectedIndex]?.text || '—';
             const desc   = document.getElementById('formDescIncidencia')?.value || '—';

@@ -131,12 +131,16 @@ const AlertaViewModel = {
 
     /**
      * Recibe los datos del form del conductor y crea la alerta.
+     * @param {string|null} tipoRapido
+     * @param {string|null} tituloOverride - Usado por el botón de Emergencia
+     *   para que quede claramente identificado como tal, en vez de un
+     *   "Incidente de seguridad" genérico.
      */
-    async reportar(tipoRapido = null) {
+    async reportar(tipoRapido = null, tituloOverride = null) {
         if (!window.AlertaModel || !window.SesionModel) return;
         const sesion = window.SesionModel.getSesion();
         const usuarioFull = window.SesionModel.getUsuarioCompleto();
-        
+
         let datos = {};
 
         // Si hay un turno realmente activo (con ruta y bus elegidos al iniciar turno),
@@ -147,8 +151,8 @@ const AlertaViewModel = {
         if (tipoRapido) {
             datos = {
                 tipo: tipoRapido,
-                titulo: window.AlertaModel.getEtiquetaTipo(tipoRapido),
-                descripcion: 'Reporte rápido vía UI de conductor.',
+                titulo: tituloOverride || window.AlertaModel.getEtiquetaTipo(tipoRapido),
+                descripcion: tituloOverride ? 'Botón de emergencia activado por el conductor.' : 'Reporte rápido vía UI de conductor.',
                 ubicacion: "Ubicación actual",
                 ruta: rutaActiva,
                 conductorId: sesion.id,
