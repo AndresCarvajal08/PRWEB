@@ -8,6 +8,7 @@
 
 const AlertaViewModel = {
     _interval: null,
+    _idsConocidos: null,
 
     /**
      * Inicializa la sincronización periódica de alertas.
@@ -51,7 +52,22 @@ const AlertaViewModel = {
         if (!window.AlertaModel || !window.AlertaView) return;
 
         const alertas = await window.AlertaModel.obtener();
-        
+
+        // Aviso en pantalla al pasajero cuando llega una alerta nueva. En la
+        // primera sincronización solo se establece la línea base (para no
+        // notificar de golpe todas las alertas que ya existían); al
+        // conductor no se le avisa aquí porque ya recibe su propio toast al
+        // enviar el reporte.
+        if (!esConductor) {
+            const idsActuales = new Set(alertas.map(a => a.id));
+            if (this._idsConocidos) {
+                alertas
+                    .filter(a => !this._idsConocidos.has(a.id))
+                    .forEach(a => this._notificarAlertaNueva(a));
+            }
+            this._idsConocidos = idsActuales;
+        }
+
         // 1. Vista global (Alertas tab)
         const listContainer = document.getElementById('globalAlertsContainer') || document.getElementById('alertsListDisplay');
         if (listContainer) {
@@ -80,6 +96,19 @@ const AlertaViewModel = {
                 window.AlertaView.renderTablaReportes(misReportesRecientes, 'bodyReportesRecientes', misReportesTotal);
             }
         }
+    },
+
+    /* Muestra el aviso en pantalla. panelPasajero.html usa una función
+       showToast() propia; panelConductor.html usa window.Toast.show(); se
+       intentan ambas para que funcione sin importar en cuál página corra. */
+    _notificarAlertaNueva(alerta) {
+        const partes = [alerta.titulo || alerta.tipo || 'Nueva alerta'];
+        if (alerta.ruta) partes.push('Ruta ' + alerta.ruta);
+        if (alerta.ubicacion) partes.push(alerta.ubicacion);
+        const msg = 'Alerta del conductor: ' + partes.join(', ');
+
+        if (typeof window.showToast === 'function') window.showToast(msg, 6000);
+        else if (window.Toast?.show) window.Toast.show(msg);
     },
 
     /**
