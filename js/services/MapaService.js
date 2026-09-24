@@ -116,6 +116,45 @@
     return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
   }
 
+  // Marca (distancia acumulada) del punto de la ruta más cercano a una parada.
+  function marcaDeParada(puntos, distAcum, latlng) {
+    let mejorIdx = 0, mejorDist = Infinity;
+    for (let i = 0; i < puntos.length; i++) {
+      const d = distanciaMetros(latlng, puntos[i]);
+      if (d < mejorDist) { mejorDist = d; mejorIdx = i; }
+    }
+    return distAcum[mejorIdx];
+  }
+
+  /* Antes se buscaba la parada geográficamente más cercana al bus, sin
+     importar si ya la había pasado o si estaba en el otro extremo de la
+     ruta. Con paradas repartidas cada pocos cientos de metros, eso hacía
+     que casi cualquier bus, en casi cualquier momento, estuviera "cerca"
+     de alguna parada, y por eso casi todos los tiempos de llegada salían
+     de 1 o 2 minutos. Ahora se busca la próxima parada en el sentido de
+     viaje del bus, avanzando por la ruta, no la más cercana en línea recta. */
+  function proximaParadaAdelante(metrosActuales, totalRuta, paradasConMarca) {
+    const m = ((metrosActuales % totalRuta) + totalRuta) % totalRuta;
+    let candidata = paradasConMarca[0], mejorRestante = Infinity;
+    paradasConMarca.forEach(p => {
+      let restante = p.marca - m;
+      if (restante <= 0) restante += totalRuta; // ya la pasó: la próxima vez es toda la vuelta
+      if (restante < mejorRestante) { mejorRestante = restante; candidata = p; }
+    });
+    return { parada: candidata, distanciaMetros: mejorRestante };
+  }
+
+  /* Factor de tráfico según la hora real del dispositivo. Los buses no van
+     más lento en el mapa (para no romper la animación en vivo), pero el
+     tiempo estimado de llegada sí lo refleja, igual que cualquier app de
+     transporte real ajusta su estimado según la hora del día. */
+  function factorTrafico() {
+    const h = new Date().getHours();
+    if ((h >= 7 && h < 9) || (h >= 17 && h < 19)) return 0.5;   // hora pico: trancón
+    if ((h >= 6 && h < 7) || (h >= 9 && h < 10) || (h >= 16 && h < 17) || (h >= 19 && h < 20)) return 0.75; // moderado
+    return 1; // fluido
+  }
+
   function crearIconoBus(numero, color) {
     return L.divIcon({
       className: '',
@@ -166,11 +205,17 @@
     if (flotaIniciada) return;
     flotaIniciada = true;
 
-    RUTAS_CONFIG.forEach(({ puntos, numV, arr }) => {
-      const distAcum = calcularDistanciasAcumuladas(puntos);
+    RUTAS_CONFIG.forEach(cfg => {
+      const distAcum = calcularDistanciasAcumuladas(cfg.puntos);
       const total = distAcum[distAcum.length - 1];
-      for (let i = 0; i < numV; i++) {
-        arr.push({ offsetMetros: (total / numV) * i, metros: 0, puntos, distAcum, marker: null });
+      cfg.paradasConMarca = cfg.paradas.map(p => ({ ...p, marca: marcaDeParada(cfg.puntos, distAcum, p.latlng) }));
+      for (let i = 0; i < cfg.numV; i++) {
+        cfg.arr.push({
+          offsetMetros: (total / cfg.numV) * i, metros: 0, puntos: cfg.puntos, distAcum, marker: null,
+          // Variación propia por bus (0.85x a 1.15x), para que no todos den
+          // exactamente el mismo tiempo de llegada aunque vayan a la par.
+          factorPropio: 0.85 + Math.random() * 0.3
+        });
       }
     });
 
@@ -262,23 +307,14 @@
   };
 
   window.WayRoute.obtenerPosicionBuses = function () {
-    const flotas = [
-      [busesRuta1, RUTA1_PARADAS, 'Especial Sur'],
-      [busesRuta2, RUTA2_PARADAS, 'Norte'],
-      [busesRuta3, RUTA3_PARADAS, 'Gualas Oriente'],
-      [busesRuta4, RUTA4_PARADAS, 'Sur — Pryca/U.Nariño'],
-      [busesRuta5, RUTA5_PARADAS, 'Calle 17'],
-    ];
     const res = [];
-    flotas.forEach(([flota, paradas, nombre]) => {
-      flota.forEach((bus, i) => {
-        const pos = posicionEnMetros(bus.puntos, bus.distAcum, bus.metros);
-        let pProx = paradas[0], dMin = Infinity;
-        paradas.forEach(p => { const d = distanciaMetros(pos, p.latlng); if (d < dMin) { dMin = d; pProx = p; } });
+    RUTAS_CONFIG.forEach(cfg => {
+      cfg.arr.forEach((bus, i) => {
         const tot = bus.distAcum[bus.distAcum.length - 1];
+        const { parada, distanciaMetros } = proximaParadaAdelante(bus.metros, tot, cfg.paradasConMarca);
         res.push({
-          ruta: nombre, numero: i + 1, paradaCercana: pProx.nombre,
-          distanciaMetros: Math.round(dMin), porcentajeRuta: Math.round(((bus.metros % tot) / tot) * 100)
+          ruta: cfg.clave, numero: i + 1, paradaCercana: parada.nombre,
+          distanciaMetros: Math.round(distanciaMetros), porcentajeRuta: Math.round(((bus.metros % tot + tot) % tot / tot) * 100)
         });
       });
     });
@@ -286,26 +322,16 @@
   };
 
   window.WayRoute.tiempoLlegadaProximo = function () {
-    const flotas = [
-      [busesRuta1, RUTA1_PARADAS, 'Especial Sur'],
-      [busesRuta2, RUTA2_PARADAS, 'Norte'],
-      [busesRuta3, RUTA3_PARADAS, 'Gualas Oriente'],
-      [busesRuta4, RUTA4_PARADAS, 'Sur — Pryca/U.Nariño'],
-      [busesRuta5, RUTA5_PARADAS, 'Calle 17'],
-    ];
-
+    const traf = factorTrafico();
     const resultados = [];
-    flotas.forEach(([flota, paradas, nombreRuta]) => {
-      flota.forEach((bus, i) => {
-        const pos = posicionEnMetros(bus.puntos, bus.distAcum, bus.metros);
-        let pProx = paradas[0], dMin = Infinity;
-        paradas.forEach(p => {
-          const d = distanciaMetros(pos, p.latlng);
-          if (d < dMin) { dMin = d; pProx = p; }
-        });
-        const minutos = Math.max(1, Math.round(dMin / VELOCIDAD_MS / 60));
+    RUTAS_CONFIG.forEach(cfg => {
+      cfg.arr.forEach((bus, i) => {
+        const tot = bus.distAcum[bus.distAcum.length - 1];
+        const { parada: pProx, distanciaMetros: dMin } = proximaParadaAdelante(bus.metros, tot, cfg.paradasConMarca);
+        const velocidadEfectiva = VELOCIDAD_MS * traf * bus.factorPropio;
+        const minutos = Math.max(1, Math.round(dMin / velocidadEfectiva / 60));
         resultados.push({
-          ruta: nombreRuta,
+          ruta: cfg.clave,
           busProximo: i + 1,
           parada: pProx.nombre,
           distanciaMetros: Math.round(dMin),
