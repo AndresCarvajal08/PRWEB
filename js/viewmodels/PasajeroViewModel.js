@@ -7,12 +7,23 @@
  * ============================================================
  */
 
+console.log('[PasajeroViewModel] archivo cargado, version con seguimiento de turnos activos');
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('[PasajeroViewModel] DOMContentLoaded disparado');
+
     // 1. Verificar autenticación
-    if (!window.AuthViewModel && !window.AuthController) return;
+    if (!window.AuthViewModel && !window.AuthController) {
+        console.warn('[PasajeroViewModel] Se detiene: no existe window.AuthViewModel ni window.AuthController');
+        return;
+    }
     const _auth = window.AuthViewModel || window.AuthController;
     const sesion = _auth.requireAuth('pasajero');
-    if (!sesion) return;
+    if (!sesion) {
+        console.warn('[PasajeroViewModel] Se detiene: requireAuth("pasajero") no devolvió sesión');
+        return;
+    }
+    console.log('[PasajeroViewModel] Sesión OK, continuando inicialización', sesion);
 
     // 2. Inicializar Vistas Básicas
     let usuarioFull = window.SesionModel ? window.SesionModel.getUsuarioCompleto() : null;
@@ -47,8 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // que el resto de la flota simulada (ver MapaService.resaltarBusActivo). ──
     let _busesResaltados = new Set();
     async function sincronizarTurnosActivos() {
-        if (!window.TurnoModel || !window.WayRoute) return;
+        if (!window.TurnoModel || !window.WayRoute) {
+            console.warn('[PasajeroViewModel] sincronizarTurnosActivos: falta window.TurnoModel o window.WayRoute, se detiene.',
+                { TurnoModel: !!window.TurnoModel, WayRoute: !!window.WayRoute });
+            return;
+        }
         const activos = await window.TurnoModel.obtenerActivos();
+        console.log('[PasajeroViewModel] Turnos activos encontrados:', activos.length, activos);
 
         const nombresPorId = activos.length && window.UsuarioModel
             ? await window.UsuarioModel.obtenerNombresPorIds(activos.map(t => t.conductor_id))
@@ -70,6 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!resaltado) {
                 console.warn('[PasajeroViewModel] No se pudo resaltar el bus, revisa que "' + t.ruta +
                     '" coincida exactamente con una clave de MapaService y que el mapa ya se haya abierto una vez.');
+            } else {
+                console.log('[PasajeroViewModel] Bus resaltado con éxito:', t.ruta, 'bus', t.numero_bus, 'conductor', nombre);
             }
             _busesResaltados.add(clave);
         });
