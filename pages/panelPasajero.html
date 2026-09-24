@@ -228,11 +228,16 @@
                                     min</span></div>
                             <div class="label">Próxima guala habitual</div>
                             <div class="trend up" id="statProximaGuala">Calculando...</div>
+                            <div style="display:flex;gap:4px;margin-top:8px;">
+                                <select id="selectRutaAlerta" style="flex:1;min-width:0;font-size:.68rem;padding:3px 2px;border-radius:6px;border:1px solid var(--gray-200,#e5e7eb);"></select>
+                                <select id="selectBusAlerta" style="width:52px;font-size:.68rem;padding:3px 2px;border-radius:6px;border:1px solid var(--gray-200,#e5e7eb);"></select>
+                            </div>
                             <button id="btnActivarAlerta"
                                 onclick="activarAlertaProximidad()"
-                                style="margin-top:8px;width:100%;padding:4px 8px;font-size:0.72rem;border-radius:6px;border:1px solid var(--amber);background:#fef3c7;color:#92400e;cursor:pointer;">
+                                style="margin-top:6px;width:100%;padding:4px 8px;font-size:0.72rem;border-radius:6px;border:1px solid var(--amber);background:#fef3c7;color:#92400e;cursor:pointer;">
                                 <i data-lucide="bell" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i> Activar alerta de llegada
                             </button>
+                            <div id="estadoAlertaProximidad" style="margin-top:4px;font-size:.65rem;color:var(--gray-400);"></div>
                         </div>
                         <div class="stat-card">
                             <div class="icon"
@@ -2844,21 +2849,70 @@
             );
         };
 
-        // ===== ALERTA DE PROXIMIDAD (P-HU-06) =====
+        // ===== ALERTA DE PROXIMIDAD POR UBICACIÓN REAL (P-HU-06) =====
+        // A diferencia de la versión anterior (que avisaba según distancia a
+        // la próxima parada de cualquier bus), esta mide la distancia real
+        // entre la ubicación GPS del pasajero y la posición actual de un bus
+        // y ruta específicos, elegidos en los selectores de la tarjeta.
         let _alertaProximidadInterval = null;
+        let _watchIdAlertaProximidad = null;
+        let _miUbicacionAlerta = null;
         const UMBRAL_ALERTA_METROS = 300;
+
+        function poblarSelectoresAlerta() {
+            const selRuta = document.getElementById('selectRutaAlerta');
+            const selBus = document.getElementById('selectBusAlerta');
+            if (!selRuta || !selBus || !window.WayRoute?.getConfigRutas) return;
+            if (selRuta.options.length) return; // ya poblado
+
+            const rutas = window.WayRoute.getConfigRutas();
+            selRuta.innerHTML = rutas.map(r => `<option value="${r.clave}">${r.clave}</option>`).join('');
+            // Por defecto, la ruta que pasa por Carrera 29B (Calle 17), que es la usada en la prueba
+            if (rutas.some(r => r.clave === 'Calle 17')) selRuta.value = 'Calle 17';
+
+            function actualizarBuses() {
+                const cfg = rutas.find(r => r.clave === selRuta.value);
+                const total = cfg ? cfg.numV : 3;
+                let opts = '';
+                for (let i = 1; i <= total; i++) opts += `<option value="${i}">Bus ${i}</option>`;
+                selBus.innerHTML = opts;
+                if (total >= 2) selBus.value = '2'; // bus de prueba por defecto
+            }
+            selRuta.addEventListener('change', actualizarBuses);
+            actualizarBuses();
+        }
+        setTimeout(poblarSelectoresAlerta, 800);
 
         function activarAlertaProximidad() {
             const btn = document.getElementById('btnActivarAlerta');
+            const estado = document.getElementById('estadoAlertaProximidad');
 
             // Si ya está activa, desactivar
             if (_alertaProximidadInterval) {
                 clearInterval(_alertaProximidadInterval);
                 _alertaProximidadInterval = null;
+                if (_watchIdAlertaProximidad !== null) {
+                    navigator.geolocation.clearWatch(_watchIdAlertaProximidad);
+                    _watchIdAlertaProximidad = null;
+                }
+                _miUbicacionAlerta = null;
                 btn.textContent = 'Activar alerta de llegada';
                 btn.style.background = '#fef3c7';
                 btn.style.color = '#92400e';
+                if (estado) estado.textContent = '';
                 showToast('Alerta de proximidad desactivada.');
+                return;
+            }
+
+            if (!navigator.geolocation) {
+                showToast('Tu navegador no soporta geolocalización.');
+                return;
+            }
+
+            const claveObjetivo = document.getElementById('selectRutaAlerta')?.value;
+            const busObjetivo = parseInt(document.getElementById('selectBusAlerta')?.value, 10);
+            if (!claveObjetivo || !busObjetivo) {
+                showToast('Selecciona la ruta y el bus a seguir.');
                 return;
             }
 
@@ -2870,25 +2924,46 @@
             btn.textContent = 'Desactivar alerta';
             btn.style.background = '#fbbf24';
             btn.style.color = '#fff';
-            showToast('Alerta activada — te avisamos cuando el bus esté a menos de 300m.');
+            if (estado) estado.textContent = 'Obteniendo tu ubicación real...';
+            showToast(`Alerta activada: te avisamos cuando el Bus ${busObjetivo} de ${claveObjetivo} esté a menos de 300m de ti.`);
+
+            // Sigue la ubicación real del pasajero (no una sola lectura), para
+            // que la distancia se recalcule si se mueve durante la prueba.
+            _watchIdAlertaProximidad = navigator.geolocation.watchPosition(
+                pos => {
+                    _miUbicacionAlerta = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                    if (estado) estado.textContent = 'Ubicación activa · siguiendo Bus ' + busObjetivo + ' de ' + claveObjetivo;
+                },
+                err => {
+                    console.warn('[AlertaProximidad] No se pudo obtener ubicación real:', err.message);
+                    if (estado) estado.textContent = 'No se pudo obtener tu ubicación (revisa permisos del navegador).';
+                },
+                { enableHighAccuracy: true, maximumAge: 15000, timeout: 10000 }
+            );
 
             _alertaProximidadInterval = setInterval(() => {
-                if (!window.WayRoute?.tiempoLlegadaProximo) return;
-                const tiempos = window.WayRoute.tiempoLlegadaProximo();
-                if (!tiempos?.length) return;
+                if (!_miUbicacionAlerta || !window.WayRoute?.posicionBus || !window.WayRoute?.distanciaEntre) return;
 
-                const proximo = tiempos[0];
-                if (proximo.distanciaMetros <= UMBRAL_ALERTA_METROS) {
-                    const msg = `Bus ${proximo.busProximo} de ${proximo.ruta} llega en ${proximo.minutos} min a ${proximo.parada}`;
+                const posBus = window.WayRoute.posicionBus(claveObjetivo, busObjetivo);
+                if (!posBus) return;
 
-                    // Notificación nativa (funciona en segundo plano)
+                const distancia = window.WayRoute.distanciaEntre(
+                    _miUbicacionAlerta.lat, _miUbicacionAlerta.lng, posBus.lat, posBus.lng
+                );
+
+                if (distancia <= UMBRAL_ALERTA_METROS) {
+                    const msg = `El Bus ${busObjetivo} de ${claveObjetivo} está a ${Math.round(distancia)} m de tu ubicación`;
+
                     if ('Notification' in window && Notification.permission === 'granted') {
                         new Notification('WayRoute — Bus próximo', { body: msg, icon: '../assets/icons/icon-192.png' });
                     }
-
-                    showToast(msg, 6000);
+                    if (typeof window.mostrarNotificacionPush === 'function') {
+                        window.mostrarNotificacionPush('Bus próximo a tu ubicación', msg);
+                    } else {
+                        showToast(msg, 6000);
+                    }
                 }
-            }, 15000);
+            }, 10000);
         }
     </script>
     <!-- Scripts de la Aplicación -->

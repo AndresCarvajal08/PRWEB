@@ -350,6 +350,23 @@
     return RUTAS_CONFIG.map(cfg => ({ clave: cfg.clave, numV: cfg.numV, label: cfg.label, esGuala: cfg.esGuala }));
   };
 
+  /* Posición real actual [lat,lng] de un bus específico. La usa la alerta de
+     proximidad del pasajero para medir la distancia contra su ubicación GPS
+     real, en vez de contra una parada fija. */
+  window.WayRoute.posicionBus = function (clave, numeroBus) {
+    const cfg = RUTAS_CONFIG.find(c => c.clave === clave);
+    const bus = cfg && cfg.arr[numeroBus - 1];
+    if (!bus) return null;
+    const [lat, lng] = posicionEnMetros(bus.puntos, bus.distAcum, bus.metros);
+    return { lat, lng };
+  };
+
+  /* Distancia en metros entre dos puntos [lat,lng]. Expuesta para que el
+     pasajero pueda comparar su ubicación real contra la de un bus. */
+  window.WayRoute.distanciaEntre = function (lat1, lng1, lat2, lng2) {
+    return distanciaMetros([lat1, lng1], [lat2, lng2]);
+  };
+
   /* Resalta en el mapa el bus que tiene un turno real activo, con los datos
      del conductor. No mueve el bus ni cambia su ruta, solo cambia su ícono
      y su popup. Si el mapa aun no se ha abierto (marker null), no hace nada
