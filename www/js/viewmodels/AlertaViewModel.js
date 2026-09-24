@@ -109,19 +109,23 @@ const AlertaViewModel = {
        showToast() propia; panelConductor.html usa window.Toast.show(); se
        intentan ambas para que funcione sin importar en cuál página corra. */
     _notificarAlertaNueva(alerta) {
-        const partes = [alerta.titulo || alerta.tipo || 'Nueva alerta'];
+        const titulo = alerta.titulo || alerta.tipo || 'Alerta del conductor';
+        const partes = [];
         if (alerta.ruta) partes.push('Ruta ' + alerta.ruta);
         if (alerta.ubicacion) partes.push(alerta.ubicacion);
-        const msg = 'Alerta del conductor: ' + partes.join(', ');
+        const mensaje = partes.join(', ');
 
-        if (typeof window.showToast === 'function') {
-            console.log('[AlertaViewModel] Notificando con window.showToast():', msg);
-            window.showToast(msg, 6000);
+        if (typeof window.mostrarNotificacionPush === 'function') {
+            console.log('[AlertaViewModel] Notificando con window.mostrarNotificacionPush():', titulo, mensaje);
+            window.mostrarNotificacionPush(titulo, mensaje);
+        } else if (typeof window.showToast === 'function') {
+            console.log('[AlertaViewModel] Notificando con window.showToast():', titulo, mensaje);
+            window.showToast('Alerta del conductor: ' + titulo + (mensaje ? ', ' + mensaje : ''), 6000);
         } else if (window.Toast?.show) {
-            console.log('[AlertaViewModel] Notificando con window.Toast.show():', msg);
-            window.Toast.show(msg);
+            console.log('[AlertaViewModel] Notificando con window.Toast.show():', titulo, mensaje);
+            window.Toast.show('Alerta del conductor: ' + titulo + (mensaje ? ', ' + mensaje : ''));
         } else {
-            console.warn('[AlertaViewModel] No existe window.showToast ni window.Toast.show, no se puede mostrar el aviso:', msg);
+            console.warn('[AlertaViewModel] No existe ningún mecanismo de notificación disponible en esta página:', titulo, mensaje);
         }
     },
 

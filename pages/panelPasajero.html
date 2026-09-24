@@ -2154,6 +2154,19 @@
         <span id="toastMsg">Mensaje</span>
     </div>
 
+    <!-- NOTIFICACIÓN ESTILO PUSH (alertas de conductores en tiempo real) -->
+    <div class="push-notif" id="pushNotifAlerta" onclick="cerrarNotifPush()">
+        <div class="push-notif-icon"><i data-lucide="siren" style="width:20px;height:20px;"></i></div>
+        <div class="push-notif-body">
+            <div class="push-notif-top">
+                <span class="push-notif-app">WayRoute</span>
+                <span class="push-notif-time" id="pushNotifHora">ahora</span>
+            </div>
+            <div class="push-notif-title" id="pushNotifTitulo">Alerta del conductor</div>
+            <div class="push-notif-msg" id="pushNotifMsg"></div>
+        </div>
+    </div>
+
     <script>
         // ===== STATE =====
         let currentView = 'inicio';
@@ -2353,6 +2366,23 @@
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), duration);
         }
+
+        // ===== NOTIFICACIÓN ESTILO PUSH (arriba, grande, como notificación de celular) =====
+        let _pushNotifTimeout = null;
+        window.mostrarNotificacionPush = function (titulo, mensaje, duracion = 7000) {
+            const el = document.getElementById('pushNotifAlerta');
+            if (!el) return;
+            document.getElementById('pushNotifTitulo').textContent = titulo;
+            document.getElementById('pushNotifMsg').textContent = mensaje;
+            document.getElementById('pushNotifHora').textContent = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+            el.classList.add('show');
+            clearTimeout(_pushNotifTimeout);
+            _pushNotifTimeout = setTimeout(() => el.classList.remove('show'), duracion);
+        };
+        window.cerrarNotifPush = function () {
+            document.getElementById('pushNotifAlerta')?.classList.remove('show');
+            clearTimeout(_pushNotifTimeout);
+        };
 
         // ===== ROUTE ACTIONS =====
         window.detectarUbicacion = async function () {
