@@ -192,13 +192,31 @@ const AlertaViewModel = {
             // Solo intentamos si el navegador soporta y no estamos en un entorno bloqueado
             if (navigator.geolocation) {
                 const pos = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, { 
-                        timeout: 3000, 
-                        maximumAge: 60000 
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        timeout: 3000,
+                        maximumAge: 60000
                     });
                 });
                 gps.lat = pos.coords.latitude;
                 gps.lng = pos.coords.longitude;
+
+                // En el reporte rápido, "Ubicación actual" era un texto fijo
+                // que nunca cambiaba. Con el GPS ya en mano, se reemplaza por
+                // la dirección real más cercana (misma técnica de geocodificación
+                // inversa que ya usa detectarUbicacion() en el mapa del pasajero).
+                if (datos.ubicacion === 'Ubicación actual') {
+                    try {
+                        const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${gps.lat}&lon=${gps.lng}&zoom=17&addressdetails=1`);
+                        const geo = await resp.json();
+                        const a = geo.address || {};
+                        const via = a.road ? `${a.road}${a.house_number ? ' #' + a.house_number : ''}` : null;
+                        const barrio = a.neighbourhood || a.suburb || a.quarter;
+                        const real = [via, barrio].filter(Boolean).join(', ');
+                        if (real) datos.ubicacion = real;
+                    } catch (geoErr) {
+                        // Sin geocodificación disponible: se deja "Ubicación actual" como respaldo
+                    }
+                }
             }
         } catch (e) {
             console.warn('[AlertaViewModel] No se usó GPS para el reporte:', e.message);

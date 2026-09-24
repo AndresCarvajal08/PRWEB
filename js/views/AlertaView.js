@@ -42,8 +42,43 @@ const AlertaView = {
         this.actualizarMapa(alertas);
     },
 
-    /* El mapa de alertas ahora es un iframe de Google Maps — sin Leaflet */
-    actualizarMapa(alertas) { this._ultimasAlertas = alertas || []; },
+    /* Mapa real (Leaflet) con un marcador por cada alerta que tenga
+       coordenadas GPS guardadas. El contenedor #alertsMap solo existe en
+       panelConductor.html, en panelPasajero.html esto no hace nada (no
+       hay ese contenedor ahí), así que es seguro llamarlo desde ambas. */
+    _map: null,
+    _markersAlertas: [],
+    actualizarMapa(alertas) {
+        this._ultimasAlertas = alertas || [];
+
+        const contenedor = document.getElementById('alertsMap');
+        if (!contenedor || typeof L === 'undefined') return;
+
+        if (!this._map) {
+            this._map = L.map('alertsMap', { center: [3.4372, -76.5225], zoom: 12 });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19, attribution: '© OpenStreetMap | WayRoute'
+            }).addTo(this._map);
+            setTimeout(() => this._map && this._map.invalidateSize(), 200);
+        }
+
+        (this._markersAlertas || []).forEach(m => this._map.removeLayer(m));
+        this._markersAlertas = [];
+
+        this._ultimasAlertas.forEach(al => {
+            if (al.lat == null || al.lng == null) return;
+            const color = al.severidad === 'alta' ? '#dc2626' : al.severidad === 'baja' ? '#16a34a' : '#f59e0b';
+            const icono = L.divIcon({
+                className: '',
+                html: `<div style="width:24px;height:24px;background:${color};border:2px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.4);"></div>`,
+                iconSize: [24, 24], iconAnchor: [12, 12]
+            });
+            const marker = L.marker([al.lat, al.lng], { icon: icono })
+                .addTo(this._map)
+                .bindPopup(`<b>${al.titulo || al.tipo || 'Alerta'}</b><br>${al.ubicacion || ''}<br><span style="font-size:.8rem;color:#6b7280;">${al.descripcion || ''}</span>`);
+            this._markersAlertas.push(marker);
+        });
+    },
 
     /* ----------------------------------------------------------------
        FEED DE INICIO
