@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tbody = document.getElementById('bodyTurnosDinamico');
         if (!tbody) return;
 
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:#94a3b8;">⏳ Cargando turnos...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:16px;color:#94a3b8;">⏳ Cargando turnos...</td></tr>';
 
         let turnos = await (window.TurnoModel
             ? window.TurnoModel.obtenerPorConductor(sesion.id)
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!turnos.length) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:#94a3b8;">Sin registros de turnos aún.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:16px;color:#94a3b8;">Sin registros de turnos aún.</td></tr>';
             return;
         }
 
@@ -163,10 +163,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const estadoTag  = estaActivo
                 ? '<span class="tag tag-green">Activo</span>'
                 : '<span class="tag tag-gray">Completado</span>';
+            // Franja horaria (madrugada/mañana/tarde/noche) según la hora real
+            // en que arrancó el turno — mismo criterio que el recordatorio del
+            // modal de Iniciar Turno (franjaHoraria(), definida en el HTML).
+            const horaNum = t.hora_inicio ? parseInt(t.hora_inicio.split(':')[0], 10) : null;
+            const franja = (horaNum != null && !isNaN(horaNum) && typeof window.franjaHoraria === 'function')
+                ? window.franjaHoraria(horaNum) : null;
+            const franjaTxt = franja ? franja.nombre.charAt(0).toUpperCase() + franja.nombre.slice(1) : '—';
             return `<tr>
                 <td>${fechaLabel}</td>
                 <td><strong>${t.ruta ? (window.WayRoute?.nombreRuta?.(t.ruta) || t.ruta) : '—'}</strong></td>
                 <td>${t.hora_inicio || '—'}</td>
+                <td>${franjaTxt}</td>
                 <td>${estaActivo ? 'En curso' : (t.hora_fin || '—')}</td>
                 <td>${t.vueltas ?? '—'}</td>
                 <td>${t.reportes ?? '—'}</td>

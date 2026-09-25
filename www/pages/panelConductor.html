@@ -221,7 +221,11 @@
                 <div id="modalIniciarTurno" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
                     <div style="background:#fff;border-radius:12px;padding:32px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.18);">
                         <div style="font-size:1.25rem;font-weight:700;margin-bottom:6px;">Iniciar Turno</div>
-                        <div class="text-sm text-gray" style="margin-bottom:16px;">Seleccioná la ruta y el número de bus para registrar tu turno de hoy.</div>
+                        <div class="text-sm text-gray" style="margin-bottom:12px;">Seleccioná la ruta y el número de bus para registrar tu turno de hoy.</div>
+                        <div id="recordatorioHorarioTurno" style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;margin-bottom:16px;font-size:.82rem;color:#1e40af;">
+                            <i data-lucide="clock" style="width:14px;height:14px;flex-shrink:0;"></i>
+                            <span id="recordatorioHorarioTexto">Cargando hora...</span>
+                        </div>
                         <label style="font-size:.85rem;font-weight:600;color:var(--gray-600);display:block;margin-bottom:6px;">Ruta asignada</label>
                         <select id="selectRutaTurno" onchange="actualizarSelectorBus()" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.95rem;margin-bottom:16px;">
                             <option value="">Seleccionar ruta...</option>
@@ -547,6 +551,7 @@
                                         <th>Fecha</th>
                                         <th>Ruta</th>
                                         <th>Inicio</th>
+                                        <th>Horario</th>
                                         <th>Fin</th>
                                         <th>Vueltas</th>
                                         <th>Reportes</th>
@@ -554,7 +559,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="bodyTurnosDinamico">
-                                    <tr><td colspan="7" style="text-align:center;padding:16px;color:#94a3b8;">⏳ Cargando desde Supabase...</td></tr>
+                                    <tr><td colspan="8" style="text-align:center;padding:16px;color:#94a3b8;">⏳ Cargando desde Supabase...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -761,9 +766,34 @@
         let _timerTurno = null;
         let _inicioTurnoMs = null;
 
+        // Franja horaria real del sistema (mismo criterio que ya usa WayAI y
+        // los consejos del pasajero) — para recordarle al conductor en qué
+        // momento del día está iniciando turno, y si es hora pico real.
+        window.franjaHoraria = function(hora) {
+            if (hora >= 0 && hora < 5) return { nombre: 'madrugada', icono: 'moon' };
+            if (hora >= 5 && hora < 12) return { nombre: 'mañana', icono: 'sunrise' };
+            if (hora >= 12 && hora < 18) return { nombre: 'tarde', icono: 'sun' };
+            return { nombre: 'noche', icono: 'sunset' };
+        };
+
+        function mostrarRecordatorioHorario() {
+            const el = document.getElementById('recordatorioHorarioTexto');
+            const icon = document.querySelector('#recordatorioHorarioTurno i');
+            if (!el) return;
+            const ahora = new Date();
+            const hora = ahora.getHours();
+            const horaTxt = ahora.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+            const { nombre, icono } = window.franjaHoraria(hora);
+            const esPico = (hora >= 7 && hora < 9) || (hora >= 17 && hora < 19);
+            if (icon) icon.setAttribute('data-lucide', icono);
+            el.textContent = `Son las ${horaTxt} — vas a iniciar un turno de la ${nombre}${esPico ? ' (hora pico: más tráfico de lo normal)' : ''}.`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
         window.abrirModalTurno = function() {
             document.getElementById('modalIniciarTurno').style.display = 'flex';
             actualizarSelectorBus();
+            mostrarRecordatorioHorario();
         };
         window.cerrarModalTurno = function() {
             document.getElementById('modalIniciarTurno').style.display = 'none';
