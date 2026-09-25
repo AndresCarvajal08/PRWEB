@@ -78,7 +78,7 @@ function detectarRutasMencionadas(msg) {
     if (msg.includes("oriente") || msg.includes("guala") || msg.includes("aguablanca") || msg.includes("campero")) rutas.push("Gualas Oriente");
     if (msg.includes("pryca") || msg.includes("nariño") || msg.includes("narino") || msg.includes("antonio")) rutas.push("Sur — Pryca/U.Nariño");
     if (msg.includes("ermita") || msg.includes("especial") || msg.includes("sur")) rutas.push("Especial Sur");
-    if (msg.includes("calle 17") || msg.includes("cll 17") || msg.includes("29b") || msg.includes("29 b")) rutas.push("Calle 17");
+    if (msg.includes("calle 17") || msg.includes("cll 17") || msg.includes("29b") || msg.includes("29 b") || msg.includes("ruta 17")) rutas.push("Calle 17");
     return [...new Set(rutas)];
 }
 
@@ -88,6 +88,10 @@ function detectarRutasMencionadas(msg) {
 // ─────────────────────────────────────────────
 let contextoRutaActiva = [];
 const PALABRAS_CONTINUACION = ["si", "sí", "claro", "dale", "va pues", "de una", "listo", "obvio"];
+
+function esPalabraContinuacion(msg) {
+    return PALABRAS_CONTINUACION.some(p => msg === p || msg.startsWith(p + " ") || msg.startsWith(p + ","));
+}
 
 // ─────────────────────────────────────────────
 //  RECONOCIMIENTO DE LUGARES REALES (geocodificación)
@@ -160,8 +164,7 @@ async function resolverRutasContexto(msg) {
         return mencionadas;
     }
 
-    const esContinuacion = PALABRAS_CONTINUACION.some(p => msg === p || msg.startsWith(p + " ") || msg.startsWith(p + ","));
-    if (esContinuacion && contextoRutaActiva.length) {
+    if (esPalabraContinuacion(msg) && contextoRutaActiva.length) {
         return contextoRutaActiva; // seguir hablando de la misma ruta que ya se mencionó
     }
 
@@ -413,9 +416,14 @@ async function simulateAIResponse(mensaje) {
         return respuesta;
     }
 
-    /* ── 2. TIEMPO DE LLEGADA ── */
-    if (esPreguntaTiempo ||
-        msg === "si" || msg === "sí" || msg.includes("claro") || msg.includes("por favor")) {
+    /* ── 2. TIEMPO DE LLEGADA ──
+       Antes solo aceptaba "si"/"sí" EXACTOS como confirmación de seguimiento,
+       así que "si, de la ruta 17" (respondiendo a "¿querés el tiempo
+       estimado?") no entraba aquí y terminaba geocodificando literalmente
+       "si, 17" como si fuera una dirección real. Ahora reutiliza la misma
+       lista de palabras de continuación que ya usa resolverRutasContexto. */
+    if (esPreguntaTiempo || esPalabraContinuacion(msg) ||
+        msg.includes("claro") || msg.includes("por favor")) {
 
         const pos = obtenerPosiciones();
         if (!pos) return "⏱️ No puedo calcular tiempos porque el mapa no está activo. ¡Abrí la vista **Mapa** y volvé a preguntarme!";
