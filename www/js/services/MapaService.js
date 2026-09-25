@@ -438,6 +438,18 @@
     return { lat, lng };
   };
 
+  /* Centra el mapa sobre la posición actual de un bus específico. La usa la
+     alerta de proximidad del pasajero para que, al elegir una ruta y un bus
+     a seguir, el mapa realmente "salte" hasta donde está ese bus en vez de
+     quedarse en la vista general de Cali. */
+  window.WayRoute.centrarEnBus = function (clave, numeroBus) {
+    if (!leafletMap) return false;
+    const pos = window.WayRoute.posicionBus(clave, numeroBus);
+    if (!pos) return false;
+    leafletMap.setView([pos.lat, pos.lng], Math.max(leafletMap.getZoom(), 15));
+    return true;
+  };
+
   /* Distancia en metros entre dos puntos [lat,lng]. Expuesta para que el
      pasajero pueda comparar su ubicación real contra la de un bus. */
   window.WayRoute.distanciaEntre = function (lat1, lng1, lat2, lng2) {

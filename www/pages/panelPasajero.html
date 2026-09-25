@@ -2815,6 +2815,9 @@
                 btn.style.background = '#fef3c7';
                 btn.style.color = '#92400e';
                 if (estado) estado.textContent = '';
+                // Vuelve el mapa a mostrar las 6 rutas (estado general).
+                window.WayRouteRutaEnfocada = null;
+                window.WayRoute?.mostrarSoloRutas?.([]);
                 showToast('Alerta de proximidad desactivada.');
                 return;
             }
@@ -2835,6 +2838,14 @@
             if ('Notification' in window && Notification.permission === 'default') {
                 Notification.requestPermission();
             }
+
+            // El mapa arranca mostrando las 6 rutas en general; al activar la
+            // alerta se enfoca específicamente en la ruta y el bus elegidos
+            // (y se mantiene así aunque pasen los 7s del sondeo de turnos
+            // activos, gracias a window.WayRouteRutaEnfocada).
+            window.WayRouteRutaEnfocada = claveObjetivo;
+            window.WayRoute?.mostrarSoloRutas?.([claveObjetivo]);
+            window.WayRoute?.centrarEnBus?.(claveObjetivo, busObjetivo);
 
             btn.textContent = 'Desactivar alerta';
             btn.style.background = '#fbbf24';
