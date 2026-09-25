@@ -88,7 +88,20 @@ const TurnoModel = {
                 console.warn('[TurnoModel] Error obteniendo turnos activos:', error.message);
                 return [];
             }
-            return data || [];
+
+            // Un turno "activo" por mas de unas horas casi siempre es porque
+            // el conductor cerro la pestana sin darle a Finalizar Turno, no
+            // un turno real en curso (una jornada real no dura mas que esto).
+            // Se ignora para el mapa y las alertas del pasajero, sin borrarlo
+            // ni tocar la base de datos, solo no cuenta como "en vivo".
+            const LIMITE_HORAS = 6;
+            const ahora = Date.now();
+            return (data || []).filter(t => {
+                if (!t.fecha || !t.hora_inicio) return true; // sin datos para evaluar, se deja pasar
+                const inicio = new Date(`${t.fecha}T${t.hora_inicio}`).getTime();
+                const horas = (ahora - inicio) / 3600000;
+                return horas >= 0 && horas <= LIMITE_HORAS;
+            });
         } catch (err) {
             console.error('[TurnoModel] Error inesperado:', err);
             return [];
