@@ -4,8 +4,8 @@
  * Archivo: js/ia.js
  * ============================================================ */
 
-const GEMINI_API_KEY = "AIzaSyBsDTkMjPITmFswoeOG75jYTM0Hx_Fexbw";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_API_KEY = "AQ.Ab8RN6LxvEZXkU2HTL0DoVJZUeBM6H171gbgIKzrPRLjuKUHIw";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 let chatHistory = [];
 
@@ -175,6 +175,25 @@ async function resolverRutasContexto(msg) {
     return [];
 }
 
+// Gemini no tiene forma de saber por su cuenta dónde está cada bus ahora
+// mismo (eso solo existe en la simulación del navegador), así que sin esto
+// respondía con evasivas honestas en vez de los datos reales que sí
+// tenemos. Se arma un resumen en vivo y se agrega al contexto en cada
+// mensaje, para que responda con los números reales, no inventados.
+function construirContextoEnVivo() {
+    if (typeof window.WayRoute?.tiempoLlegadaProximo !== "function") return "";
+    try {
+        const tiempos = window.WayRoute.tiempoLlegadaProximo();
+        if (!tiempos || !tiempos.length) return "";
+        const resumen = tiempos.map(t =>
+            `${t.ruta} bus ${t.busProximo}: llega en ${t.minutos} min a ${t.parada} (${t.distanciaMetros} m)`
+        ).join("\n");
+        return "\n\n## Posición en vivo de los buses ahora mismo (usa estos datos reales si preguntan por posición o tiempo de llegada, nunca inventes otros)\n" + resumen;
+    } catch (e) {
+        return "";
+    }
+}
+
 // ─────────────────────────────────────────────
 //  FUNCIÓN PRINCIPAL
 // ─────────────────────────────────────────────
@@ -189,7 +208,7 @@ async function sendAI() {
     const loadingId = agregarBurbuja("WayAI está pensando... 🤔", "bot");
 
     const historyForGemini = [
-        { role: "user", parts: [{ text: "Contexto del sistema: " + SYSTEM_PROMPT }] },
+        { role: "user", parts: [{ text: "Contexto del sistema: " + SYSTEM_PROMPT + construirContextoEnVivo() }] },
         { role: "model", parts: [{ text: "¡Entendido! Soy WayAI de WayRoute. ¿En qué puedo ayudarte a moverte por Cali hoy?" }] }
     ];
 
