@@ -78,15 +78,28 @@ const RESPUESTA_POR_RUTA = {
 function detectarRutasMencionadas(msg) {
     const rutas = [];
     if (msg.includes("norte") || msg.includes("granada") || msg.includes("menga") || msg.includes("chipichape")) rutas.push("Norte");
-    if (msg.includes("oriente") || msg.includes("guala") || msg.includes("aguablanca") || msg.includes("campero") || msg.includes("mojica")) rutas.push("Gualas Oriente");
     if (msg.includes("pryca") || msg.includes("nariño") || msg.includes("narino") || msg.includes("antonio")) rutas.push("Sur — Pryca/U.Nariño");
     if (msg.includes("ermita") || msg.includes("merced") || msg.includes("san cayetano") || msg.includes("tejares") ||
         msg.includes("san fernando") || msg.includes("alameda")) rutas.push("Especial Sur");
     if (msg.includes("calle 17") || msg.includes("cll 17") || msg.includes("29b") || msg.includes("29 b") || msg.includes("ruta 17") || msg.includes("ruta centro")) rutas.push("Calle 17");
-    if (msg.includes("siloe") || msg.includes("siloé") || msg.includes("ladera") || msg.includes("belisario caicedo") ||
-        msg.includes("tierra blanca") || msg.includes("lleras camargo") || msg.includes("la sultana") ||
-        msg.includes("brisas de mayo") || msg.includes("carabineros") || msg.includes("alberto galindo") ||
-        msg.includes("comuna 20")) rutas.push("Siloé");
+
+    // Hay DOS gualas (Mojica y Siloé) y ambas comparten palabras genéricas
+    // ("guala", "campero"). Antes, preguntar por una en concreto ("me
+    // refería a la guala de Siloé") igual traía las dos, porque la palabra
+    // genérica "guala" ya había disparado a Mojica. Ahora: si el mensaje
+    // nombra una de las dos específicamente, esa gana sola; la palabra
+    // genérica sin más detalle sigue trayendo ambas (para "¿cuánto cuesta
+    // la guala?" en general, que sí debe responder con las dos).
+    const mencionaMojica = msg.includes("oriente") || msg.includes("aguablanca") || msg.includes("mojica");
+    const mencionaSiloe = msg.includes("siloe") || msg.includes("siloé") || msg.includes("ladera") ||
+        msg.includes("belisario caicedo") || msg.includes("tierra blanca") || msg.includes("lleras camargo") ||
+        msg.includes("la sultana") || msg.includes("brisas de mayo") || msg.includes("carabineros") ||
+        msg.includes("alberto galindo") || msg.includes("comuna 20");
+    const mencionaGualaGenerico = msg.includes("guala") || msg.includes("campero");
+
+    if (mencionaMojica || (mencionaGualaGenerico && !mencionaSiloe)) rutas.push("Gualas Oriente");
+    if (mencionaSiloe || (mencionaGualaGenerico && !mencionaMojica)) rutas.push("Siloé");
+
     return [...new Set(rutas)];
 }
 
