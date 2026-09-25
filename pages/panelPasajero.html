@@ -2926,6 +2926,7 @@
             initSession();
             cargarKpisAdmin();
             calcularMesesActivo();
+            calcularViajesMesPerfil();
         });
 
         // KPIs admin desde Supabase
@@ -3005,6 +3006,7 @@
                 if (document.getElementById('view-historial')?.classList.contains('active')) {
                     cargarHistorial();
                 }
+                calcularViajesMesPerfil();
             } catch (e) {
                 err.textContent = 'Error al guardar: ' + (e.message || 'intenta de nuevo');
                 err.style.display = 'block';
@@ -3146,6 +3148,31 @@
             const meses = Math.max(0, Math.floor((Date.now() - new Date(reg)) / (1000 * 60 * 60 * 24 * 30)));
             const el = document.getElementById('profileStatMeses');
             if (el) el.textContent = meses || '< 1';
+        }
+
+        // "Viajes/mes" en Mi Perfil nunca se llenaba — el <div id="profileStatViajes">
+        // se quedaba fijo en el "—" del HTML porque nada lo actualizaba. Se cuentan
+        // los viajes reales de este usuario (tabla `viajes`, la misma que llena
+        // guardarViaje() desde "Costo estimado del viaje") registrados este mes.
+        async function calcularViajesMesPerfil() {
+            const el = document.getElementById('profileStatViajes');
+            if (!el) return;
+            const s = sessionStorage.getItem('wayroute_sesion');
+            const userId = s ? JSON.parse(s).id : null;
+            if (!userId || !window.supabaseClient) return;
+            try {
+                const ahora = new Date();
+                const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString();
+                const { count, error } = await window.supabaseClient
+                    .from('viajes')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('usuario_id', userId)
+                    .gte('fecha', inicioMes);
+                if (error) return;
+                el.textContent = count ?? 0;
+            } catch (e) {
+                // Sin conexión: se deja el "—" en vez de mostrar un error.
+            }
         }
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
