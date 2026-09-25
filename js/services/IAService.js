@@ -301,11 +301,30 @@ async function simulateAIResponse(mensaje) {
         return "¡Uy vé! 😄 Eso ya me queda lejos de la ruta. Soy WayAI y estoy especializado en el transporte de Cali — rutas, buses, gualas, tiempos y tarifas. ¿Te cuento algo de eso mejor?";
     }
 
+    /* ── 0d. REPORTAR UN PROBLEMA (función de la app, no charla libre) ── */
+    if (msg.includes("reportar un problema") || msg.includes("reporto un problema") ||
+        msg.includes("reportar una incidencia") || msg.includes("reportar algo") ||
+        msg.includes("como reporto") || msg.includes("cómo reporto")) {
+        return "🚨 Para reportar un problema andá a la sección **Alertas** en el menú y tocá **'Reportar Incidencia'** — queda registrado con tu ubicación. Si es una emergencia real, usá el botón de emergencia o llamá al **123**. ¿Te ayudo con algo más?";
+    }
+
+    /* ── 0e. COMPARTIR UBICACIÓN / CONTACTOS DE EMERGENCIA (función de la app) ──
+       "ubica" es keyword del bloque de POSICIÓN EN TIEMPO REAL (justo abajo),
+       pero si el usuario habla de COMPARTIR SU PROPIA ubicación o de agregar
+       un contacto, está preguntando por una función de seguridad de la app,
+       no por dónde están los buses — hay que interceptar esto ANTES. */
+    if ((msg.includes("compart") && (msg.includes("ubicac") || msg.includes("viaje"))) ||
+        msg.includes("contacto de emergencia") || msg.includes("agregar un contacto") ||
+        msg.includes("agrego un contacto")) {
+        return "📍 Tenés el botón **'Compartir mi viaje'** en la app — actívalo antes de subir al bus para que un contacto de confianza vea tu recorrido en tiempo real. También podés guardar contactos de emergencia desde tu perfil, en la sección de Seguridad. ¿Te ayudo con algo más?";
+    }
+
     /* ── 1. POSICIÓN EN TIEMPO REAL ── */
     if (msg.includes("donde") || msg.includes("dónde") || msg.includes("ubica") ||
         msg.includes("estan") || msg.includes("están") || msg.includes("posicion") ||
         msg.includes("posición") || msg.includes("transitan") || msg.includes("circulan") ||
-        msg.includes("van los")) {
+        msg.includes("van los") || msg.includes("mas cerca") || msg.includes("más cerca") ||
+        msg.includes("cerca de mi") || msg.includes("cerca de mí")) {
 
         const pos = obtenerPosiciones();
         if (!pos) return "🗺️ El mapa aún no está activo. Abrí la vista **Mapa** primero y WayAI podrá decirte exactamente dónde está cada unidad.";
@@ -352,12 +371,12 @@ async function simulateAIResponse(mensaje) {
     // comunes que la propia interfaz sugiere como chips rápidos).
     const esPreguntaPrecio = msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") ||
         msg.includes("valor") || msg.includes("tarifa") || msg.includes("cobr") || msg.includes("plata") ||
-        msg.includes("económic") || msg.includes("economic") || msg.includes("barat");
+        msg.includes("económic") || msg.includes("economic") || msg.includes("barat") || msg.includes("efectivo");
     const esPreguntaTiempo = msg.includes("falta") || msg.includes("llega") || msg.includes("minutos") ||
         msg.includes("tiempo") || msg.includes("demora") || msg.includes("tarda") ||
         msg.includes("cuando llega") || msg.includes("cuándo llega") ||
         msg.includes("sale") || msg.includes("próximo") || msg.includes("proximo") ||
-        msg.includes("próxima") || msg.includes("proxima");
+        msg.includes("próxima") || msg.includes("proxima") || msg.includes("viene");
 
     if (esPreguntaPrecio && esPreguntaTiempo) {
         const rutasMencionadas = await resolverRutasContexto(msg);
@@ -463,10 +482,23 @@ async function simulateAIResponse(mensaje) {
         return rutasEspecificas.map(r => RESPUESTA_POR_RUTA[r]).join("\n\n");
     }
 
+    /* ── 3b. MÉTODO DE PAGO / DESCUENTOS ──
+       "¿aceptan tarjeta?" o "¿hay descuento de estudiante?" no preguntan por
+       EL VALOR de la tarifa (eso es el bloque de PRECIO) sino por CÓMO se
+       paga — si cayeran al bloque de precio, contestarían con una lista de
+       tarifas que no responde lo que en verdad se preguntó. */
+    if (msg.includes("tarjeta") || msg.includes("nequi") || msg.includes("daviplata") ||
+        msg.includes("transferencia") || msg.includes("descuento")) {
+        if (msg.includes("descuento")) {
+            return "🎓 Por ahora no manejamos tarifa diferencial ni descuentos especiales — la tarifa es la misma para todos según la ruta. ¡Ojalá pronto se pueda gestionar un descuento estudiantil! ¿Querés que te diga el valor de alguna ruta?";
+        }
+        return "💳 El pago en WayRoute es únicamente en **efectivo**, directo al conductor — todavía no aceptamos tarjeta, Nequi ni otros pagos electrónicos. Si podés, llevá el valor exacto de tu ruta. ¿Querés saber cuánto cuesta?";
+    }
+
     /* ── 4. PRECIO ── */
     if (msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") ||
         msg.includes("valor") || msg.includes("tarifa") || msg.includes("cobr") || msg.includes("plata") ||
-        msg.includes("económic") || msg.includes("economic") || msg.includes("barat")) {
+        msg.includes("económic") || msg.includes("economic") || msg.includes("barat") || msg.includes("efectivo")) {
         // Si menciona una ruta puntual o un lugar real (incluido "mi casa"),
         // responde solo con esa tarifa, no con las de las 5 rutas.
         const pideMasBarata = msg.includes("económic") || msg.includes("economic") || msg.includes("barat") || msg.includes("menos cuesta");
@@ -495,9 +527,25 @@ async function simulateAIResponse(mensaje) {
         return `🗺️ WayRoute tiene **${Object.keys(RUTA_INFO).length} rutas activas** en Cali:\n\n${listado}\n\n¿Por cuál te puedo dar más info?`;
     }
 
+    /* ── 5b. FRECUENCIA Y HORARIO DE SERVICIO ── */
+    if (msg.includes("cada cuanto") || msg.includes("cada cuánto") || msg.includes("frecuencia") ||
+        msg.includes("hasta que hora") || msg.includes("hasta qué hora")) {
+        return "🕐 Las unidades de WayRoute circulan de forma continua, aproximadamente de **5:00 a.m. a 10:00 p.m.**, sin un horario fijo por parada. Para saber qué tan cerca está el próximo bus AHORA, preguntame *'¿cuánto falta para el bus?'* y te doy el tiempo real. ¿Te ayudo con algo más?";
+    }
+
+    /* ── 5c. MASCOTAS / PUNTUALIDAD ── */
+    if (msg.includes("mascota") || msg.includes("perro") || msg.includes("gato")) {
+        return "🐾 No tenemos una política oficial sobre mascotas todavía — te recomiendo confirmar directo con el conductor al subir, por lo general se permiten si van en brazos o en un transportín. ¿Te ayudo con algo más?";
+    }
+    if (msg.includes("puntual")) {
+        return "🕐 Los tiempos que te doy son estimados según la posición real de cada unidad, pero pueden variar por tráfico o el trancón de siempre en Cali 😄. Te recomiendo revisar el tiempo estimado justo antes de salir de casa. ¿Querés que te diga cuánto falta para alguna ruta?";
+    }
+
     /* ── 6. SEGURIDAD ── */
-    if (msg.includes("segur") || msg.includes("noche") || msg.includes("peligro")) {
-        return "🛡️ Tu seguridad es lo primero. Usá siempre el botón **'Compartir mi viaje'** en la app para que tus familiares sepan dónde vas. De noche preferí paradas iluminadas. Ante cualquier emergencia, llamá al **123**. ¡Cuídate vé!";
+    if (msg.includes("segur") || msg.includes("noche") || msg.includes("peligro") ||
+        msg.includes("roban") || msg.includes("robo") || msg.includes("atraco") ||
+        msg.includes("asalto") || msg.includes("me robaron")) {
+        return "🛡️ Tu seguridad es lo primero. Usá siempre el botón **'Compartir mi viaje'** en la app para que tus familiares sepan dónde vas. De noche preferí paradas iluminadas. Ante cualquier emergencia o robo, llamá al **123** y reportalo desde **Alertas** en la app. ¡Cuídate vé!";
     }
 
     /* ── 7. SALUDOS ── */
