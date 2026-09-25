@@ -633,7 +633,7 @@
                             historial.</p>
                     </div>
 
-                    <div class="grid-2" style="grid-template-columns:1.5fr 1fr;align-items:start;">
+                    <div class="grid-2" style="grid-template-columns:2fr 1fr;align-items:stretch;">
                         <!-- Chat IA -->
                         <div class="ai-chat">
                             <div class="ai-chat-header">
@@ -2287,6 +2287,19 @@
                 keywords: ['siloe', 'siloé', 'ladera', 'comuna 20', 'belisario caicedo', 'tierra blanca', 'lleras camargo', 'la sultana', 'brisas de mayo', 'carabineros', 'cementerio', 'alberto galindo', 'unidad deportiva'] },
         ];
 
+        // window.WayRoute.getConfigRutas() (MapaService.js) solo conoce la
+        // clave interna de cada ruta (el identificador técnico que se guarda
+        // en turnos/reportes, ej. 'Especial Sur'), no su nombre visible actual
+        // (ej. 'Ruta La Ermita') — ese nombre solo vive en RUTAS_DISPONIBLES,
+        // de aquí. Sin este helper, cualquier vista que arme su texto pegando
+        // la clave directamente ("Ruta " + clave) muestra el nombre técnico
+        // viejo en vez del nombre real, aunque ya se haya renombrado en todos
+        // los demás lugares.
+        function nombreVisibleDeRuta(clave) {
+            const info = RUTAS_DISPONIBLES.find(r => r.clave === clave);
+            return info ? info.nombre : clave;
+        }
+
         // Quita tildes para comparar sin depender de si el usuario las escribe o no
         function _sinTildes(str) {
             return str.normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -2427,7 +2440,7 @@
                     <div>
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                             <div style="width:10px;height:10px;border-radius:50%;background:${r.color};flex-shrink:0;"></div>
-                            <span style="font-size:.82rem;font-weight:700;color:${r.color};">Ruta ${r.clave}${r.esGuala ? ' <i data-lucide="car" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>' : ''}</span>
+                            <span style="font-size:.82rem;font-weight:700;color:${r.color};">${nombreVisibleDeRuta(r.clave)}${r.esGuala ? ' <i data-lucide="car" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;"></i>' : ''}</span>
                         </div>
                         <div class="route-stop-row">${paradasHtml}</div>
                     </div>`;
@@ -2771,7 +2784,7 @@
             if (selRuta.options.length) return; // ya poblado
 
             const rutas = window.WayRoute.getConfigRutas();
-            selRuta.innerHTML = rutas.map(r => `<option value="${r.clave}">${r.clave}</option>`).join('');
+            selRuta.innerHTML = rutas.map(r => `<option value="${r.clave}">${nombreVisibleDeRuta(r.clave)}</option>`).join('');
             // Por defecto, la ruta que pasa por Carrera 29B (Calle 17), que es la usada en la prueba
             if (rutas.some(r => r.clave === 'Calle 17')) selRuta.value = 'Calle 17';
 
