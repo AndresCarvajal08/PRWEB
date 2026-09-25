@@ -197,7 +197,20 @@ const AlertaView = {
         return iconos[tipo] || 'alert-triangle';
     },
 
-    refreshMapa() { /* mapa es iframe de Google Maps — sin acción requerida */ },
+    /* El mapa de alertas vivía en un contenedor que empieza oculto
+       (display:none hasta que se navega a esta vista) — Leaflet calcula mal
+       su tamaño si se crea o se deja quieto mientras está oculto, y queda
+       gris. Se llama al entrar a la vista: si el mapa ya existe, solo
+       recalcula tamaño; si es la primera vez, lo crea recién ahora que el
+       contenedor ya es visible. */
+    refreshMapa() {
+        if (this._map) {
+            setTimeout(() => this._map && this._map.invalidateSize(), 50);
+        } else if (this._ultimasAlertas) {
+            this.actualizarMapa(this._ultimasAlertas);
+            setTimeout(() => this._map && this._map.invalidateSize(), 200);
+        }
+    },
 
     /* ----------------------------------------------------------------
        TABS FILTRADAS — rellena tab-congestion, tab-bloqueo, tab-seguridad

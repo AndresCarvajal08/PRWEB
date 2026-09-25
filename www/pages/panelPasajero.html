@@ -727,17 +727,14 @@
                                 <div class="text-sm text-gray text-center p-4">Cargando alertas del sistema...</div>
                             </div>
 
-                            <!-- Mapa de alertas -->
+                            <!-- Mapa de alertas — Leaflet real con las alertas reportadas
+                                 (antes era un iframe de Google Maps genérico, centrado en
+                                 Cali pero sin ningún dato real ni marcador de alertas).
+                                 AlertaView.actualizarMapa() ya sabía dibujar esto (lo usa
+                                 también el conductor), solo hacía falta este contenedor. -->
                             <div>
-                                <!-- Mapa de alertas -->
                                 <div class="card p-0" style="overflow:hidden;border-radius:12px;">
-                                    <iframe
-                                        src="https://maps.google.com/maps?q=3.43722,-76.5225&z=13&output=embed"
-                                        width="100%" height="380"
-                                        style="border:0;display:block;"
-                                        allowfullscreen loading="lazy"
-                                        title="Mapa de Cali — WayRoute">
-                                    </iframe>
+                                    <div id="alertsMap" style="height:380px;width:100%;"></div>
                                 </div>
                                 <div class="card mt-3">
                                     <div class="card-title" style="margin-bottom:10px;"><i data-lucide="bar-chart-2" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Resumen por tipo</div>
@@ -2126,11 +2123,12 @@
         window.abrirModalEditarPerfil = abrirModalEditarPerfil;
         window.cerrarModalEditarPerfil = cerrarModalEditarPerfil;
 
-        // ===== SIDEBAR TOGGLE =====
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('collapsed');
-        }
+        // toggleSidebar() real (panel deslizante + overlay para móvil) se
+        // define más abajo, junto a closeSidebar() — esta declaración vieja
+        // (colapsar a solo íconos, nunca terminada para móvil) quedaba
+        // pisada en tiempo de ejecución de todas formas porque corre en un
+        // <script> posterior, pero se quita para no tener dos definiciones
+        // del mismo nombre haciendo cosas distintas.
 
         // ===== NOTIFICATIONS =====
         function toggleNotif() {
