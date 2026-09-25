@@ -22,6 +22,9 @@
 
         <!-- TOP NAV -->
         <nav class="topnav">
+            <button class="hamburger" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Menú">
+                <i data-lucide="menu"></i>
+            </button>
             <a class="nav-brand" href="#">
                 <div class="nav-logo"><i data-lucide="bus" style="width:18px;height:18px;color:#fff;"></i></div>
                 <div class="nav-brand-text">Way<span>Route</span></div>
@@ -43,9 +46,11 @@
             </div>
         </nav>
 
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
         <div class="main-wrapper">
             <!-- SIDEBAR -->
-            <aside class="sidebar">
+            <aside class="sidebar" id="sidebar">
                 <div class="sidebar-section">
                     <div class="sidebar-section-label">Principal</div>
                     <div class="nav-item active" id="nav-inicio" onclick="navigate('inicio')">
@@ -618,6 +623,30 @@
         </div>
     </div>
 
+    <!-- BOTTOM NAV (Mobile) -->
+    <nav class="bottom-nav" id="bottomNav">
+        <button class="bottom-nav-item active" id="bnav-inicio" onclick="navigate('inicio')">
+            <i data-lucide="home" style="width:20px;height:20px;"></i>
+            <div class="bn-label">Inicio</div>
+        </button>
+        <button class="bottom-nav-item" id="bnav-miRuta" onclick="navigate('miRuta')">
+            <i data-lucide="route" style="width:20px;height:20px;"></i>
+            <div class="bn-label">Mi Ruta</div>
+        </button>
+        <button class="bottom-nav-item" id="bnav-alertas" onclick="navigate('alertas')">
+            <i data-lucide="bell" style="width:20px;height:20px;"></i>
+            <div class="bn-label">Alertas</div>
+        </button>
+        <button class="bottom-nav-item" id="bnav-reportes" onclick="navigate('reportes')">
+            <i data-lucide="clipboard-list" style="width:20px;height:20px;"></i>
+            <div class="bn-label">Reportar</div>
+        </button>
+        <button class="bottom-nav-item" id="bnav-perfil" onclick="navigate('perfil')">
+            <i data-lucide="user" style="width:20px;height:20px;"></i>
+            <div class="bn-label">Perfil</div>
+        </button>
+    </nav>
+
     <div class="toast" id="toast"><span id="toastMsg">Mensaje</span></div>
 
     <!-- ── CORE ── -->
@@ -656,10 +685,25 @@
         });
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
+        // El sidebar (menú lateral) nunca tenía forma de abrirse en pantallas
+        // angostas: el CSS ya traía todo el soporte para un menú hamburguesa
+        // (sidebar deslizante + overlay), pero faltaba el botón, el overlay en
+        // el HTML y estas dos funciones — sin esto, en móvil el conductor no
+        // tenía ninguna forma de navegar entre secciones.
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar')?.classList.toggle('open');
+            document.getElementById('sidebarOverlay')?.classList.toggle('show');
+        };
+        window.closeSidebar = function() {
+            document.getElementById('sidebar')?.classList.remove('open');
+            document.getElementById('sidebarOverlay')?.classList.remove('show');
+        };
+
         // Cargar historial / reparar mapa al navegar
         const _origNavigate = window.navigate;
         window.navigate = function(view) {
             if (typeof _origNavigate === 'function') _origNavigate(view);
+            closeSidebar();
 
             if (view === 'historial' && typeof window.cargarHistorialTurnos === 'function') {
                 setTimeout(window.cargarHistorialTurnos, 150);
