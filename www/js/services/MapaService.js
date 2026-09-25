@@ -1,7 +1,7 @@
 /* ================================================================
    MAPA & RUTAS — WayRoute
    CUATRO RUTAS independientes con puntos reales de OSRM:
-   Ruta 1 (Roja   🚌): Especial Sur          — 330 pts  centro-sur
+   Ruta 1 (Roja   🚌): La Ermita             — 330 pts  centro-occidente
    Ruta 2 (Azul   🚌): Norte Granada→Menga   — 506 pts  norte
    Ruta 3 (Verde  🚐): Guala Mojica           — 309 pts  oriente
    Ruta 4 (Naranja🚌): Pryca → U. A. Nariño  — 334 pts  sur
@@ -217,7 +217,7 @@
      CONFIG DE RUTAS + SIMULACIÓN DE FLOTA (independiente del mapa)
   ================================================================ */
   const RUTAS_CONFIG = [
-    { clave: 'Especial Sur', puntos: RUTA1_PUNTOS, paradas: RUTA1_PARADAS, color: '#ef4444', numV: 4, arr: busesRuta1, label: 'Bus Sur', esGuala: false },
+    { clave: 'Especial Sur', puntos: RUTA1_PUNTOS, paradas: RUTA1_PARADAS, color: '#ef4444', numV: 4, arr: busesRuta1, label: 'Bus La Ermita', esGuala: false },
     { clave: 'Norte', puntos: RUTA2_PUNTOS, paradas: RUTA2_PARADAS, color: '#3b82f6', numV: 3, arr: busesRuta2, label: 'Bus Norte', esGuala: false },
     { clave: 'Gualas Oriente', puntos: RUTA3_PUNTOS, paradas: RUTA3_PARADAS, color: '#16a34a', numV: 3, arr: busesRuta3, label: 'Guala', esGuala: true },
     { clave: 'Sur — Pryca/U.Nariño', puntos: RUTA4_PUNTOS, paradas: RUTA4_PARADAS, color: '#f97316', numV: 3, arr: busesRuta4, label: 'Bus Sur2', esGuala: false },

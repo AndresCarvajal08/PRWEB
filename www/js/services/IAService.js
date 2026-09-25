@@ -25,7 +25,7 @@ Eres WayAI, el asistente virtual de WayRoute — una app de transporte público 
 - NUNCA respondas de forma robótica ni forzada. Si la pregunta es simple, respondés simple.
 
 ## Rutas activas en WayRoute
-🔴 **Ruta Especial Sur** — 4 buses rojos · La Ermita → 7 paradas → La Ermita · Tarifa: $2.950
+🔴 **Ruta La Ermita** — 4 buses rojos · circuito centro-occidente: La Ermita → La Merced → San Cayetano → Tejares → San Fernando → Alameda → San Juan Bosco → La Ermita · Tarifa: $2.950
 🔵 **Ruta Norte** — 3 buses azules · Granada (Cll 22N) → Chipichape → Menga → Santa Mónica · Tarifa: $3.100
 🟢 **Guala Mojica** — 3 camperos verdes · Cra 22 → Cll 53 → Cll 72W → Mojica (Cll 92) · Tarifa: $2.800
 🟠 **Ruta Sur** — 3 buses naranjas · Pryca (Cra 86) → Cra 94 → Cra 102 → U. Antonio Nariño · Tarifa: $3.200
@@ -54,7 +54,7 @@ Pago en efectivo al conductor. Cada ruta tiene tarifa diferente según distancia
 //  NOMBRES Y EMOJIS POR RUTA
 // ─────────────────────────────────────────────
 const RUTA_INFO = {
-    'Especial Sur': { emoji: '🔴', label: 'Ruta Especial Sur', icono: '🚌', tarifa: 2950 },
+    'Especial Sur': { emoji: '🔴', label: 'Ruta La Ermita', icono: '🚌', tarifa: 2950 },
     'Norte': { emoji: '🔵', label: 'Ruta Norte (Granada→Menga)', icono: '🚌', tarifa: 3100 },
     'Gualas Oriente': { emoji: '🟢', label: 'Guala Mojica', icono: '🚐', tarifa: 2800 },
     'Sur — Pryca/U.Nariño': { emoji: '🟠', label: 'Ruta Sur (Pryca→U.Nariño)', icono: '🚌', tarifa: 3200 },
@@ -66,7 +66,7 @@ const RESPUESTA_POR_RUTA = {
     'Norte': "🔵 ¡Mirá! La **Ruta Norte** opera con 3 buses azules. Sale desde **Granada (Calle 22N)**, pasa por Chipichape, Av. Circunvalar, **Menga** y llega hasta **Santa Mónica**. Tarifa: **$3.100**. ¿Querés saber dónde están los buses ahora?",
     'Gualas Oriente': "🟢 ¡La **Guala a Mojica** está operando con 3 unidades! Recorre desde la **Carrera 22** hasta **Mojica (Calle 92)**, pasando por Calle 53 y Calle 72W. Son camperos 4x4 ideales para llegar al sector oriental. Tarifa: **$2.800**. ¿Te ayudo con algo más?",
     'Sur — Pryca/U.Nariño': "🟠 La **Ruta Sur** conecta **Pryca (Carrera 86)** con la **Universidad Antonio Nariño (Carrera 108)**, pasando por las carreras 94, 98B y 102. Opera con 3 buses naranjas. Tarifa: **$3.200**. ¿Querés saber el tiempo estimado de llegada?",
-    'Especial Sur': "🔴 La **Ruta Especial Sur** tiene 4 buses rojos operando. Sale de **La Ermita** y recorre 7 paradas por el centro-sur de Cali. Tarifa: **$2.950**. ¿Te digo dónde están los buses ahora mismo?",
+    'Especial Sur': "🔴 La **Ruta La Ermita** tiene 4 buses rojos operando. Sale de **La Ermita** y hace un circuito por el centro-occidente de Cali: La Merced, San Cayetano, Tejares, San Fernando, Alameda y San Juan Bosco. Tarifa: **$2.950**. ¿Te digo dónde están los buses ahora mismo?",
     'Calle 17': "🟣 La **Ruta Centro** hace un circuito de ida y vuelta sobre la Calle 17, con 3 buses morados. Va de **San Juan Bosco** a **Aranjuez**, pasando por Carrera 30 (El Jardín) y Carrera 23 (Guayaquil). Tarifa: **$3.000**. ¿Querés saber cuánto falta para que pase por tu parada?",
     'Siloé': "🟤 ¡La **Guala Siloé** sube y baja la ladera con 3 camperos! Hace un ciclo completo por la Comuna 20: sale de la **Unidad Deportiva Alberto Galindo**, sube por **Belisario Caicedo**, **Siloé centro**, **Tierra Blanca**, **Lleras Camargo** y **La Sultana**, y baja de vuelta por **Brisas de Mayo** y **Cementerio-Carabineros**. Tarifa: **$2.700**. ¿Te ayudo con algo más?",
 };
@@ -80,7 +80,8 @@ function detectarRutasMencionadas(msg) {
     if (msg.includes("norte") || msg.includes("granada") || msg.includes("menga") || msg.includes("chipichape")) rutas.push("Norte");
     if (msg.includes("oriente") || msg.includes("guala") || msg.includes("aguablanca") || msg.includes("campero") || msg.includes("mojica")) rutas.push("Gualas Oriente");
     if (msg.includes("pryca") || msg.includes("nariño") || msg.includes("narino") || msg.includes("antonio")) rutas.push("Sur — Pryca/U.Nariño");
-    if (msg.includes("ermita") || msg.includes("especial") || msg.includes("sur")) rutas.push("Especial Sur");
+    if (msg.includes("ermita") || msg.includes("merced") || msg.includes("san cayetano") || msg.includes("tejares") ||
+        msg.includes("san fernando") || msg.includes("alameda")) rutas.push("Especial Sur");
     if (msg.includes("calle 17") || msg.includes("cll 17") || msg.includes("29b") || msg.includes("29 b") || msg.includes("ruta 17") || msg.includes("ruta centro")) rutas.push("Calle 17");
     if (msg.includes("siloe") || msg.includes("siloé") || msg.includes("ladera") || msg.includes("belisario caicedo") ||
         msg.includes("tierra blanca") || msg.includes("lleras camargo") || msg.includes("la sultana") ||
