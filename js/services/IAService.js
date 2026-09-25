@@ -4,7 +4,7 @@
  * Archivo: js/ia.js
  * ============================================================ */
 
-const GEMINI_API_KEY = "AQ.Ab8RN6Lr8ooHumtu8Q9o_ikcJnsv3knuRv_q4do6AJqeOsu1eg";
+const GEMINI_API_KEY = "AQ.Ab8RN6IJQiSic5rIH5Uafobq3iEO9esqwWeEr5-HiaHX8lVrDg";
 // gemini-2.5-flash ya no está disponible para proyectos nuevos (404). Se usa
 // el alias "-latest" (en vez de un modelo fijo como "gemini-3.8-flash") para
 // que Google lo vaya apuntando al modelo flash-lite vigente automáticamente
