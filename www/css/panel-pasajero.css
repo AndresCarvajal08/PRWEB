@@ -448,9 +448,28 @@ tr:hover td { background: var(--primary-light); }
 .bottom-nav-item .icon { font-size: 20px; }
 .bottom-nav-item .label { font-size: .62rem; font-weight: 500; }
 
+/* ===== SIDEBAR OVERLAY (menú hamburguesa en móvil) ===== */
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 140; }
+.sidebar-overlay.show { display: block; }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-    .sidebar { display: none; }
+    /* Antes era display:none — el botón de menú (arriba a la izquierda) le
+       hacía toggleSidebar(), pero esa función no existía y el sidebar no
+       tenía forma de mostrarse aunque quisiera: quedaban "Seguridad" y "Mi
+       Historial" totalmente inalcanzables en móvil, porque no están en el
+       bottom-nav. Ahora es un panel deslizante (como ya funciona en
+       conductor/admin), no oculto por completo. */
+    .sidebar {
+        display: flex;
+        position: fixed;
+        left: -260px; top: var(--nav-h, 60px); bottom: 0;
+        z-index: 150;
+        width: 240px; min-width: 240px;
+        transition: left .28s ease;
+        box-shadow: 4px 0 20px rgba(0,0,0,.15);
+    }
+    .sidebar.open { left: 0; }
     .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
     .form-row { grid-template-columns: 1fr; }
     .topnav { padding: 0 14px; }

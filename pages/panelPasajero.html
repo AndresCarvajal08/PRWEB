@@ -125,6 +125,8 @@
             </div>
         </div>
 
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
         <!-- MAIN WRAPPER -->
         <div class="main-wrapper">
 
@@ -3121,10 +3123,26 @@
             }
         }
 
+        // El botón de menú (arriba a la izquierda) ya llamaba a
+        // toggleSidebar() desde el HTML, pero esa función nunca existió — el
+        // sidebar en móvil estaba con display:none fijo, así que "Seguridad"
+        // y "Mi Historial" (que no están en el bottom-nav) quedaban
+        // completamente inalcanzables desde el celular. Mismo patrón ya
+        // probado en conductor/admin: panel deslizante + overlay.
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar')?.classList.toggle('open');
+            document.getElementById('sidebarOverlay')?.classList.toggle('show');
+        };
+        window.closeSidebar = function() {
+            document.getElementById('sidebar')?.classList.remove('open');
+            document.getElementById('sidebarOverlay')?.classList.remove('show');
+        };
+
         // Cargar historial al navegar a esa sección
         const _origNavigate = window.navigate;
         window.navigate = function(view) {
             _origNavigate(view);
+            closeSidebar();
             if (view === 'historial') cargarHistorial();
             // Salir de Mapa & Rutas limpia el filtro de "ver esta ruta en
             // concreto" (ver verRuta()) para que al volver por el menú se
