@@ -42,7 +42,12 @@ const TurnoModel = {
 
         const nuevoTurno = {
             conductor_id: conductorId,
-            fecha: new Date().toISOString().split('T')[0],
+            // OJO: toISOString() da el dia calendario en UTC, no el local. Si se
+            // usara aca, entre las 7pm y la medianoche (Colombia, UTC-5) quedaria
+            // guardada "manana" mientras hora_inicio (que si es local) dice "hoy" —
+            // ver la nota larga en obtenerActivos(). toLocaleDateString('en-CA')
+            // da YYYY-MM-DD ya en hora local, consistente con hora_inicio.
+            fecha: new Date().toLocaleDateString('en-CA'),
             hora_inicio: new Date().toTimeString().slice(0, 5),
             hora_fin: null,
             ruta: ruta || 'N/A',
@@ -94,11 +99,27 @@ const TurnoModel = {
             // un turno real en curso (una jornada real no dura mas que esto).
             // Se ignora para el mapa y las alertas del pasajero, sin borrarlo
             // ni tocar la base de datos, solo no cuenta como "en vivo".
+            //
+            // OJO: no se puede reconstruir el inicio con `${fecha}T${hora_inicio}`
+            // porque `fecha` se guarda con toISOString() (dia calendario en UTC)
+            // mientras que `hora_inicio` se guarda con toTimeString() (hora local).
+            // En Colombia (UTC-5) esas dos cosas se refieren a instantes distintos
+            // entre las 7pm y la medianoche: el dia UTC ya cambio pero la hora
+            // local no, asi que la fecha queda "de manana" con la hora de "hoy" y
+            // el turno activo real parece estar en el futuro y se descarta por
+            // error. `created_at` es un timestamptz real puesto por la base de
+            // datos, sin esa ambiguedad, y es la referencia confiable.
             const LIMITE_HORAS = 6;
             const ahora = Date.now();
             return (data || []).filter(t => {
-                if (!t.fecha || !t.hora_inicio) return true; // sin datos para evaluar, se deja pasar
-                const inicio = new Date(`${t.fecha}T${t.hora_inicio}`).getTime();
+                let inicio;
+                if (t.created_at) {
+                    inicio = new Date(t.created_at).getTime();
+                } else if (t.fecha && t.hora_inicio) {
+                    inicio = new Date(`${t.fecha}T${t.hora_inicio}`).getTime();
+                } else {
+                    return true; // sin datos para evaluar, se deja pasar
+                }
                 const horas = (ahora - inicio) / 3600000;
                 return horas >= 0 && horas <= LIMITE_HORAS;
             });
