@@ -727,14 +727,24 @@
                                 <div class="text-sm text-gray text-center p-4">Cargando alertas del sistema...</div>
                             </div>
 
-                            <!-- Mapa de alertas — Leaflet real con las alertas reportadas
-                                 (antes era un iframe de Google Maps genérico, centrado en
-                                 Cali pero sin ningún dato real ni marcador de alertas).
-                                 AlertaView.actualizarMapa() ya sabía dibujar esto (lo usa
-                                 también el conductor), solo hacía falta este contenedor. -->
+                            <!-- Recomendaciones de WayAI para el pasajero, en vez del mapa
+                                 (mismo cambio que se hizo para el conductor: reemplazar un
+                                 mapa que no aportaba nada propio por un panel de IA real). -->
                             <div>
-                                <div class="card p-0" style="overflow:hidden;border-radius:12px;">
-                                    <div id="alertsMap" style="height:380px;width:100%;"></div>
+                                <div class="card">
+                                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:2px;">
+                                        <div class="ia-reco-avatar"><i data-lucide="bot" style="width:17px;height:17px;color:#fff;"></i></div>
+                                        <div style="flex:1;">
+                                            <div style="display:flex;align-items:center;gap:8px;">
+                                                <span style="font-weight:700;font-size:.95rem;color:var(--gray-900);">Recomendaciones de WayAI</span>
+                                                <span class="ia-reco-badge">IA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-gray" style="margin-bottom:14px;">Basadas en tus rutas más usadas y el tráfico en tiempo real.</div>
+                                    <div id="iaRecomendacionesPasajeroLista" style="display:flex;flex-direction:column;gap:10px;">
+                                        <div class="ia-thinking"><span class="ia-dot"></span><span class="ia-dot"></span><span class="ia-dot"></span> Analizando tu información...</div>
+                                    </div>
                                 </div>
                                 <div class="card mt-3">
                                     <div class="card-title" style="margin-bottom:10px;"><i data-lucide="bar-chart-2" style="width:16px;height:16px;display:inline-block;vertical-align:-3px;"></i> Resumen por tipo</div>
@@ -3142,11 +3152,103 @@
             _origNavigate(view);
             closeSidebar();
             if (view === 'historial') cargarHistorial();
+            if (view === 'alertas' && typeof cargarRecomendacionesPasajero === 'function') {
+                cargarRecomendacionesPasajero();
+            }
             // Salir de Mapa & Rutas limpia el filtro de "ver esta ruta en
             // concreto" (ver verRuta()) para que al volver por el menú se
             // vea otra vez el mapa general, no la ultima ruta que se miro.
             if (view !== 'mapa') window.WayRouteRutaEnfocada = null;
         };
+
+        // Recomendaciones de WayAI para el pasajero (vista Alertas), en vez
+        // del mapa que estaba ahí antes (mismo cambio que ya se hizo para el
+        // conductor). Combina un dato real y personalizado — su ruta más
+        // usada (tabla `viajes`), cruzada con el tiempo/tráfico real de esa
+        // ruta ahora mismo — con una selección rotativa de consejos
+        // generales de movilidad, para que no se vea igual siempre.
+        const TIPS_PASAJERO = [
+            { icono: 'wallet',      texto: 'Lleva el cambio exacto antes de subir — agiliza el abordaje para ti y para los demás.' },
+            { icono: 'map-pin',     texto: 'Si vas a un lugar que no conoces bien, ubica tu parada de bajada en el mapa antes de subir al bus.' },
+            { icono: 'hand',        texto: 'En las gualas de la ladera, agárrate bien en las curvas — el terreno es empinado y los camperos van rápido.' },
+            { icono: 'bus',         texto: 'Verifica el número del bus o guala antes de subir — más de una unidad puede pasar por la misma parada.' },
+            { icono: 'moon',        texto: 'Si viajas de noche, prefiere paradas iluminadas y con más gente esperando.' },
+            { icono: 'phone',       texto: 'Guarda un contacto de confianza en marcado rápido antes de salir, por si acaso.' },
+            { icono: 'cloud-rain',  texto: 'Revisa el clima antes de salir — un aguacero en Cali puede duplicar fácil el tiempo de viaje.' },
+            { icono: 'shield',      texto: 'Si el bus va lleno, mantén tus pertenencias al frente, no en bolsillos traseros.' },
+            { icono: 'share-2',     texto: 'En viajes largos o a zonas que no frecuentas, comparte tu ubicación con alguien de confianza.' },
+            { icono: 'flag',        texto: 'Si notas algo raro durante el viaje, repórtalo desde la app apenas puedas — ayuda a otros pasajeros.' },
+            { icono: 'headphones',  texto: 'Evita tener el volumen tan alto que no puedas escuchar los avisos del conductor o de la calle.' },
+            { icono: 'users',       texto: 'Cede el puesto a quien lo necesite — niños, adultos mayores o personas con movilidad reducida.' },
+        ];
+
+        async function cargarRecomendacionesPasajero() {
+            const cont = document.getElementById('iaRecomendacionesPasajeroLista');
+            if (!cont) return;
+
+            let tarjetas = [];
+
+            // 1) Ruta más usada (real) + tiempo/tráfico real de esa ruta ahora.
+            const s = sessionStorage.getItem('wayroute_sesion');
+            const userId = s ? JSON.parse(s).id : null;
+            if (userId && window.supabaseClient) {
+                try {
+                    const { data: viajes } = await window.supabaseClient
+                        .from('viajes').select('ruta_nombre, ruta_codigo').eq('usuario_id', userId);
+
+                    if (viajes && viajes.length) {
+                        const conteo = {};
+                        viajes.forEach(v => {
+                            const n = v.ruta_nombre || v.ruta_codigo || 'Sin ruta';
+                            conteo[n] = (conteo[n] || 0) + 1;
+                        });
+                        const [favNombre] = Object.entries(conteo).sort((a, b) => b[1] - a[1])[0];
+                        const claveReal = typeof resolverClaveRuta === 'function' ? resolverClaveRuta(favNombre) : null;
+
+                        if (claveReal && window.WayRoute?.tiempoLlegadaProximo) {
+                            const tiempos = window.WayRoute.tiempoLlegadaProximo().filter(t => t.ruta === claveReal);
+                            if (tiempos.length) {
+                                const masProx = tiempos.reduce((a, b) => a.minutos < b.minutos ? a : b);
+                                const nombreVisible = window.WayRoute.nombreRuta(claveReal);
+                                const h = new Date().getHours();
+                                const esPico = (h >= 7 && h < 9) || (h >= 17 && h < 19);
+                                const esModerado = (h >= 6 && h < 7) || (h >= 9 && h < 10) || (h >= 16 && h < 17) || (h >= 19 && h < 20);
+                                const traficoTxt = esPico ? 'ahorita es hora pico, puede tardar más de lo normal'
+                                    : esModerado ? 'el tráfico está moderado'
+                                    : 'el tráfico está fluido';
+                                tarjetas.push(`
+                                    <div class="ia-reco-card" style="background:#eff6ff;border-color:#bfdbfe;">
+                                        <div class="ia-reco-figura" style="background:#2563eb;">
+                                            <i data-lucide="route" style="width:16px;height:16px;color:#fff;"></i>
+                                        </div>
+                                        <div style="flex:1;padding-top:2px;">
+                                            <div style="font-size:.8rem;color:#1e40af;line-height:1.4;">Tu ruta más usada es <strong>${nombreVisible}</strong> — ${traficoTxt}. Próxima unidad en <strong>${masProx.minutos} min</strong>.</div>
+                                        </div>
+                                    </div>`);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Sin conexión o sin historial: se sigue solo con los consejos generales.
+                }
+            }
+
+            // 2) Selección rotativa de consejos generales.
+            const barajados = [...TIPS_PASAJERO].sort(() => Math.random() - 0.5).slice(0, 5);
+            barajados.forEach(tip => {
+                const delay = (tarjetas.length * 0.07).toFixed(2);
+                tarjetas.push(`
+                    <div class="ia-reco-card" style="background:#f8fafc;border-color:#e2e8f0;animation-delay:${delay}s;">
+                        <div class="ia-reco-figura" style="background:#e2e8f0;">
+                            <i data-lucide="${tip.icono}" style="width:16px;height:16px;color:#475569;"></i>
+                        </div>
+                        <div style="font-size:.8rem;color:#475569;line-height:1.4;padding-top:2px;">${tip.texto}</div>
+                    </div>`);
+            });
+
+            cont.innerHTML = tarjetas.join('');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
 
         // Meses activo basado en fecha de registro del usuario
         function calcularMesesActivo() {
