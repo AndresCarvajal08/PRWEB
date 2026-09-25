@@ -221,7 +221,7 @@
     { clave: 'Norte', puntos: RUTA2_PUNTOS, paradas: RUTA2_PARADAS, color: '#3b82f6', numV: 3, arr: busesRuta2, label: 'Bus Norte', esGuala: false },
     { clave: 'Gualas Oriente', puntos: RUTA3_PUNTOS, paradas: RUTA3_PARADAS, color: '#16a34a', numV: 3, arr: busesRuta3, label: 'Guala', esGuala: true },
     { clave: 'Sur — Pryca/U.Nariño', puntos: RUTA4_PUNTOS, paradas: RUTA4_PARADAS, color: '#f97316', numV: 3, arr: busesRuta4, label: 'Bus Sur2', esGuala: false },
-    { clave: 'Calle 17', puntos: RUTA5_PUNTOS, paradas: RUTA5_PARADAS, color: '#8b5cf6', numV: 3, arr: busesRuta5, label: 'Bus Calle 17', esGuala: false },
+    { clave: 'Calle 17', puntos: RUTA5_PUNTOS, paradas: RUTA5_PARADAS, color: '#8b5cf6', numV: 3, arr: busesRuta5, label: 'Bus Centro', esGuala: false },
     { clave: 'Siloé', puntos: RUTA6_PUNTOS, paradas: RUTA6_PARADAS, color: '#0d9488', numV: 3, arr: busesRuta6, label: 'Guala Siloé', esGuala: true },
   ];
 
