@@ -188,17 +188,17 @@ const HabeasData = (() => {
 
         <!-- HEADER -->
         <div id="hd-header">
-          <div class="hd-eyebrow">🛡️ Protección de Datos Personales</div>
+          <div class="hd-eyebrow">Protección de Datos Personales</div>
           <h2 id="hd-title">Autorización de Tratamiento de Datos Personales</h2>
           <p>Antes de continuar con el registro como <strong>${rolLabel}</strong>, debes leer y aceptar la siguiente autorización conforme a la normativa colombiana vigente.</p>
-          <div class="hd-badge">⚖️ Ley 1581 de 2012 &nbsp;·&nbsp; Decreto 1377 de 2013</div>
+          <div class="hd-badge">Ley 1581 de 2012 &nbsp;·&nbsp; Decreto 1377 de 2013</div>
         </div>
 
         <!-- BODY -->
         <div id="hd-body">
 
           <div class="hd-section">
-            <div class="hd-section-title"><span>🏢</span> 1. Responsable del Tratamiento</div>
+            <div class="hd-section-title">1. Responsable del Tratamiento</div>
             <p>
               <strong>WayRoute – Sistema de Transporte Público de Cali</strong>, con operación en
               Santiago de Cali, Valle del Cauca, Colombia, es el Responsable del Tratamiento de sus
@@ -214,13 +214,13 @@ const HabeasData = (() => {
           <hr class="hd-divider">
 
           <div class="hd-section">
-            <div class="hd-section-title"><span>📋</span> 2. Datos Personales a Recopilar</div>
+            <div class="hd-section-title">2. Datos Personales a Recopilar</div>
             <p>Para su registro como <strong>${rolLabel}</strong>, recopilaremos los siguientes datos personales:</p>
             <ul class="hd-ul">
               ${datosSegunRol.split(',').map(d => `<li>${d.trim()}</li>`).join('')}
             </ul>
             <div class="hd-warn-box">
-              ⚠️ <strong>Datos sensibles:</strong> Los datos biométricos, de salud o de otra naturaleza sensible
+              <strong>Datos sensibles:</strong> Los datos biométricos, de salud o de otra naturaleza sensible
               no son recopilados por esta plataforma en el proceso de registro.
             </div>
           </div>
@@ -228,7 +228,7 @@ const HabeasData = (() => {
           <hr class="hd-divider">
 
           <div class="hd-section">
-            <div class="hd-section-title"><span>🎯</span> 3. Finalidades del Tratamiento</div>
+            <div class="hd-section-title">3. Finalidades del Tratamiento</div>
             <p>Sus datos serán utilizados exclusivamente para las siguientes finalidades:</p>
             <ul class="hd-ul">
               <li>Gestionar su cuenta de usuario y autenticar su identidad en la plataforma WayRoute.</li>
@@ -239,7 +239,7 @@ const HabeasData = (() => {
               <li>Atender requerimientos de autoridades competentes en el marco legal vigente.</li>
             </ul>
             <div class="hd-highlight-box">
-              ✅ Sus datos <strong>NO serán vendidos, cedidos ni transferidos</strong> a terceros con fines comerciales.
+              Sus datos <strong>NO serán vendidos, cedidos ni transferidos</strong> a terceros con fines comerciales.
               Toda transferencia se realizará únicamente cuando sea requerida por ley o con su consentimiento expreso.
             </div>
           </div>
@@ -247,7 +247,7 @@ const HabeasData = (() => {
           <hr class="hd-divider">
 
           <div class="hd-section">
-            <div class="hd-section-title"><span>⏳</span> 4. Vigencia del Tratamiento</div>
+            <div class="hd-section-title">4. Vigencia del Tratamiento</div>
             <p>
               Sus datos serán tratados durante el tiempo que mantenga activa su cuenta en WayRoute y por el período
               adicional que exijan las obligaciones legales o contractuales aplicables, conforme al artículo 11 del
@@ -258,7 +258,7 @@ const HabeasData = (() => {
           <hr class="hd-divider">
 
           <div class="hd-section">
-            <div class="hd-section-title"><span>⚖️</span> 5. Derechos del Titular (Art. 8° — Ley 1581/2012)</div>
+            <div class="hd-section-title">5. Derechos del Titular (Art. 8° — Ley 1581/2012)</div>
             <p>Como titular de los datos personales, usted tiene derecho a:</p>
             <ul class="hd-ul">
               <li><strong>Conocer</strong> los datos personales que reposan en nuestras bases de datos.</li>
@@ -278,7 +278,7 @@ const HabeasData = (() => {
           <hr class="hd-divider">
 
           <div class="hd-section">
-            <div class="hd-section-title"><span>🔒</span> 6. Seguridad de la Información</div>
+            <div class="hd-section-title">6. Seguridad de la Información</div>
             <p>
               WayRoute adopta las medidas técnicas, humanas y administrativas necesarias para garantizar
               la seguridad de sus datos personales y evitar su adulteración, pérdida, consulta, uso o
@@ -290,7 +290,7 @@ const HabeasData = (() => {
           <hr class="hd-divider">
 
           <div class="hd-section">
-            <div class="hd-section-title"><span>📜</span> 7. Marco Legal Aplicable</div>
+            <div class="hd-section-title">7. Marco Legal Aplicable</div>
             <ul class="hd-ul">
               <li><span class="hd-law-ref">Ley 1581 de 2012</span> — Protección de datos personales (Habeas Data)</li>
               <li><span class="hd-law-ref">Decreto 1377 de 2013</span> — Reglamento de tratamiento de datos personales</li>
@@ -304,7 +304,7 @@ const HabeasData = (() => {
 
         <!-- SCROLL NOTE -->
         <div id="hd-scroll-note">
-          📖 Desplázate hasta el final del documento para habilitar el botón de aceptar ↓
+          Desplázate hasta el final del documento para habilitar el botón de aceptar ↓
         </div>
 
         <!-- FOOTER -->
@@ -319,7 +319,7 @@ const HabeasData = (() => {
           </label>
           <div class="hd-btn-row">
             <button id="hd-btn-reject">✕ No acepto</button>
-            <button id="hd-btn-accept" disabled>🛡️ Acepto el tratamiento de mis datos</button>
+            <button id="hd-btn-accept" disabled>Acepto el tratamiento de mis datos</button>
           </div>
         </div>
 
@@ -390,7 +390,7 @@ const HabeasData = (() => {
 
     // RECHAZAR
     btnReject.addEventListener('click', () => {
-      if (confirm('⚠️ Si no aceptas el tratamiento de datos, no podrás registrarte en WayRoute.\n\n¿Deseas volver al inicio?')) {
+      if (confirm('Si no aceptas el tratamiento de datos, no podrás registrarte en WayRoute.\n\n¿Deseas volver al inicio?')) {
         window.location.href = redirect;
       }
     });
