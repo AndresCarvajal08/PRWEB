@@ -480,9 +480,16 @@
                             </div>
                         </div>
                         
-                        <!-- Mapa de alertas Real -->
-                        <div class="card p-0" style="overflow:hidden;">
-                            <div id="alertsMap" style="height:480px; width:100%; z-index:1;"></div>
+                        <!-- Recomendaciones de WayAI para el vehículo del conductor -->
+                        <div class="card" style="max-height:480px;overflow-y:auto;">
+                            <div class="card-title" style="display:flex;align-items:center;gap:8px;">
+                                <i data-lucide="sparkles" style="width:16px;height:16px;color:var(--primary);"></i>
+                                Recomendaciones de WayAI
+                            </div>
+                            <div class="text-xs text-gray" style="margin-bottom:14px;">Basadas en los documentos de tu vehículo y en buenas prácticas de conducción.</div>
+                            <div id="iaRecomendacionesLista" style="display:flex;flex-direction:column;gap:10px;">
+                                <div class="text-sm text-gray">Analizando tu información...</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -652,19 +659,8 @@
                 setTimeout(window.cargarHistorialTurnos, 150);
             }
 
-            // Reparar mapa de alertas: invalidateSize() después de que el contenedor sea visible
-            if (view === 'alertas') {
-                setTimeout(() => {
-                    const av = window.AlertaView;
-                    if (!av) return;
-                    if (av._map) {
-                        av._map.invalidateSize();
-                    } else {
-                        // El mapa aún no se creó (primera vez): forzar renderizado
-                        av.actualizarMapa(av._ultimasAlertas || []);
-                        setTimeout(() => av._map && av._map.invalidateSize(), 300);
-                    }
-                }, 200);
+            if (view === 'alertas' && typeof window.cargarRecomendacionesIA === 'function') {
+                setTimeout(window.cargarRecomendacionesIA, 150);
             }
         };
 

@@ -175,6 +175,131 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     };
 
+    // ── RECOMENDACIONES DE WAYAI PARA EL VEHÍCULO (vista Alertas) ──
+    // Reemplaza el mapa que iba en esta tarjeta (mostraba las mismas alertas
+    // que ya están en la lista de la izquierda, sin aportar nada nuevo).
+    // Combina dos cosas: (1) el estado REAL de los documentos del vehículo
+    // (SOAT, tecnomecánica, licencia — misma info que ya usa el admin en su
+    // Dashboard) para avisos que sí importan legalmente, y (2) una selección
+    // rotativa de consejos generales de mantenimiento/manejo, para que el
+    // panel no muestre siempre lo mismo aunque los documentos estén al día.
+    const _CARAS_POR_URGENCIA = {
+        vencido:  'frown',
+        urgente:  'meh',
+        pronto:   'smile',
+        ok:       'laugh',
+    };
+    const _COLORES_POR_URGENCIA = {
+        vencido:  { bg: '#fef2f2', border: '#fecaca', fg: '#991b1b', icon: '#dc2626' },
+        urgente:  { bg: '#fffbeb', border: '#fde68a', fg: '#92400e', icon: '#f59e0b' },
+        pronto:   { bg: '#eff6ff', border: '#bfdbfe', fg: '#1e40af', icon: '#2563eb' },
+        ok:       { bg: '#f0fdf4', border: '#bbf7d0', fg: '#166534', icon: '#16a34a' },
+    };
+
+    function _mensajeDocumento(doc, dias) {
+        const placa = doc.placa || 'tu vehículo';
+        if (dias < 0) {
+            const v = [
+                `${doc.nombreCap} de ${placa} está ${doc.adjetivo} hace ${Math.abs(dias)} días. Circular así puede salirte en multa o inmovilización — hazlo tu prioridad de hoy.`,
+                `Ojo: ${doc.nombre} venció hace ${Math.abs(dias)} días. No sigas rodando sin resolverlo cuanto antes.`,
+                `Llevas ${Math.abs(dias)} días con ${doc.nombre} vencid${doc.genero}. Es momento de ponerlo al día antes de que te pare un control.`,
+            ];
+            return { urgencia: 'vencido', texto: v[Math.floor(Math.random() * v.length)] };
+        }
+        if (dias <= 15) {
+            const v = [
+                `${doc.nombreCap} de ${placa} vence en ${dias} día${dias === 1 ? '' : 's'}. Aprovecha esta semana para renovarlo y no te quedes sin tiempo.`,
+                `Quedan ${dias} día${dias === 1 ? '' : 's'} para que venza ${doc.nombre}. Buen momento para agendar la renovación.`,
+                `${doc.nombreCap} está por vencer (${dias} día${dias === 1 ? '' : 's'}). Resuélvelo pronto para evitar contratiempos.`,
+            ];
+            return { urgencia: 'urgente', texto: v[Math.floor(Math.random() * v.length)] };
+        }
+        if (dias <= 30) {
+            const v = [
+                `${doc.nombreCap} vence en ${dias} días. Todavía tienes margen, pero ya puedes ir programando la renovación.`,
+                `En ${dias} días vence ${doc.nombre}. Vale la pena ir mirando dónde renovarlo con calma.`,
+            ];
+            return { urgencia: 'pronto', texto: v[Math.floor(Math.random() * v.length)] };
+        }
+        const v = [
+            `${doc.nombreCap} está al día — vence en ${dias} días. Sigue así.`,
+            `Todo en orden con ${doc.nombre}: te quedan ${dias} días de margen.`,
+        ];
+        return { urgencia: 'ok', texto: v[Math.floor(Math.random() * v.length)] };
+    }
+
+    const _TIPS_GENERALES = [
+        { icono: 'gauge',       texto: 'Revisa la presión de tus llantas cada 15 días — una llanta baja aumenta el consumo de combustible y el riesgo de reventón.' },
+        { icono: 'droplet',     texto: 'No dejes pasar más de 5.000 km sin revisar el nivel de aceite del motor. Un motor bien lubricado dura más y falla menos.' },
+        { icono: 'lightbulb',   texto: 'Antes de salir a tu turno, comprueba direccionales, stop y luces altas — te vuelve visible ante los demás conductores.' },
+        { icono: 'wind',        texto: 'Los frenos no avisan hasta que fallan: si el pedal se siente más duro o más blando de lo normal, llévalo a revisión.' },
+        { icono: 'battery',     texto: 'Una batería con más de 3 años empieza a fallar en las madrugadas frías. Revisa bornes y nivel de carga de vez en cuando.' },
+        { icono: 'flame',       texto: 'Verifica que el extintor esté cargado y dentro de su fecha — es obligatorio y puede salvar tu vehículo ante un pequeño incendio.' },
+        { icono: 'life-buoy',   texto: 'Lleva siempre el kit de carretera completo: gato, cruceta, llanta de repuesto y chalecos reflectivos.' },
+        { icono: 'thermometer', texto: 'Si el indicador de temperatura sube más de lo normal, para en un lugar seguro — seguir así puede dañar el motor.' },
+        { icono: 'ear',         texto: 'Un ruido nuevo casi nunca es casualidad. Vale la pena que un mecánico lo escuche antes de que se vuelva un problema grave.' },
+        { icono: 'eye',         texto: 'Ajusta bien tus espejos antes de arrancar — reducir los puntos ciegos es de las formas más simples de evitar un accidente.' },
+        { icono: 'timer',       texto: 'En jornadas largas, haz pausas cada 2-3 horas. Un conductor descansado reacciona más rápido que uno cansado.' },
+        { icono: 'cloud-rain',  texto: 'En días de lluvia, aumenta la distancia con el vehículo de adelante — el pavimento mojado duplica la distancia de frenado.' },
+    ];
+
+    window.cargarRecomendacionesIA = async function () {
+        const cont = document.getElementById('iaRecomendacionesLista');
+        if (!cont) return;
+
+        let tarjetas = [];
+
+        // 1) Estado real de los documentos del vehículo, si hay conexión y
+        // el conductor tiene un registro en la tabla `conductores`.
+        if (window.supabaseClient) {
+            try {
+                const { data: c } = await window.supabaseClient
+                    .from('conductores')
+                    .select('vehiculo_placa, vehiculo_soat_vence, vehiculo_tecnomecanica_vence, licencia_vencimiento')
+                    .eq('id', sesion.id)
+                    .single();
+
+                if (c) {
+                    const docs = [
+                        { label: 'SOAT',                 fecha: c.vehiculo_soat_vence,          nombre: 'el SOAT',                nombreCap: 'El SOAT',                adjetivo: 'vencido', genero: 'o', icono: 'shield-check', placa: c.vehiculo_placa },
+                        { label: 'Tecnomecánica',         fecha: c.vehiculo_tecnomecanica_vence, nombre: 'la tecnomecánica',        nombreCap: 'La tecnomecánica',        adjetivo: 'vencida', genero: 'a', icono: 'wrench',       placa: c.vehiculo_placa },
+                        { label: 'Licencia de conducción', fecha: c.licencia_vencimiento,         nombre: 'tu licencia de conducción', nombreCap: 'Tu licencia de conducción', adjetivo: 'vencida', genero: 'a', icono: 'contact', placa: c.vehiculo_placa },
+                    ].filter(d => d.fecha);
+
+                    docs.forEach(doc => {
+                        const dias = Math.ceil((new Date(doc.fecha) - Date.now()) / 86400000);
+                        const { urgencia, texto } = _mensajeDocumento(doc, dias);
+                        const col = _COLORES_POR_URGENCIA[urgencia];
+                        tarjetas.push(`
+                            <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;background:${col.bg};border:1px solid ${col.border};border-radius:10px;">
+                                <i data-lucide="${doc.icono}" style="width:18px;height:18px;color:${col.icon};flex-shrink:0;margin-top:1px;"></i>
+                                <div style="flex:1;">
+                                    <div style="font-size:.8rem;color:${col.fg};line-height:1.4;">${texto}</div>
+                                </div>
+                                <i data-lucide="${_CARAS_POR_URGENCIA[urgencia]}" style="width:20px;height:20px;color:${col.icon};flex-shrink:0;"></i>
+                            </div>`);
+                    });
+                }
+            } catch (e) {
+                // Sin registro de vehículo o sin conexión: se sigue solo con los consejos generales.
+            }
+        }
+
+        // 2) Selección rotativa de consejos generales (distinta cada vez que
+        // se abre la vista, para que el panel no muestre siempre lo mismo).
+        const barajados = [..._TIPS_GENERALES].sort(() => Math.random() - 0.5).slice(0, 4);
+        barajados.forEach(tip => {
+            tarjetas.push(`
+                <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
+                    <i data-lucide="${tip.icono}" style="width:18px;height:18px;color:#64748b;flex-shrink:0;margin-top:1px;"></i>
+                    <div style="font-size:.8rem;color:#475569;line-height:1.4;">${tip.texto}</div>
+                </div>`);
+        });
+
+        cont.innerHTML = tarjetas.join('');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
+
     // ── C-HU-03: Guardar perfil completo del conductor ──
     window.guardarPerfil = async function () {
         const btn = document.getElementById('btnGuardarPerfil');
