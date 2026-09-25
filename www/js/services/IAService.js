@@ -347,26 +347,26 @@ async function simulateAIResponse(mensaje) {
     }
 
     /* ── 1.5 PRECIO + TIEMPO EN LA MISMA PREGUNTA ── */
-    const TARIFAS_RUTA = {
-        'Especial Sur': { emoji: '🔴', label: 'Ruta Especial Sur', precio: '$2.950' },
-        'Norte': { emoji: '🔵', label: 'Ruta Norte', precio: '$3.100' },
-        'Gualas Oriente': { emoji: '🟢', label: 'Gualas Oriente', precio: '$2.800' },
-        'Sur — Pryca/U.Nariño': { emoji: '🟠', label: 'Ruta Sur (Pryca)', precio: '$3.200' },
-    };
+    // Antes esPreguntaPrecio/esPreguntaTiempo no reconocian frases como
+    // "¿cuándo sale el próximo?" o "rutas más económicas" (paráfrasis
+    // comunes que la propia interfaz sugiere como chips rápidos).
     const esPreguntaPrecio = msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") ||
-        msg.includes("valor") || msg.includes("tarifa") || msg.includes("cobr") || msg.includes("plata");
+        msg.includes("valor") || msg.includes("tarifa") || msg.includes("cobr") || msg.includes("plata") ||
+        msg.includes("económic") || msg.includes("economic") || msg.includes("barat");
     const esPreguntaTiempo = msg.includes("falta") || msg.includes("llega") || msg.includes("minutos") ||
         msg.includes("tiempo") || msg.includes("demora") || msg.includes("tarda") ||
-        msg.includes("cuando llega") || msg.includes("cuándo llega");
+        msg.includes("cuando llega") || msg.includes("cuándo llega") ||
+        msg.includes("sale") || msg.includes("próximo") || msg.includes("proximo") ||
+        msg.includes("próxima") || msg.includes("proxima");
 
     if (esPreguntaPrecio && esPreguntaTiempo) {
         const rutasMencionadas = await resolverRutasContexto(msg);
-        const listaRutas = rutasMencionadas.length ? rutasMencionadas : Object.keys(TARIFAS_RUTA);
+        const listaRutas = rutasMencionadas.length ? rutasMencionadas : Object.keys(RUTA_INFO);
 
         let respuesta = "💰 **Tarifas:**\n\n";
         listaRutas.forEach(r => {
-            const t = TARIFAS_RUTA[r];
-            if (t) respuesta += `${t.emoji} ${t.label} — **${t.precio}**\n`;
+            const t = RUTA_INFO[r];
+            if (t && t.tarifa != null) respuesta += `${t.emoji} ${t.label} — **$${t.tarifa.toLocaleString('es-CO')}**\n`;
         });
 
         const pos = obtenerPosiciones();
@@ -381,7 +381,7 @@ async function simulateAIResponse(mensaje) {
             if (entradas.length) {
                 respuesta += "\n⏱️ **Tiempo estimado de llegada:**\n\n";
                 entradas.forEach(([ruta, buses]) => {
-                    const info = TARIFAS_RUTA[ruta] || { emoji: '⚫', label: ruta };
+                    const info = RUTA_INFO[ruta] || { emoji: '⚫', label: ruta };
                     const masProx = buses.reduce((min, b) => b.distanciaMetros < min.distanciaMetros ? b : min, buses[0]);
                     const minutos = Math.max(1, Math.round(masProx.distanciaMetros / VEL_MS / 60));
                     const vehiculo = ruta === 'Gualas Oriente' ? `Guala ${masProx.numero}` : `Bus ${masProx.numero}`;
@@ -442,9 +442,12 @@ async function simulateAIResponse(mensaje) {
     if ((msg.includes("solo respondes") || msg.includes("sólo respondes") ||
          msg.includes("solo hablas") || msg.includes("solo sabes") ||
          msg.includes("qué puedes") || msg.includes("que puedes") ||
+         msg.includes("puedes responder") || msg.includes("puedes ayudar") ||
+         msg.includes("puedes contestar") || msg.includes("respondes cualquier") ||
          msg.includes("para qué sirves") || msg.includes("para que sirves") ||
          msg.includes("qué haces") || msg.includes("que haces")) &&
-        (msg.includes("bus") || msg.includes("ruta") || msg.includes("transport") || msg.includes("guala"))) {
+        (msg.includes("bus") || msg.includes("ruta") || msg.includes("transport") ||
+         msg.includes("guala") || msg.includes("movilidad") || msg.includes("pregunta"))) {
         return "¡No solo eso! 😄 Me especializo en transporte de Cali — rutas, posición en tiempo real, tiempos de llegada y tarifas — pero también puedo charlar un poco. Lo que sí te aseguro es que de buses soy el más sabe. ¿Qué necesitás?";
     }
 
@@ -458,17 +461,26 @@ async function simulateAIResponse(mensaje) {
 
     /* ── 4. PRECIO ── */
     if (msg.includes("cuesta") || msg.includes("precio") || msg.includes("pasaje") ||
-        msg.includes("valor") || msg.includes("tarifa") || msg.includes("cobr") || msg.includes("plata")) {
+        msg.includes("valor") || msg.includes("tarifa") || msg.includes("cobr") || msg.includes("plata") ||
+        msg.includes("económic") || msg.includes("economic") || msg.includes("barat")) {
         // Si menciona una ruta puntual o un lugar real (incluido "mi casa"),
         // responde solo con esa tarifa, no con las de las 5 rutas.
+        const pideMasBarata = msg.includes("económic") || msg.includes("economic") || msg.includes("barat") || msg.includes("menos cuesta");
         const rutasPrecio = await resolverRutasContexto(msg);
-        const claves = rutasPrecio.length ? rutasPrecio : Object.keys(RUTA_INFO);
+        let claves = rutasPrecio.length ? rutasPrecio : Object.keys(RUTA_INFO);
+        // "Rutas más económicas" pide ordenar de la más barata a la más cara,
+        // no solo listar en el orden que estén definidas.
+        if (pideMasBarata && !rutasPrecio.length) {
+            claves = [...claves].sort((a, b) => (RUTA_INFO[a]?.tarifa ?? Infinity) - (RUTA_INFO[b]?.tarifa ?? Infinity));
+        }
         const detalle = claves.map(clave => {
             const info = RUTA_INFO[clave] || { emoji: '⚫', label: clave, tarifa: null };
             const precio = info.tarifa != null ? `$${info.tarifa.toLocaleString('es-CO')}` : 'no disponible';
             return `${info.emoji} ${info.label} — **${precio}**`;
         }).join('\n');
-        const intro = rutasPrecio.length === 1 ? '¡A la orden! La tarifa de esa ruta es' : '¡A la orden! Las tarifas son';
+        const intro = rutasPrecio.length === 1
+            ? '¡A la orden! La tarifa de esa ruta es'
+            : (pideMasBarata ? '¡A la orden! De más económica a más cara' : '¡A la orden! Las tarifas son');
         return `💰 ${intro}:\n\n${detalle}\n\nEl pago es en efectivo al conductor. ¡Buen viaje!`;
     }
 
