@@ -384,58 +384,8 @@
                         <!-- Rutas Frecuentes -->
                         <div class="card">
                             <div class="card-title">Tus Rutas Frecuentes</div>
-                            <div style="display:flex;flex-direction:column;gap:10px;">
-                                <div class="route-card selected" onclick="verRuta('G-07')">
-                                    <div class="route-header">
-                                        <div class="route-number">
-                                            <div class="route-dot" style="background:#10b981;"></div>
-                                            Guala G-07
-                                        </div>
-                                        <div>
-                                            <span class="tag tag-green">Activa</span>
-                                            <span class="tag tag-gray">Favorita</span>
-                                        </div>
-                                    </div>
-                                    <div class="route-meta">
-                                        <span><i data-lucide="map-pin" style="width:12px;height:12px;"></i> Centenario →
-                                            Unicentro</span>
-                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 28 min</span>
-                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i>
-                                            $2.950</span>
-                                    </div>
-                                </div>
-                                <div class="route-card" onclick="verRuta('B-22A')">
-                                    <div class="route-header">
-                                        <div class="route-number">
-                                            <div class="route-dot" style="background:#3b82f6;"></div>
-                                            Bus B-22A
-                                        </div>
-                                        <span class="tag tag-amber">Demorado</span>
-                                    </div>
-                                    <div class="route-meta">
-                                        <span><i data-lucide="map-pin" style="width:12px;height:12px;"></i> Centenario →
-                                            Centro</span>
-                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> +18 min</span>
-                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i>
-                                            $3.100</span>
-                                    </div>
-                                </div>
-                                <div class="route-card" onclick="verRuta('G-12')">
-                                    <div class="route-header">
-                                        <div class="route-number">
-                                            <div class="route-dot" style="background:#8b5cf6;"></div>
-                                            Guala G-12
-                                        </div>
-                                        <span class="tag tag-green">Activa</span>
-                                    </div>
-                                    <div class="route-meta">
-                                        <span><i data-lucide="map-pin" style="width:12px;height:12px;"></i> Melendez →
-                                            Pasoancho</span>
-                                        <span><i data-lucide="clock" style="width:12px;height:12px;"></i> 12 min</span>
-                                        <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i>
-                                            $2.800</span>
-                                    </div>
-                                </div>
+                            <div style="display:flex;flex-direction:column;gap:10px;" id="rutasFrecuentesContainer">
+                                <div class="text-sm text-gray">Cargando tus rutas...</div>
                             </div>
                             <button class="btn btn-secondary btn-sm mt-3" onclick="navigate('mapa')">Configurar rutas
                                 favoritas →</button>
@@ -2499,9 +2449,46 @@
         }
         window.buscarRutasMapa = buscarRutasMapa;
 
-        function verRuta(ruta) {
+        // Antes esto solo navegaba a Mapa & Rutas y mostraba un toast generico
+        // ("Mostrando detalles de la ruta X") sin filtrar nada — el mapa
+        // seguia mostrando todas las rutas (o las que tuvieran turno activo),
+        // nunca la que en verdad se habia clickeado. Ahora si filtra el mapa
+        // a esa ruta especifica usando window.WayRoute.mostrarSoloRutas().
+        //
+        // Ese filtro por si solo duraria como mucho 7s: sincronizarTurnosActivos()
+        // en PasajeroViewModel.js vuelve a llamar mostrarSoloRutas() cada 7s
+        // segun los turnos reales activos, pisando cualquier seleccion manual.
+        // window.WayRouteRutaEnfocada le avisa a esa sincronizacion que hay una
+        // ruta elegida a mano y que la respete mientras se siga en Mapa & Rutas
+        // (se limpia sola al salir de esa vista, ver el hook de window.navigate).
+        // "Rutas disponibles ahora" pasa la clave interna real (viene directo
+        // de getConfigRutas()), pero "Tus Rutas Frecuentes" pasa el nombre
+        // guardado en un viaje histórico — que puede ser un nombre de ruta ya
+        // renombrado desde entonces (ej. "Ruta Calle 17" antes de que se
+        // renombrara a "Ruta Centro"). Se intenta resolver a la clave real
+        // actual por cualquiera de las dos vías; si no se logra, no se fuerza
+        // ningún filtro (mejor mostrar el mapa completo que dejarlo en blanco
+        // por un nombre que ya no coincide con nada).
+        function resolverClaveRuta(identificador) {
+            if (!window.WayRoute?.getConfigRutas) return null;
+            const rutas = window.WayRoute.getConfigRutas();
+            if (rutas.some(r => r.clave === identificador)) return identificador;
+            const porNombre = rutas.find(r => window.WayRoute.nombreRuta(r.clave) === identificador);
+            return porNombre ? porNombre.clave : null;
+        }
+
+        function verRuta(identificador) {
+            const claveReal = resolverClaveRuta(identificador);
+            window.WayRouteRutaEnfocada = claveReal;
             navigate('mapa');
-            setTimeout(() => showToast(`Mostrando detalles de la ruta ${ruta}`), 200);
+            setTimeout(() => {
+                if (claveReal) {
+                    window.WayRoute?.mostrarSoloRutas?.([claveReal]);
+                    showToast(`Mostrando ${window.WayRoute.nombreRuta(claveReal)} en el mapa`);
+                } else {
+                    showToast(`No encontramos "${identificador}" entre las rutas activas — mostrando el mapa completo.`);
+                }
+            }, 350);
         }
 
         function selectRoute(el) {
@@ -2927,6 +2914,7 @@
             cargarKpisAdmin();
             calcularMesesActivo();
             calcularViajesMesPerfil();
+            cargarRutasFrecuentes();
         });
 
         // KPIs admin desde Supabase
@@ -3007,6 +2995,7 @@
                     cargarHistorial();
                 }
                 calcularViajesMesPerfil();
+                cargarRutasFrecuentes();
             } catch (e) {
                 err.textContent = 'Error al guardar: ' + (e.message || 'intenta de nuevo');
                 err.style.display = 'block';
@@ -3137,6 +3126,10 @@
         window.navigate = function(view) {
             _origNavigate(view);
             if (view === 'historial') cargarHistorial();
+            // Salir de Mapa & Rutas limpia el filtro de "ver esta ruta en
+            // concreto" (ver verRuta()) para que al volver por el menú se
+            // vea otra vez el mapa general, no la ultima ruta que se miro.
+            if (view !== 'mapa') window.WayRouteRutaEnfocada = null;
         };
 
         // Meses activo basado en fecha de registro del usuario
@@ -3148,6 +3141,64 @@
             const meses = Math.max(0, Math.floor((Date.now() - new Date(reg)) / (1000 * 60 * 60 * 24 * 30)));
             const el = document.getElementById('profileStatMeses');
             if (el) el.textContent = meses || '< 1';
+        }
+
+        // "Tus Rutas Frecuentes" en Inicio mostraba 3 tarjetas fijas inventadas
+        // (Guala G-07, Bus B-22A, Guala G-12 — codigos que no existen en
+        // ninguna de las 6 rutas reales de la app). Se reemplaza por las
+        // rutas que este usuario REALMENTE ha usado (tabla `viajes`, la misma
+        // que llena guardarViaje() desde "Costo estimado del viaje"),
+        // agrupadas por nombre y ordenadas por cuantas veces se usaron.
+        async function cargarRutasFrecuentes() {
+            const cont = document.getElementById('rutasFrecuentesContainer');
+            if (!cont) return;
+            const s = sessionStorage.getItem('wayroute_sesion');
+            const userId = s ? JSON.parse(s).id : null;
+            if (!userId || !window.supabaseClient) return;
+
+            try {
+                const { data: viajes, error } = await window.supabaseClient
+                    .from('viajes')
+                    .select('ruta_nombre, ruta_codigo, costo')
+                    .eq('usuario_id', userId);
+
+                if (error || !viajes || !viajes.length) {
+                    cont.innerHTML = `<div class="text-sm text-gray text-center" style="padding:12px 4px;">Aún no tienes rutas frecuentes. Aparecerán aquí cuando registres un viaje desde "Costo estimado del viaje".</div>`;
+                    return;
+                }
+
+                const agrupado = {};
+                viajes.forEach(v => {
+                    const clave = v.ruta_nombre || v.ruta_codigo || 'Sin ruta';
+                    if (!agrupado[clave]) agrupado[clave] = { veces: 0, totalCosto: 0 };
+                    agrupado[clave].veces++;
+                    agrupado[clave].totalCosto += (v.costo || 0);
+                });
+
+                const top3 = Object.entries(agrupado).sort((a, b) => b[1].veces - a[1].veces).slice(0, 3);
+                const colores = ['#10b981', '#3b82f6', '#8b5cf6'];
+
+                cont.innerHTML = top3.map(([nombre, info], i) => {
+                    const promedio = Math.round(info.totalCosto / info.veces);
+                    return `
+                        <div class="route-card${i === 0 ? ' selected' : ''}" onclick="verRuta('${nombre.replace(/'/g, "\\'")}')">
+                            <div class="route-header">
+                                <div class="route-number">
+                                    <div class="route-dot" style="background:${colores[i % colores.length]};"></div>
+                                    ${nombre}
+                                </div>
+                                ${i === 0 ? '<span class="tag tag-gray">Favorita</span>' : ''}
+                            </div>
+                            <div class="route-meta">
+                                <span><i data-lucide="repeat" style="width:12px;height:12px;"></i> ${info.veces} viaje${info.veces === 1 ? '' : 's'}</span>
+                                <span><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> ~$${promedio.toLocaleString('es-CO')} prom.</span>
+                            </div>
+                        </div>`;
+                }).join('');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            } catch (e) {
+                // Sin conexión: se deja el estado de carga en vez de romper.
+            }
         }
 
         // "Viajes/mes" en Mi Perfil nunca se llenaba — el <div id="profileStatViajes">

@@ -107,10 +107,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // El mapa muestra solo las rutas con conductor real en turno ahora
         // mismo. Si no hay ningún turno activo, se ven todas (para no dejar
-        // el mapa vacío cuando nadie ha iniciado turno).
+        // el mapa vacío cuando nadie ha iniciado turno). EXCEPTO si el
+        // pasajero eligió a mano ver una ruta en concreto (ver verRuta() en
+        // panelPasajero.html) — esa selección manual gana mientras siga
+        // activa, para que este sondeo (cada 7s) no se la pise.
         if (typeof window.WayRoute?.mostrarSoloRutas === 'function') {
-            const clavesConTurno = [...new Set(activos.filter(t => t.ruta).map(t => t.ruta))];
-            window.WayRoute.mostrarSoloRutas(clavesConTurno);
+            if (window.WayRouteRutaEnfocada) {
+                window.WayRoute.mostrarSoloRutas([window.WayRouteRutaEnfocada]);
+            } else {
+                const clavesConTurno = [...new Set(activos.filter(t => t.ruta).map(t => t.ruta))];
+                window.WayRoute.mostrarSoloRutas(clavesConTurno);
+            }
         }
     }
     sincronizarTurnosActivos();
@@ -174,10 +181,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const minutos = masCercano ? masCercano.minutos : null;
             const tagClase = minutos === null ? 'tag-gray' : (minutos <= 5 ? 'tag-green' : 'tag-amber');
             const etiquetaTiempo = minutos === null ? 'Sin datos' : `${minutos} min`;
+            // r.label es la etiqueta de VEHICULO ("Bus La Ermita", "Guala"), no
+            // el nombre de la ruta, y r.clave es el identificador tecnico
+            // interno — ninguno de los dos es lo que debe ver el pasajero aqui.
+            const nombreVisible = window.WayRoute?.nombreRuta?.(r.clave) || r.clave;
             return `
                 <div class="route-card" onclick="verRuta('${r.clave}')">
-                    <div style="font-weight:800;font-size:1.1rem;margin-bottom:4px;">${r.label}</div>
-                    <div class="text-xs text-gray">${r.clave}</div>
+                    <div style="font-weight:800;font-size:1.1rem;margin-bottom:4px;">${nombreVisible}</div>
+                    <div class="text-xs text-gray">${r.esGuala ? 'Guala' : 'Bus'}</div>
                     <div class="tag ${tagClase} mt-2" style="font-size:10px;">${etiquetaTiempo}</div>
                 </div>`;
         }).join('');
