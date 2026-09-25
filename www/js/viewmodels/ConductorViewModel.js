@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2) Selección rotativa de consejos generales (distinta cada vez que
         // se abre la vista, para que el panel no muestre siempre lo mismo).
-        const barajados = [..._TIPS_GENERALES].sort(() => Math.random() - 0.5).slice(0, 4);
+        const barajados = [..._TIPS_GENERALES].sort(() => Math.random() - 0.5).slice(0, 7);
         barajados.forEach(tip => {
             const delay = (tarjetas.length * 0.07).toFixed(2);
             tarjetas.push(`
