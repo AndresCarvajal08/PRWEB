@@ -191,10 +191,19 @@ const AlertaViewModel = {
         try {
             // Solo intentamos si el navegador soporta y no estamos en un entorno bloqueado
             if (navigator.geolocation) {
+                // OJO: timeout muy corto (antes 3000ms) y sin enableHighAccuracy
+                // hacian que el navegador devolviera casi siempre una posicion
+                // aproximada por red/IP en vez de GPS real — eso fue lo que puso
+                // varios reportes de prueba en Palmira en vez de Cali (~25km de
+                // error), y otros ni siquiera alcanzaron a responder a tiempo y
+                // quedaron sin coordenadas. Mismos parametros que ya usa
+                // compartirUbicacion() en el mapa del pasajero, que sí da una
+                // posicion precisa.
                 const pos = await new Promise((resolve, reject) => {
                     navigator.geolocation.getCurrentPosition(resolve, reject, {
-                        timeout: 3000,
-                        maximumAge: 60000
+                        timeout: 8000,
+                        maximumAge: 60000,
+                        enableHighAccuracy: true
                     });
                 });
                 gps.lat = pos.coords.latitude;
