@@ -30,6 +30,7 @@ Eres WayAI, el asistente virtual de WayRoute — una app de transporte público 
 🟢 **Guala Mojica** — 3 camperos verdes · Cra 22 → Cll 53 → Cll 72W → Mojica (Cll 92) · Tarifa: $2.800
 🟠 **Ruta Sur** — 3 buses naranjas · Pryca (Cra 86) → Cra 94 → Cra 102 → U. Antonio Nariño · Tarifa: $3.200
 🟣 **Ruta Calle 17** — 3 buses morados · circuito de ida y vuelta por Carrera 30, Carrera 29B y Carrera 23 · Tarifa: $3.000
+🟤 **Guala Siloé** — 3 camperos cafés · ciclo por la ladera (Comuna 20): Alberto Galindo → Belisario Caicedo → Siloé centro → Tierra Blanca → Lleras Camargo → La Sultana → Brisas de Mayo → Cementerio-Carabineros → Alberto Galindo · Tarifa: $2.700
 
 Pago en efectivo al conductor. Cada ruta tiene tarifa diferente según distancia.
 
@@ -45,8 +46,8 @@ Pago en efectivo al conductor. Cada ruta tiene tarifa diferente según distancia
 ## Cuando te pregunten por posición, tiempos o info de rutas
 - Si el usuario menciona UNA ruta específica (por nombre, zona o punto de referencia), respondé SOLO sobre esa ruta.
 - Si menciona DOS rutas, respondé sobre esas dos únicamente.
-- Si NO menciona ninguna ruta en particular, o pide explícitamente "todas"/"todos los buses", ahí sí mostrá las 4.
-- Nunca respondas con las 4 rutas si el usuario preguntó por una sola.
+- Si NO menciona ninguna ruta en particular, o pide explícitamente "todas"/"todos los buses", ahí sí mostrá las 6.
+- Nunca respondas con las 6 rutas si el usuario preguntó por una sola.
 `;
 
 // ─────────────────────────────────────────────
@@ -58,6 +59,7 @@ const RUTA_INFO = {
     'Gualas Oriente': { emoji: '🟢', label: 'Guala Mojica', icono: '🚐', tarifa: 2800 },
     'Sur — Pryca/U.Nariño': { emoji: '🟠', label: 'Ruta Sur (Pryca→U.Nariño)', icono: '🚌', tarifa: 3200 },
     'Calle 17': { emoji: '🟣', label: 'Ruta Calle 17', icono: '🚌', tarifa: 3000 },
+    'Siloé': { emoji: '🟤', label: 'Guala Siloé', icono: '🚐', tarifa: 2700 },
 };
 
 const RESPUESTA_POR_RUTA = {
@@ -66,6 +68,7 @@ const RESPUESTA_POR_RUTA = {
     'Sur — Pryca/U.Nariño': "🟠 La **Ruta Sur** conecta **Pryca (Carrera 86)** con la **Universidad Antonio Nariño (Carrera 108)**, pasando por las carreras 94, 98B y 102. Opera con 3 buses naranjas. Tarifa: **$3.200**. ¿Querés saber el tiempo estimado de llegada?",
     'Especial Sur': "🔴 La **Ruta Especial Sur** tiene 4 buses rojos operando. Sale de **La Ermita** y recorre 7 paradas por el centro-sur de Cali. Tarifa: **$2.950**. ¿Te digo dónde están los buses ahora mismo?",
     'Calle 17': "🟣 La **Ruta Calle 17** hace un circuito de ida y vuelta sobre la Calle 17, con 3 buses morados. Pasa por Carrera 30 (El Jardín), Carrera 29B y Carrera 23 (Guayaquil). Tarifa: **$3.000**. ¿Querés saber cuánto falta para que pase por tu parada?",
+    'Siloé': "🟤 ¡La **Guala Siloé** sube y baja la ladera con 3 camperos! Hace un ciclo completo por la Comuna 20: sale de la **Unidad Deportiva Alberto Galindo**, sube por **Belisario Caicedo**, **Siloé centro**, **Tierra Blanca**, **Lleras Camargo** y **La Sultana**, y baja de vuelta por **Brisas de Mayo** y **Cementerio-Carabineros**. Tarifa: **$2.700**. ¿Te ayudo con algo más?",
 };
 
 // ─────────────────────────────────────────────
@@ -79,6 +82,10 @@ function detectarRutasMencionadas(msg) {
     if (msg.includes("pryca") || msg.includes("nariño") || msg.includes("narino") || msg.includes("antonio")) rutas.push("Sur — Pryca/U.Nariño");
     if (msg.includes("ermita") || msg.includes("especial") || msg.includes("sur")) rutas.push("Especial Sur");
     if (msg.includes("calle 17") || msg.includes("cll 17") || msg.includes("29b") || msg.includes("29 b") || msg.includes("ruta 17")) rutas.push("Calle 17");
+    if (msg.includes("siloe") || msg.includes("siloé") || msg.includes("ladera") || msg.includes("belisario caicedo") ||
+        msg.includes("tierra blanca") || msg.includes("lleras camargo") || msg.includes("la sultana") ||
+        msg.includes("brisas de mayo") || msg.includes("carabineros") || msg.includes("alberto galindo") ||
+        msg.includes("comuna 20")) rutas.push("Siloé");
     return [...new Set(rutas)];
 }
 
@@ -358,7 +365,7 @@ async function simulateAIResponse(mensaje) {
             const info = RUTA_INFO[ruta] || { emoji: '⚫', label: ruta, icono: '🚌' };
             respuesta += `${info.emoji} **${info.label}**\n`;
             buses.forEach(b => {
-                const vehiculo = ruta === 'Gualas Oriente' ? `Guala ${b.numero}` : `Bus ${b.numero}`;
+                const vehiculo = (ruta === 'Gualas Oriente' || ruta === 'Siloé') ? `Guala ${b.numero}` : `Bus ${b.numero}`;
                 respuesta += `  ${info.icono} ${vehiculo} — cerca de **${b.paradaCercana}** (~${b.distanciaMetros} m · ${b.porcentajeRuta}% del recorrido)\n`;
             });
             respuesta += "\n";
@@ -406,7 +413,7 @@ async function simulateAIResponse(mensaje) {
                     const info = RUTA_INFO[ruta] || { emoji: '⚫', label: ruta };
                     const masProx = buses.reduce((min, b) => b.distanciaMetros < min.distanciaMetros ? b : min, buses[0]);
                     const minutos = Math.max(1, Math.round(masProx.distanciaMetros / VEL_MS / 60));
-                    const vehiculo = ruta === 'Gualas Oriente' ? `Guala ${masProx.numero}` : `Bus ${masProx.numero}`;
+                    const vehiculo = (ruta === 'Gualas Oriente' || ruta === 'Siloé') ? `Guala ${masProx.numero}` : `Bus ${masProx.numero}`;
                     respuesta += `${info.emoji} ${info.label} — próxima unidad **${vehiculo}** en **${minutos} min** (parada: ${masProx.paradaCercana})\n`;
                 });
             }
@@ -457,7 +464,7 @@ async function simulateAIResponse(mensaje) {
 
             const masProx = buses.reduce((min, b) => b.distanciaMetros < min.distanciaMetros ? b : min, buses[0]);
             const minutos = Math.max(1, Math.round(masProx.distanciaMetros / VEL_MS / 60));
-            const vehiculo = ruta === 'Gualas Oriente' ? `Guala ${masProx.numero}` : `Bus ${masProx.numero}`;
+            const vehiculo = (ruta === 'Gualas Oriente' || ruta === 'Siloé') ? `Guala ${masProx.numero}` : `Bus ${masProx.numero}`;
             respuesta += `  🚏 Próxima unidad: **${vehiculo}** en **${minutos} min** (parada: ${masProx.paradaCercana})\n\n`;
         });
 
