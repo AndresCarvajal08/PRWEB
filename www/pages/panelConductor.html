@@ -482,13 +482,18 @@
                         
                         <!-- Recomendaciones de WayAI para el vehículo del conductor -->
                         <div class="card" style="max-height:480px;overflow-y:auto;">
-                            <div class="card-title" style="display:flex;align-items:center;gap:8px;">
-                                <i data-lucide="sparkles" style="width:16px;height:16px;color:var(--primary);"></i>
-                                Recomendaciones de WayAI
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:2px;">
+                                <div class="ia-reco-avatar"><i data-lucide="bot" style="width:17px;height:17px;color:#fff;"></i></div>
+                                <div style="flex:1;">
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        <span style="font-weight:700;font-size:.95rem;color:var(--gray-900);">Recomendaciones de WayAI</span>
+                                        <span class="ia-reco-badge">IA</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="text-xs text-gray" style="margin-bottom:14px;">Basadas en los documentos de tu vehículo y en buenas prácticas de conducción.</div>
                             <div id="iaRecomendacionesLista" style="display:flex;flex-direction:column;gap:10px;">
-                                <div class="text-sm text-gray">Analizando tu información...</div>
+                                <div class="ia-thinking"><span class="ia-dot"></span><span class="ia-dot"></span><span class="ia-dot"></span> Analizando tu información...</div>
                             </div>
                         </div>
                     </div>

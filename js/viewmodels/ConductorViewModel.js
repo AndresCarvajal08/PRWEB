@@ -270,13 +270,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         const dias = Math.ceil((new Date(doc.fecha) - Date.now()) / 86400000);
                         const { urgencia, texto } = _mensajeDocumento(doc, dias);
                         const col = _COLORES_POR_URGENCIA[urgencia];
+                        const delay = (tarjetas.length * 0.07).toFixed(2);
                         tarjetas.push(`
-                            <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;background:${col.bg};border:1px solid ${col.border};border-radius:10px;">
-                                <i data-lucide="${doc.icono}" style="width:18px;height:18px;color:${col.icon};flex-shrink:0;margin-top:1px;"></i>
-                                <div style="flex:1;">
+                            <div class="ia-reco-card" style="background:${col.bg};border-color:${col.border};animation-delay:${delay}s;">
+                                <div class="ia-reco-figura" style="background:${col.icon};">
+                                    <i data-lucide="${doc.icono}" style="width:16px;height:16px;color:#fff;"></i>
+                                </div>
+                                <div style="flex:1;padding-top:2px;">
                                     <div style="font-size:.8rem;color:${col.fg};line-height:1.4;">${texto}</div>
                                 </div>
-                                <i data-lucide="${_CARAS_POR_URGENCIA[urgencia]}" style="width:20px;height:20px;color:${col.icon};flex-shrink:0;"></i>
+                                <div class="ia-reco-cara" style="background:${col.icon};animation-delay:${(Number(delay) + .15).toFixed(2)}s;">
+                                    <i data-lucide="${_CARAS_POR_URGENCIA[urgencia]}" style="width:15px;height:15px;color:#fff;"></i>
+                                </div>
                             </div>`);
                     });
                 }
@@ -289,10 +294,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // se abre la vista, para que el panel no muestre siempre lo mismo).
         const barajados = [..._TIPS_GENERALES].sort(() => Math.random() - 0.5).slice(0, 4);
         barajados.forEach(tip => {
+            const delay = (tarjetas.length * 0.07).toFixed(2);
             tarjetas.push(`
-                <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
-                    <i data-lucide="${tip.icono}" style="width:18px;height:18px;color:#64748b;flex-shrink:0;margin-top:1px;"></i>
-                    <div style="font-size:.8rem;color:#475569;line-height:1.4;">${tip.texto}</div>
+                <div class="ia-reco-card" style="background:#f8fafc;border-color:#e2e8f0;animation-delay:${delay}s;">
+                    <div class="ia-reco-figura" style="background:#e2e8f0;">
+                        <i data-lucide="${tip.icono}" style="width:16px;height:16px;color:#475569;"></i>
+                    </div>
+                    <div style="font-size:.8rem;color:#475569;line-height:1.4;padding-top:2px;">${tip.texto}</div>
                 </div>`);
         });
 
