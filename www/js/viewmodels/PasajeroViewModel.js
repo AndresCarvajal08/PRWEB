@@ -105,19 +105,18 @@ document.addEventListener('DOMContentLoaded', () => {
             window.fijarContextoRutaIA(activos[0]?.ruta || null);
         }
 
-        // El mapa muestra solo las rutas con conductor real en turno ahora
-        // mismo. Si no hay ningún turno activo, se ven todas (para no dejar
-        // el mapa vacío cuando nadie ha iniciado turno). EXCEPTO si el
-        // pasajero eligió a mano ver una ruta en concreto (ver verRuta() en
-        // panelPasajero.html) — esa selección manual gana mientras siga
-        // activa, para que este sondeo (cada 7s) no se la pise.
+        // Antes, este sondeo ocultaba del mapa las rutas SIN un conductor
+        // real en turno — solo se veía 1 o 2 de las 6, mientras que "Rutas
+        // encontradas" y "Paradas de las rutas activas" seguían mostrando
+        // las 6 (las 6 rutas están "Operando" en la simulación, tengan o no
+        // un conductor real ahora mismo). Reportado como confuso: el mapa
+        // debe mostrar siempre las 6, igual que el resto de la pantalla —
+        // qué bus tiene conductor real ya se distingue con
+        // resaltarBusActivo() (el ícono verde), no ocultando las demás.
+        // La única excepción sigue siendo la selección manual de una ruta
+        // en concreto (ver verRuta() en panelPasajero.html).
         if (typeof window.WayRoute?.mostrarSoloRutas === 'function') {
-            if (window.WayRouteRutaEnfocada) {
-                window.WayRoute.mostrarSoloRutas([window.WayRouteRutaEnfocada]);
-            } else {
-                const clavesConTurno = [...new Set(activos.filter(t => t.ruta).map(t => t.ruta))];
-                window.WayRoute.mostrarSoloRutas(clavesConTurno);
-            }
+            window.WayRoute.mostrarSoloRutas(window.WayRouteRutaEnfocada ? [window.WayRouteRutaEnfocada] : []);
         }
     }
     sincronizarTurnosActivos();
