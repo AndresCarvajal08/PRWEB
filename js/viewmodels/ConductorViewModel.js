@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 : '<span class="tag tag-gray">Completado</span>';
             return `<tr>
                 <td>${fechaLabel}</td>
-                <td><strong>${t.ruta || '—'}</strong></td>
+                <td><strong>${t.ruta ? (window.WayRoute?.nombreRuta?.(t.ruta) || t.ruta) : '—'}</strong></td>
                 <td>${t.hora_inicio || '—'}</td>
                 <td>${estaActivo ? 'En curso' : (t.hora_fin || '—')}</td>
                 <td>${t.vueltas ?? '—'}</td>

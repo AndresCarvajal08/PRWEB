@@ -143,7 +143,7 @@ const AlertaView = {
                     <tr>
                         <td>${al.titulo}</td>
                         <td class="text-xs">${al.ubicacion}</td>
-                        <td class="font-bold">${al.ruta}</td>
+                        <td class="font-bold">${window.WayRoute?.nombreRuta?.(al.ruta) || al.ruta}</td>
                         <td><span class="tag tag-green">Enviado</span></td>
                     </tr>`).join('');
             }

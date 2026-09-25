@@ -216,13 +216,20 @@
   /* ================================================================
      CONFIG DE RUTAS + SIMULACIÓN DE FLOTA (independiente del mapa)
   ================================================================ */
+  // `label` es la etiqueta de VEHÍCULO ("Bus La Ermita 2", "Guala 1"), no el
+  // nombre de la ruta. `nombre` es el nombre visible real de la ruta —
+  // separado a propósito porque `clave` (el identificador técnico, igual al
+  // que se guarda en turnos/reportes) no siempre coincide con el nombre
+  // visible actual, sobre todo después de un renombre (ver nombreRuta() más
+  // abajo, expuesta para que cualquier vista lo use en vez de mostrar la
+  // clave cruda).
   const RUTAS_CONFIG = [
-    { clave: 'Especial Sur', puntos: RUTA1_PUNTOS, paradas: RUTA1_PARADAS, color: '#ef4444', numV: 4, arr: busesRuta1, label: 'Bus La Ermita', esGuala: false },
-    { clave: 'Norte', puntos: RUTA2_PUNTOS, paradas: RUTA2_PARADAS, color: '#3b82f6', numV: 3, arr: busesRuta2, label: 'Bus Norte', esGuala: false },
-    { clave: 'Gualas Oriente', puntos: RUTA3_PUNTOS, paradas: RUTA3_PARADAS, color: '#16a34a', numV: 3, arr: busesRuta3, label: 'Guala', esGuala: true },
-    { clave: 'Sur — Pryca/U.Nariño', puntos: RUTA4_PUNTOS, paradas: RUTA4_PARADAS, color: '#f97316', numV: 3, arr: busesRuta4, label: 'Bus Sur2', esGuala: false },
-    { clave: 'Calle 17', puntos: RUTA5_PUNTOS, paradas: RUTA5_PARADAS, color: '#8b5cf6', numV: 3, arr: busesRuta5, label: 'Bus Centro', esGuala: false },
-    { clave: 'Siloé', puntos: RUTA6_PUNTOS, paradas: RUTA6_PARADAS, color: '#0d9488', numV: 3, arr: busesRuta6, label: 'Guala Siloé', esGuala: true },
+    { clave: 'Especial Sur', puntos: RUTA1_PUNTOS, paradas: RUTA1_PARADAS, color: '#ef4444', numV: 4, arr: busesRuta1, label: 'Bus La Ermita', nombre: 'Ruta La Ermita', esGuala: false },
+    { clave: 'Norte', puntos: RUTA2_PUNTOS, paradas: RUTA2_PARADAS, color: '#3b82f6', numV: 3, arr: busesRuta2, label: 'Bus Norte', nombre: 'Ruta Norte', esGuala: false },
+    { clave: 'Gualas Oriente', puntos: RUTA3_PUNTOS, paradas: RUTA3_PARADAS, color: '#16a34a', numV: 3, arr: busesRuta3, label: 'Guala', nombre: 'Guala Mojica', esGuala: true },
+    { clave: 'Sur — Pryca/U.Nariño', puntos: RUTA4_PUNTOS, paradas: RUTA4_PARADAS, color: '#f97316', numV: 3, arr: busesRuta4, label: 'Bus Sur2', nombre: 'Ruta Sur — Pryca / U. Nariño', esGuala: false },
+    { clave: 'Calle 17', puntos: RUTA5_PUNTOS, paradas: RUTA5_PARADAS, color: '#8b5cf6', numV: 3, arr: busesRuta5, label: 'Bus Centro', nombre: 'Ruta Centro', esGuala: false },
+    { clave: 'Siloé', puntos: RUTA6_PUNTOS, paradas: RUTA6_PARADAS, color: '#0d9488', numV: 3, arr: busesRuta6, label: 'Guala Siloé', nombre: 'Guala Siloé', esGuala: true },
   ];
 
   let flotaIniciada = false;
@@ -405,9 +412,19 @@
      La usa el conductor para poblar el selector de número de bus al iniciar turno. */
   window.WayRoute.getConfigRutas = function () {
     return RUTAS_CONFIG.map(cfg => ({
-      clave: cfg.clave, numV: cfg.numV, label: cfg.label, esGuala: cfg.esGuala,
+      clave: cfg.clave, numV: cfg.numV, label: cfg.label, nombre: cfg.nombre, esGuala: cfg.esGuala,
       color: cfg.color, paradas: cfg.paradas.map(p => p.nombre)
     }));
+  };
+
+  /* Nombre visible real de una ruta a partir de su clave interna. Cualquier
+     vista que tenga guardada la clave (turnos, reportes) debe usar esto para
+     mostrarla en pantalla, en vez de mostrar la clave cruda — la clave no
+     cambia nunca (para no romper datos ya guardados), pero el nombre visible
+     sí, cuando se renombra una ruta. */
+  window.WayRoute.nombreRuta = function (clave) {
+    const cfg = RUTAS_CONFIG.find(c => c.clave === clave);
+    return cfg ? cfg.nombre : clave;
   };
 
   /* Posición real actual [lat,lng] de un bus específico. La usa la alerta de

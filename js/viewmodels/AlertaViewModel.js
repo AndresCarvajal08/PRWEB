@@ -111,7 +111,7 @@ const AlertaViewModel = {
     _notificarAlertaNueva(alerta) {
         const titulo = alerta.titulo || alerta.tipo || 'Alerta del conductor';
         const partes = [];
-        if (alerta.ruta) partes.push('Ruta ' + alerta.ruta);
+        if (alerta.ruta) partes.push(window.WayRoute?.nombreRuta?.(alerta.ruta) || ('Ruta ' + alerta.ruta));
         if (alerta.ubicacion) partes.push(alerta.ubicacion);
         const mensaje = partes.join(', ');
 

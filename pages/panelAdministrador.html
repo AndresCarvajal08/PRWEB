@@ -774,6 +774,24 @@ function loadConfig() {
 // ══════════════════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════════════════
+
+// Turnos y reportes guardan la clave técnica de la ruta (ej. 'Especial Sur'),
+// no su nombre visible actual — este panel no carga MapaService.js (no tiene
+// mapa), así que se mantiene aquí una copia mínima del mismo mapeo nombre↔clave
+// que ya usa window.WayRoute.nombreRuta() en pasajero/conductor. Si se
+// renombra una ruta ahí, hay que actualizar también esta lista.
+const NOMBRES_RUTA = {
+    'Especial Sur': 'Ruta La Ermita',
+    'Norte': 'Ruta Norte',
+    'Gualas Oriente': 'Guala Mojica',
+    'Sur — Pryca/U.Nariño': 'Ruta Sur — Pryca / U. Nariño',
+    'Calle 17': 'Ruta Centro',
+    'Siloé': 'Guala Siloé',
+};
+function nombreRuta(clave) {
+    return NOMBRES_RUTA[clave] || clave;
+}
+
 function expiryTag(fechaStr) {
     if (!fechaStr) return '<span style="color:var(--gray-400)">—</span>';
     const dias = Math.ceil((new Date(fechaStr) - new Date()) / 86400000);
@@ -826,7 +844,7 @@ const AdminPanel = {
                 const minutos = Math.max(0, Math.round((Date.now() - inicio.getTime()) / 60000));
                 return `<tr>
                     <td class="font-bold" style="font-size:.875rem;">${nombre || '—'}</td>
-                    <td style="font-size:.82rem;">${t.ruta || '—'}</td>
+                    <td style="font-size:.82rem;">${t.ruta ? nombreRuta(t.ruta) : '—'}</td>
                     <td>${t.numero_bus ?? '—'}</td>
                     <td style="font-size:.8rem;">${t.hora_inicio || '—'}</td>
                     <td style="font-size:.8rem;">${minutos} min</td>
@@ -899,7 +917,7 @@ const AdminPanel = {
                 const h = new Date(r.fecha).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
                 return `<tr>
                     <td><span class="tag tag-${c}" style="font-size:.72rem;">${(r.tipo||r.titulo||'—').substring(0,22)}</span></td>
-                    <td style="font-size:.8rem;">${r.ruta||'—'}</td>
+                    <td style="font-size:.8rem;">${r.ruta ? nombreRuta(r.ruta) : '—'}</td>
                     <td><span class="tag tag-${c}" style="font-size:.68rem;">${(r.severidad||'—').toUpperCase()}</span></td>
                     <td style="font-size:.75rem;color:var(--gray-400);">${h}</td>
                 </tr>`;
@@ -1012,7 +1030,7 @@ const AdminPanel = {
             return `<tr id="rep-${r.id}">
                 <td><span class="tag tag-${c}" style="font-size:.72rem;">${(r.tipo||r.titulo||'Reporte').substring(0,28)}</span></td>
                 <td style="font-size:.8rem;">${r.ubicacion||'—'}</td>
-                <td style="font-size:.82rem;font-weight:600;">${r.ruta||'—'}</td>
+                <td style="font-size:.82rem;font-weight:600;">${r.ruta ? nombreRuta(r.ruta) : '—'}</td>
                 <td style="font-size:.78rem;color:var(--gray-600);">${r.descripcion?(r.descripcion.substring(0,55)+'…'):'—'}</td>
                 <td><span class="tag tag-${c}" style="font-size:.68rem;">${(r.severidad||'—').toUpperCase()}</span></td>
                 <td style="font-size:.75rem;color:var(--gray-400);">${dia} ${hora}</td>
@@ -1081,7 +1099,7 @@ const AdminPanel = {
                             <div style="font-size:.82rem;color:var(--gray-700);margin-bottom:4px;">${r.descripcion||'Sin descripción'}</div>
                             <div style="font-size:.75rem;color:var(--gray-500);">
                                 ${r.ubicacion?'<i data-lucide="map-pin" style="width:11px;height:11px;vertical-align:middle;"></i> '+r.ubicacion+' · ':''}
-                                ${r.ruta?'Ruta '+r.ruta+' · ':''} ${hora}
+                                ${r.ruta?nombreRuta(r.ruta)+' · ':''} ${hora}
                             </div>
                         </div>
                         <button class="btn btn-sm" style="background:#dcfce7;color:#166534;border:1px solid #bbf7d0;flex-shrink:0;" onclick="AdminPanel.validarReporte('${r.id}',this)">

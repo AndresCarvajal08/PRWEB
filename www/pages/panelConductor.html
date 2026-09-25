@@ -765,8 +765,9 @@
             }
 
             const { ruta, numeroBus } = turno;
-            if (subt) subt.textContent = 'Vista del conductor — ' + ruta;
-            if (nombreEl) nombreEl.textContent = ruta;
+            const nombreRutaVisible = window.WayRoute?.nombreRuta?.(ruta) || ruta;
+            if (subt) subt.textContent = 'Vista del conductor — ' + nombreRutaVisible;
+            if (nombreEl) nombreEl.textContent = nombreRutaVisible;
             if (busEl) busEl.textContent = 'Bus ' + numeroBus;
 
             window.WayRoute?.mostrarSoloRutas?.([ruta]);

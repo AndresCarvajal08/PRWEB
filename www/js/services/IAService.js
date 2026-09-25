@@ -197,7 +197,7 @@ function construirContextoEnVivo() {
         const tiempos = window.WayRoute.tiempoLlegadaProximo();
         if (!tiempos || !tiempos.length) return "";
         const resumen = tiempos.map(t =>
-            `${t.ruta} bus ${t.busProximo}: llega en ${t.minutos} min a ${t.parada} (${t.distanciaMetros} m)`
+            `${RUTA_INFO[t.ruta]?.label || t.ruta} bus ${t.busProximo}: llega en ${t.minutos} min a ${t.parada} (${t.distanciaMetros} m)`
         ).join("\n");
         return "\n\n## Posición en vivo de los buses ahora mismo (usa estos datos reales si preguntan por posición o tiempo de llegada, nunca inventes otros)\n" + resumen;
     } catch (e) {
