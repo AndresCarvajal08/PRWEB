@@ -271,39 +271,9 @@
                                     <div class="text-sm text-gray">Sin datos todavía.</div>
                                 </div>
                             </div>
-
-                            <div class="card">
-                                <div class="card-title">Estadísticas del turno</div>
-                                <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                                    <div
-                                        style="flex:1;text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm);">
-                                        <div style="font-size:1.4rem;font-weight:700;">7</div>
-                                        <div class="text-xs text-gray">Vueltas</div>
-                                    </div>
-                                    <div
-                                        style="flex:1;text-align:center;padding:14px;background:var(--blue-light);border-radius:var(--radius-sm);">
-                                        <div style="font-size:1.4rem;font-weight:700;color:#1d4ed8;">4h 20m</div>
-                                        <div class="text-xs text-gray">Tiempo activo</div>
-                                    </div>
-                                    <div
-                                        style="flex:1;text-align:center;padding:14px;background:var(--green-light);border-radius:var(--radius-sm);">
-                                        <div style="font-size:1.4rem;font-weight:700;color:var(--green-dark);">28 km/h
-                                        </div>
-                                        <div class="text-xs text-gray">Vel. promedio</div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <div style="display:flex;flex-direction:column;gap:16px;">
-                            <div class="alert-item alert-warning">
-                                <div class="alert-icon"><i data-lucide="alert-triangle" style="width:18px;height:18px;color:var(--amber);"></i></div>
-                                <div class="alert-content">
-                                    <div class="alert-title">Congestión moderada adelante</div>
-                                    <div class="alert-desc">Tráfico detectado en Parque del Perro. Tiempo adicional: +8
-                                        min.</div>
-                                </div>
-                            </div>
                             <div class="card">
                                 <div class="card-title" style="margin-bottom:12px;">Reportar incidencia</div>
                                 <div style="display:flex;flex-direction:column;gap:10px;">
@@ -313,44 +283,6 @@
                                         Mecánica</button>
                                     <button class="incident-btn security" onclick="reportar('seguridad')">Reportar
                                         Incidente de Seguridad</button>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="card-title" style="margin-bottom:12px;">Próximas salidas desde Centenario
-                                </div>
-                                <div class="timeline">
-                                    <div class="timeline-item">
-                                        <div class="timeline-left">
-                                            <div class="timeline-dot filled"></div>
-                                            <div class="timeline-line"></div>
-                                        </div>
-                                        <div class="timeline-content">
-                                            <div class="timeline-title">Vuelta 8 — 8:42 AM</div>
-                                            <div class="timeline-desc">Centenario → Unicentro</div>
-                                            <div class="timeline-time">En 14 minutos</div>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-left">
-                                            <div class="timeline-dot"></div>
-                                            <div class="timeline-line"></div>
-                                        </div>
-                                        <div class="timeline-content">
-                                            <div class="timeline-title">Vuelta 9 — 9:10 AM</div>
-                                            <div class="timeline-desc">Centenario → Unicentro</div>
-                                            <div class="timeline-time">En 42 minutos</div>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-left">
-                                            <div class="timeline-dot"></div>
-                                        </div>
-                                        <div class="timeline-content">
-                                            <div class="timeline-title">Vuelta 10 — 9:38 AM</div>
-                                            <div class="timeline-desc">Centenario → Unicentro</div>
-                                            <div class="timeline-time">En 1h 10 min</div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -870,6 +802,76 @@
         }
         setTimeout(sincronizarMiRutaActiva, 1000);
         setInterval(sincronizarMiRutaActiva, 5000);
+
+        // Si el conductor cierra la pestaña o recarga la página sin darle a
+        // "Finalizar Turno", el turno se queda con estado:'activo' en la base
+        // de datos para siempre. window.WayRouteTurnoActivo es una variable
+        // en memoria que se reinicia a null en cada carga, así que la UI
+        // mostraba "Sin turno activo" (botón "Iniciar Turno") aunque el turno
+        // real siguiera activo — nunca daba la opción real de finalizarlo, y
+        // por eso se quedaba así para siempre. Al cargar la página se revisa
+        // si ya hay un turno activo real de este conductor: si es reciente
+        // (mismo límite de 6h que ya usa TurnoModel.obtenerActivos() para el
+        // pasajero), se restaura la UI para que pueda seguir usándolo o
+        // finalizarlo de verdad; si es viejo/abandonado, se cierra solo en la
+        // base de datos, sin molestar al conductor con nada.
+        async function restaurarTurnoActivoSiExiste() {
+            const sesion = window.SesionModel ? window.SesionModel.getSesion() : null;
+            if (!sesion?.id || !window.TurnoModel) return;
+
+            const turnos = await window.TurnoModel.obtenerPorConductor(sesion.id);
+            const activo = (turnos || []).find(t => t.estado === 'activo');
+            if (!activo) return;
+
+            const inicioMs = activo.created_at
+                ? new Date(activo.created_at).getTime()
+                : (activo.fecha && activo.hora_inicio ? new Date(`${activo.fecha}T${activo.hora_inicio}`).getTime() : null);
+            const horas = inicioMs != null ? (Date.now() - inicioMs) / 3600000 : null;
+
+            if (horas == null || horas < 0 || horas > 6) {
+                await window.TurnoModel.finalizarTurno(sesion.id);
+                return;
+            }
+
+            const ruta = activo.ruta;
+            const numeroBus = activo.numero_bus;
+            const rutaConBus = ruta + ' · Bus ' + (numeroBus ?? '—');
+            const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+            _turnoActivo = activo;
+            window.WayRouteTurnoActivo = { ruta, numeroBus };
+            _vueltasActuales = activo.vueltas || 0;
+            _inicioTurnoMs = inicioMs;
+
+            setTxt('kpiRuta', rutaConBus);
+            setTxt('kpiVueltas', _vueltasActuales);
+            document.getElementById('kpiEstadoDot').innerHTML = '<span class="status-dot status-online"></span>';
+            setTxt('turnoVehiculo', rutaConBus);
+            setTxt('turnoRutaDesc', 'Turno en curso · ' + (activo.hora_inicio || ''));
+            setTxt('turnoHoraInicio', activo.hora_inicio || '—');
+            setTxt('turnoVueltasCard', _vueltasActuales);
+            setTxt('statVueltas', _vueltasActuales);
+            setTxt('statReportes', _reportesActuales);
+
+            document.getElementById('estadoSinTurno').style.display = 'none';
+            document.getElementById('estadoConTurno').style.display = 'grid';
+            document.getElementById('statsRow').style.display = 'grid';
+            document.getElementById('btnIniciarTurno').style.display = 'none';
+            document.getElementById('btnFinalizarTurno').style.display = 'flex';
+
+            const actualizarTiempoActivo = () => {
+                const mins = Math.floor((Date.now() - _inicioTurnoMs) / 60000);
+                const str = `${Math.floor(mins / 60)}h ${mins % 60}m`;
+                setTxt('kpiTiempo', str);
+                setTxt('statTiempo', str);
+            };
+            actualizarTiempoActivo();
+            _timerTurno = setInterval(actualizarTiempoActivo, 30000);
+
+            sincronizarMiRutaActiva();
+            showToast('Retomaste tu turno activo: ' + rutaConBus);
+        }
+        restaurarTurnoActivoSiExiste();
 
         window.confirmarInicioTurno = async function() {
             const ruta = document.getElementById('selectRutaTurno').value;
