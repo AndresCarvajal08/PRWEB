@@ -350,6 +350,38 @@ async function simulateAIResponse(mensaje) {
         return "📍 Tenés el botón **'Compartir mi viaje'** en la app — actívalo antes de subir al bus para que un contacto de confianza vea tu recorrido en tiempo real. También podés guardar contactos de emergencia desde tu perfil, en la sección de Seguridad. ¿Te ayudo con algo más?";
     }
 
+    /* ── 0f. RUTA MÁS CERCANA A MI UBICACIÓN ──
+       "¿Cuál ruta pasa más cerca a mi ubicación actual?" caía en el bloque
+       de POSICIÓN EN TIEMPO REAL de abajo (por la palabra "más cerca"), que
+       solo muestra la distancia de cada bus a SU PRÓXIMA PARADA — no tiene
+       nada que ver con dónde está el usuario. Esto es distinto: usa el
+       barrio real del pasajero (mismo dato que ya usa el buscador de
+       destino) + geocodificación real + distanciaARuta() para encontrar la
+       ruta genuinamente más cercana a ÉL, no a sus paradas.
+       Se revisa ANTES del bloque de posición para que "mi ubicación" gane
+       sobre el "más cerca" genérico. */
+    if ((msg.includes("mi ubicacion") || msg.includes("mi ubicación")) &&
+        (msg.includes("cerca") || msg.includes("cercana") || msg.includes("cercano"))) {
+        const barrio = obtenerBarrioRealDelPasajero();
+        if (barrio && typeof window.geocodificarEnCali === 'function' && window.WayRoute?.distanciaARuta) {
+            try {
+                const geo = await window.geocodificarEnCali(barrio);
+                if (geo) {
+                    const distancias = window.WayRoute.distanciaARuta(geo.lat, geo.lon);
+                    const masCercana = distancias[0];
+                    if (masCercana) {
+                        const info = RUTA_INFO[masCercana.clave] || { emoji: '⚫', label: masCercana.clave };
+                        const km = (masCercana.distanciaMetros / 1000).toFixed(1);
+                        return `📍 Según tu ubicación (${barrio}), la ruta más cercana es ${info.emoji} **${info.label}**, a unos ${km} km. ¿Querés el tiempo estimado de llegada?`;
+                    }
+                }
+            } catch (e) {
+                // Geocodificación no disponible: se sigue al mensaje de abajo.
+            }
+        }
+        return "📍 Para decirte la ruta más cercana necesito saber tu ubicación — actualízala desde el campo de origen del buscador de destino (o activa el GPS ahí) y volvé a preguntarme.";
+    }
+
     /* ── 1. POSICIÓN EN TIEMPO REAL ── */
     if (msg.includes("donde") || msg.includes("dónde") || msg.includes("ubica") ||
         msg.includes("estan") || msg.includes("están") || msg.includes("posicion") ||
