@@ -438,16 +438,20 @@ async function simulateAIResponse(mensaje) {
         return respuesta;
     }
 
-    /* ── 2b. SOLO RESPONDES DE BUSES / PREGUNTAS SOBRE EL ALCANCE ── */
-    if ((msg.includes("solo respondes") || msg.includes("sólo respondes") ||
-         msg.includes("solo hablas") || msg.includes("solo sabes") ||
-         msg.includes("qué puedes") || msg.includes("que puedes") ||
-         msg.includes("puedes responder") || msg.includes("puedes ayudar") ||
-         msg.includes("puedes contestar") || msg.includes("respondes cualquier") ||
-         msg.includes("para qué sirves") || msg.includes("para que sirves") ||
-         msg.includes("qué haces") || msg.includes("que haces")) &&
-        (msg.includes("bus") || msg.includes("ruta") || msg.includes("transport") ||
-         msg.includes("guala") || msg.includes("movilidad") || msg.includes("pregunta"))) {
+    /* ── 2b. SOLO RESPONDES DE BUSES / PREGUNTAS SOBRE EL ALCANCE ──
+       Antes exigía ADEMÁS que el mensaje mencionara "bus"/"ruta"/etc., pero
+       preguntas normales como "¿para qué sirves?" o "¿en qué me ayudas?"
+       nunca mencionan eso (el tema ya está implícito, es un chat con un
+       asistente de transporte), así que caían siempre al genérico. */
+    if (msg.includes("solo respondes") || msg.includes("sólo respondes") ||
+        msg.includes("solo hablas") || msg.includes("solo sabes") ||
+        msg.includes("qué puedes") || msg.includes("que puedes") ||
+        msg.includes("puedes responder") || msg.includes("puedes ayudar") ||
+        msg.includes("puedes contestar") || msg.includes("respondes cualquier") ||
+        msg.includes("para qué sirves") || msg.includes("para que sirves") ||
+        msg.includes("qué haces") || msg.includes("que haces") ||
+        msg.includes("me ayudas") || msg.includes("me puedes ayudar") ||
+        msg.includes("me sirves")) {
         return "¡No solo eso! 😄 Me especializo en transporte de Cali — rutas, posición en tiempo real, tiempos de llegada y tarifas — pero también puedo charlar un poco. Lo que sí te aseguro es que de buses soy el más sabe. ¿Qué necesitás?";
     }
 
