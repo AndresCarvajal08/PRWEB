@@ -437,6 +437,28 @@ async function simulateAIResponse(mensaje) {
         return respuesta;
     }
 
+    /* ── 1.8 TRÁFICO / CONGESTIÓN ──
+       Sin este bloque, "sí, ¿hay mucho tráfico?" caía en el bloque de TIEMPO
+       DE LLEGADA de más abajo, porque "sí," ya lo hace pensar que es una
+       confirmación de "dame el tiempo estimado" — y terminaba respondiendo
+       con la próxima unidad de una ruta en vez de hablar del tráfico, que es
+       lo que en realidad se preguntó. Se responde con la misma referencia de
+       horas pico que ya usa el mapa (factorTrafico en MapaService.js), no
+       inventada. */
+    if (msg.includes("trafico") || msg.includes("tráfico") || msg.includes("trancon") || msg.includes("trancón") ||
+        msg.includes("congestion") || msg.includes("congestión") || msg.includes("trancado") || msg.includes("trancada")) {
+        const h = new Date().getHours();
+        const esPico = (h >= 7 && h < 9) || (h >= 17 && h < 19);
+        const esModerado = (h >= 6 && h < 7) || (h >= 9 && h < 10) || (h >= 16 && h < 17) || (h >= 19 && h < 20);
+        if (esPico) {
+            return "🚦 Sí, ahorita es hora pico — el tráfico está pesado y los buses pueden demorar más de lo normal. Calculá minutos extra. ¿Querés saber cuánto se está demorando alguna ruta en este momento?";
+        }
+        if (esModerado) {
+            return "🚦 El tráfico está moderado ahorita, ni fluido ni hora pico todavía. ¿Te digo el tiempo estimado de alguna ruta?";
+        }
+        return "🚦 Ahorita el tráfico está fluido, no es hora pico. Buen momento para moverte. ¿Te ayudo con algo más?";
+    }
+
     /* ── 2. TIEMPO DE LLEGADA ──
        Antes solo aceptaba "si"/"sí" EXACTOS como confirmación de seguimiento,
        así que "si, de la ruta 17" (respondiendo a "¿querés el tiempo
