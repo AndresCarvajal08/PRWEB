@@ -98,6 +98,52 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // La tabla `turnos` NUNCA tuvo una columna `reportes` — t.reportes
+        // siempre fue undefined sin importar cuántos reportes reales se
+        // hubieran enviado, por eso esta cifra y la columna de la tabla
+        // daban 0 / "—" siempre. Se cuentan los reportes reales del
+        // conductor (tabla `reportes`, ya tiene su propio historial) y se le
+        // asignan a cada turno según en qué ventana de tiempo cayeron.
+        if (!sonDatosEjemplo && window.AlertaModel) {
+            const reportesConductor = await window.AlertaModel.obtenerPorConductor(sesion.id);
+            const duracionMin = (horaInicio, horaFin) => {
+                const [h1, m1] = horaInicio.split(':').map(Number);
+                const [h2, m2] = horaFin.split(':').map(Number);
+                let mins = (h2 * 60 + m2) - (h1 * 60 + m1);
+                if (mins < 0) mins += 24 * 60; // turno que cruzó la medianoche
+                return mins;
+            };
+            // Si un reporte se envía justo en el minuto en que un turno
+            // termina y el siguiente empieza (hora_fin se guarda redondeada
+            // al minuto, no al segundo), su ventana podría solaparse con la
+            // del turno siguiente. Se asigna cada reporte a un solo turno
+            // (el más antiguo que lo contenga) para no contarlo dos veces.
+            const yaAsignados = new Set();
+            const conVentana = turnos.map(t => {
+                // created_at es un timestamptz real de la base de datos, sin la
+                // ambigüedad de zona horaria que tiene mezclar t.fecha (UTC) con
+                // t.hora_inicio (local) — ver la nota en TurnoModel.obtenerActivos().
+                const inicioMs = t.created_at
+                    ? new Date(t.created_at).getTime()
+                    : (t.fecha && t.hora_inicio ? new Date(`${t.fecha}T${t.hora_inicio}`).getTime() : null);
+                const finMs = (inicioMs != null && t.hora_fin)
+                    ? inicioMs + duracionMin(t.hora_inicio, t.hora_fin) * 60000
+                    : Date.now();
+                return { t, inicioMs, finMs };
+            }).sort((a, b) => (a.inicioMs ?? 0) - (b.inicioMs ?? 0));
+
+            conVentana.forEach(({ t, inicioMs, finMs }) => {
+                if (inicioMs == null) { t.reportes = 0; return; }
+                t.reportes = reportesConductor.filter(r => {
+                    if (yaAsignados.has(r.id)) return false;
+                    const rMs = new Date(r.fecha).getTime();
+                    const dentro = rMs >= inicioMs && rMs <= finMs;
+                    if (dentro) yaAsignados.add(r.id);
+                    return dentro;
+                }).length;
+            });
+        }
+
         const hoy = new Date().toISOString().split('T')[0];
         const mesActual = hoy.slice(0, 7); // YYYY-MM
         const turnosMes  = turnos.filter(t => (t.fecha || '').startsWith(mesActual)).length;
